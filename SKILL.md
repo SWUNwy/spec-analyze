@@ -1,6 +1,6 @@
 ---
 name: spec-analyze
-description: "需求分析与带注释方案输出。将模糊的产品需求转化为结构化、研发友好的方案文档。当需要进行需求分析、产品方案设计、功能拆解、竞品调研并输出可直接交付研发评审的 proposal/design/tasks 文档时使用。区别于通用分析工具：spec-analyze 的分析结果直接输出为带研发注释的规范文档格式。"
+description: "需求分析与产品交互注释输出。核心场景：你在原型/线稿/Figma 设计稿上，给每个交互组件加上 trigger/behavior/state/style 的结构化注释，让研发直接照着实现。也适用于需求分析、产品方案设计、功能拆解、竞品调研——但独特价值是输出带三层研发注释（L1 trigger-behavior-dismiss / L2 +placement-style-state-timing / L3 +accessibility-responsive-i18n）的 proposal / design / tasks 三文档。当用户提到「原型注释」「交互标注」「给设计稿加注释」「输出研发规范文档」「方案标注」「写开发文档」「补充交互细节」「产品交互说明」「标注组件行为状态」「annotate prototype」「interaction spec」「developer handoff」时 MUST 触发。区别于通用分析工具：spec-analyze 的分析结果直接输出为带研发注释的可交付文档。"
 ---
 
 # Spec Analyze — 需求分析与带注释方案输出
