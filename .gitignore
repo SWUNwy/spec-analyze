@@ -1,0 +1,5 @@
+# Local Claude Code permissions config (user-specific paths)
+.claude/settings.local.json
+
+# macOS
+.DS_Store
