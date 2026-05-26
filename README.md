@@ -1,10 +1,35 @@
 # spec-analyze
 
-**Spec-Driven Development analysis engine — transform vague product requirements into developer-ready specification documents.**
+**Spec-Driven Development analysis engine — transform vague product requirements into developer-ready specification documents, and enrich prototype designs with structured interaction annotations.**
 
 spec-analyze is an AI agent skill that guides large language models through a structured analysis pipeline: multi-perspective questioning → stress testing → solution convergence → annotated document output. The result is a set of three interconnected documents (proposal, design, tasks) with **machine-parseable annotations** that bridge the gap between product requirements and code implementation.
 
 ## Why spec-analyze?
+
+### The Core Use Case: Annotating Prototypes for Engineering Handoff
+
+You've built a prototype — wireframes, Figma mockups, or even just sketched out an interaction flow. Now it needs to be handed off to development. The gap between "this is what it should look like" and "here's exactly how each component should behave" is where bugs, rework, and miscommunication live.
+
+**spec-analyze fills this gap.** It takes your prototype/design concept and runs it through a structured analysis pipeline, then outputs every interactive component with precise annotations:
+
+```
+Before (prototype):      A login form with email and password fields
+
+After (annotated spec):  @EmailPasswordForm L2
+                         [Dev]   trigger:   input→blur validates single field
+                                            click "Log in" → full validation + API
+                         [Dev·Tester] behavior:  blur→error: red border + red text
+                                            submit→POST /api/auth/login{email,password}
+                                            →success: store token + redirect
+                                            →failure: Toast with backend error
+                         [UI]   style:     border-radius 4px, height 40px
+                         [Tester] state:    normal | focused | error | submitting
+                         [Dev]   dismiss:   success→redirect / failure→restore normal
+```
+
+This is not a generic analysis report. It's a **developer-ready interaction spec** that an engineer (or AI coding agent) can implement directly.
+
+### What Makes It Different
 
 Most requirement analysis tools produce unstructured documents that leave a gap between "what to build" and "how to build it." spec-analyze fills this gap with an **annotation framework** — structured metadata attached to every interactive component in the design, covering triggers, behaviors, states, error handling, and UI copy. These annotations are precise enough for:
 
@@ -110,7 +135,18 @@ User Input
 
 ## The Annotation Framework (Full Path)
 
-This is spec-analyze's core differentiator. Every interactive component in the design gets a structured annotation block with fields organized into three tiers:
+This is spec-analyze's core differentiator. Given a prototype or design concept, the system identifies every interactive component and attaches a structured annotation block:
+
+```
+Prototype                    Annotated Spec
+┌─────────────────┐          ┌────────────────────────────┐
+│  [Email input]  │   ──→   │  @EmailInput L2            │
+│  [Password inp]  │          │  trigger: blur/click       │
+│  [Login button]  │          │  behavior: validate→API    │
+└─────────────────┘          │  state: 4 variants         │
+                             │  style: border-radius 4px  │
+                             └────────────────────────────┘
+```
 
 ### Three Annotation Tiers
 
@@ -168,7 +204,7 @@ The annotation system is designed to serve all stakeholders:
 
 ## Triple-Document Output (Full Path)
 
-The Full path generates three interconnected documents:
+When you bring a prototype for annotation, the Full path generates three interconnected documents that together form a complete engineering handoff package:
 
 ### 1. proposal.md — Functional Requirements
 
@@ -324,11 +360,27 @@ cp -r spec-analyze ~/.claude/skills/spec-analyze
 
 ## Usage
 
-Once installed, simply describe your requirements naturally. spec-analyze handles routing automatically:
+### Primary Workflow: Prototype → Annotated Spec
+
+This is what spec-analyze was built for. You have a prototype or design concept, and you need it annotated for engineering delivery:
+
+1. **Describe your prototype** — explain what you've designed (upload wireframes, describe screens, list components)
+2. **Analysis pipeline runs** — spec-analyze assesses complexity, routes to the right path, asks targeted questions about interaction details
+3. **Annotated output generated** — every interactive component receives structured annotation blocks (trigger/behavior/dismiss/state/style/timing)
+4. **Engineering consumes directly** — developers or AI coding agents read the annotations and implement
+
+**Example session:**
+
+> You: *"I have a prototype for a two-step checkout flow. First step is address form, second is payment. The address form has 5 fields and a 'Continue' button. The payment step has card number, expiry, CVV, and a 'Pay' button. Can you add interaction annotations?"*
+>
+> spec-analyze: (assesses → Full path → runs analysis → outputs proposal.md + design.md + tasks.md with each component annotated)
+
+### Quick Reference
 
 | You Say | What Happens |
 |---------|-------------|
 | "I need a login page with email and password validation" | Full path → proposal + design + tasks with annotations |
+| "I have a prototype for user profile editing, can you annotate it for dev handoff?" | Full path → analyzes prototype → annotated component specs |
 | "How should we handle the user profile edit flow?" | Standard path → Analysis Report with approach comparison |
 | "What's the best way to display this data?" | Lightweight path → Insight Brief (upgradable) |
 
