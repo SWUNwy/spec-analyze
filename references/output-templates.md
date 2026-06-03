@@ -93,9 +93,16 @@ For multi-perspective analysis with approach comparison. Aim for 1-2 pages.
 
 The core differentiator of spec-analyze. Produces three interconnected documents with spec-analyze's exclusive **annotation framework**.
 
-### Annotation Framework
+### Two-Layer Annotation Framework
 
-#### Three Annotation Tiers
+The annotation system uses two complementary layers:
+
+| Layer | Controls | Mechanism |
+|-------|----------|-----------|
+| **L1/L2/L3** | Annotation breadth | Flat tier system — how many fields a component gets |
+| **T1-T11 Types** | Annotation depth | Type system — what fields a component *must* have based on its interaction pattern |
+
+#### Layer 1: Three Annotation Tiers (Breadth)
 
 | Tier | When to Use | Fields |
 |------|-------------|--------|
@@ -132,6 +139,24 @@ responsive    Responsive        Touch fallback / small screen adaptation / print
 i18n          Internationalization   Whether translation is needed
 ```
 
+#### Layer 2: Type Annotation System (Depth)
+
+Each component is classified into one of 11 interaction pattern types. The type determines mandatory fields and state coverage. See `annotation-templates.md` for full definitions.
+
+| Type | Pattern | Examples | Mandatory Fields | States (min) |
+|------|---------|---------|-----------------|--------------|
+| **T1** | Static Display | Label, Badge, Avatar | trigger, dismiss | normal |
+| **T2** | Data List | Table, CardList, LogList | trigger, behavior, state | normal / loading / empty / error |
+| **T3** | Action Trigger | Button, IconButton | trigger, behavior, state, dismiss | normal / disabled / loading |
+| **T4** | Dropdown / Select | Dropdown, Select | trigger, behavior, state, dismiss, placement | normal / open / closed |
+| **T5** | Dialog / Modal | ConfirmModal, FormModal | trigger, behavior, state, dismiss, timing | normal / open / submitting / apiError |
+| **T6** | Form Fill | Form, InputGroup, Editor | trigger, behavior, state, style, timing | normal / fieldError / submitting / success / apiError |
+| **T7** | Search / Filter | SearchInput, SearchableSelect | trigger, behavior, state, dismiss, timing | idle / focus / searching / selected / empty / error |
+| **T8** | Toggle / Switch | Toggle, Checkbox, Radio | trigger, behavior, state | normal / disabled / checked |
+| **T9** | Notification | Toast, Alert, Banner | trigger, behavior, state, placement, timing | hidden / show |
+| **T10** | Navigation | Tab, Breadcrumb, Pagination | trigger, behavior, state | normal / active / disabled |
+| **T11** | Inline Edit | EditableCell, InlineInput | trigger, behavior, state, dismiss, timing | normal / editing / submitting / apiError |
+
 #### State Specification Rules
 
 State must cover two perspectives:
@@ -141,7 +166,7 @@ State must cover two perspectives:
 | **Dev perspective** | Describe component behavior in that state | `submitting: button loading + disabled, text "Logging in..."` |
 | **Tester perspective** | Describe full trigger-to-presentation path | `error: blur on invalid email → red border + "Invalid email format"` |
 
-**State minimum coverage**: normal + at least 2 non-normal states (loading / error / empty / countdown)
+**State minimum coverage**: Each type has its own minimum states (see table above). Type requirements override the generic "normal + 2 non-normal" rule.
 
 #### Role ↔ Annotation Field Mapping
 
@@ -220,54 +245,56 @@ State must cover two perspectives:
 
 ## 1. Design Overview
 
-## 2. System Architecture
+## 2. Component Design
 
-## 3. Interface Design
+### 2.0 Component Overview
 
-| Endpoint | Method | Parameters | Returns | Error Scenarios |
-|-----------|--------|------------|---------|-----------------|
+| # | Component | Type | Parent | Level | Responsibility | States |
+|---|-----------|------|--------|-------|---------------|--------|
+| C01 | @ComponentName | T2 DataList | — | L2 | description | normal / loading / empty / error |
 
-## 4. Data Model
+### 2.1 {Component Name}
 
-## 5. Component Design
-
-### 5.1 {Component Name}
-
-| Component | Responsibility | Props | State |
-|-----------|---------------|-------|-------|
-| {Name} | {responsibility} | {props} | {states} |
-
-#### Annotation Block @{ComponentName} {L-level}
+#### Annotation Block @{ComponentName} {L-level}  ← proposal.md F00X
 
 \```
-[Dev]   trigger:   ...
-[Dev·Tester] behavior: ...
-[UI]   style:     ...
-[Tester] state:    ...
-[Dev]   dismiss:   ...
+[Trigger]   ...
+[Behavior]  ... (include API or use [API] block)
+[Placement] (if applicable)
+[Style]     (if L2+)
+[State]     ...
+[Timing]    (if applicable)
+[Dismiss]   ...
 \```
 
-#### Example: Annotation Block @EmailPasswordForm L2
+#### Filled Example: @EmailPasswordForm L2 (T6 FormFill)
 
 \```
-[Dev]   trigger:   input → blur triggers field validation
-                  click "Log in" → triggers full validation + API call
-[Dev·Tester] behavior:  blur: validate single field, error→red border + red error text
-                  submit: full validation→pass→POST /api/auth/login
-                  → success: localStorage.setItem('token') → redirect to home
-                  → failure: Toast with backend m field
-[UI]   style:     border-radius 4px, height 40px; focus border highlight
-[Tester] state:    normal: empty form; focused: focus highlight;
-                  error: red border + error text; submitting: button loading + disabled "Logging in..."
-[Dev]   dismiss:   success→redirect; failure→restore normal
+[Trigger]   input → blur triggers field validation
+            click "Log in" → triggers full validation + API call
+[Behavior]  blur: validate single field, error→red border + red error text
+            submit: full validation→pass→POST /api/auth/login
+            → success: localStorage.setItem('token') → redirect to home
+            → failure: Toast with backend error message
+[API]       POST /api/auth/login
+            Body: {email: string(required, email), password: string(required, min 6, max 32)}
+            → 200: {token: string, user: {id, name}}
+            → 401: Toast "邮箱或密码错误"
+            → 503: Toast "服务暂不可用，请稍后重试"
+[Style]     border-radius 4px, height 40px; focus border highlight
+[State]     normal: empty form; focused: focus highlight
+            error: red border + error text
+            submitting: button loading + disabled "Logging in..."
+            apiError: Toast with error message, form stays
+[Dismiss]   success→redirect; failure→restore normal
 \```
 
-## 6. Error Handling
+## 3. Error Handling
 
 | Error Type | Scenario | Handling |
 |-----------|----------|----------|
 
-## 7. Appendix: Field Specification Table
+## 4. Appendix: Field Specification Table
 
 | Module | Field | UI Label | Format Constraint | Empty Strategy | Data Source |
 |--------|-------|----------|-------------------|---------------|-------------|
@@ -314,23 +341,31 @@ Product requirements (natural language)
    │       ├── Stress testing (identify boundaries & risks)
    │       └── Solution convergence + design presentation
    │
-   ├── 2. Output generation (Full path)
+   ├── 2. Component enumeration + annotation generation
+   │       ├── 2a. Enumerate all interactive components
+   │       │      └── Map each to T1-T11 type (annotation-templates.md §2)
+   │       ├── 2b. Generate annotation blocks per type
+   │       │      └── Fill mandatory fields + state machine per type
+   │       │      └── Apply content quality rules (product language §6)
+   │       └── Output: design.md with complete annotation blocks + component table
+   │
+   ├── 3. Output generation (Full path)
    │       ├── proposal.md (functional requirements + 3-column annotations)
    │       ├── design.md (component design + annotation blocks + field table)
    │       └── tasks.md (task steps with annotation references)
    │
-   ├── 3. Requirements review
+   ├── 4. Requirements review
    │       ├── PM → F00X descriptions + acceptance criteria
    │       ├── Dev → data annotation (format constraints) + annotation blocks + field table
    │       ├── Tester → annotation state + error handling + boundary values
    │       └── UI → style colors/spacing + responsive + copy
    │
-   ├── 4. Agent development
+   ├── 5. Agent development
    │       ├── Read tasks → follow annotation references
    │       ├── Jump to design.md annotation blocks
    │       └── Implement behavior from annotations
    │
-   └── 5. Code output
+   └── 6. Code output
            ├── Field copy → placeholder / label / error text
            ├── Format constraints → regex / length / required
            ├── Interaction behavior → matches design annotations

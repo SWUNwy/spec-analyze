@@ -4,6 +4,8 @@
 
 spec-analyze is an AI agent skill that guides large language models through a structured analysis pipeline: multi-perspective questioning → stress testing → solution convergence → annotated document output. The result is a set of three interconnected documents (proposal, design, tasks) with **machine-parseable annotations** that bridge the gap between product requirements and code implementation.
 
+---
+
 ## Why spec-analyze?
 
 ### The Core Use Case: Annotating Prototypes for Engineering Handoff
@@ -15,15 +17,17 @@ You've built a prototype — wireframes, Figma mockups, or even just sketched ou
 ```
 Before (prototype):      A login form with email and password fields
 
-After (annotated spec):  @EmailPasswordForm L2
+After (annotated spec):  @EmailPasswordForm L2 (T6 FormFill)
                          [Dev]   trigger:   input→blur validates single field
                                             click "Log in" → full validation + API
                          [Dev·Tester] behavior:  blur→error: red border + red text
                                             submit→POST /api/auth/login{email,password}
                                             →success: store token + redirect
                                             →failure: Toast with backend error
+                         [API]      POST /api/auth/login
+                                    →200: {token}  →401: "邮箱或密码错误"
                          [UI]   style:     border-radius 4px, height 40px
-                         [Tester] state:    normal | focused | error | submitting
+                         [Tester] state:    normal | fieldError | submitting | apiError
                          [Dev]   dismiss:   success→redirect / failure→restore normal
 ```
 
@@ -46,12 +50,14 @@ Most requirement analysis tools produce unstructured documents that leave a gap 
 spec-analyze/
 ├── SKILL.md                 # Main skill definition — routing, workflow, quality gates
 ├── references/
-│   ├── personas.md           # 5 expert analysis personas
-│   ├── scenario-stress-test.md  # 18 stress scenarios in 3 categories
-│   ├── decision-log-format.md   # Structured decision recording
-│   ├── output-templates.md      # Output templates + annotation framework
-│   ├── quality-checklists.md    # QA checklists for all output types
-│   └── web-research-guide.md    # Web research strategy guide
+│   ├── personas.md                   # 5 expert analysis personas
+│   ├── scenario-stress-test.md       # 18 stress scenarios in 3 categories
+│   ├── decision-log-format.md        # Structured decision recording
+│   ├── output-templates.md           # Output templates + two-layer annotation framework
+│   ├── quality-checklists.md         # QA checklists + type-specific checks
+│   ├── web-research-guide.md         # Web research strategy guide
+│   ├── annotation-templates.md       # 11 interaction pattern types (T1-T11)
+│   └── html-annotation-system.md     # HTML annotation embedding system
 └── .gitignore
 ```
 
@@ -60,60 +66,96 @@ spec-analyze/
 The skill follows a **progressive disclosure** pattern:
 
 1. **SKILL.md** — Entry point. Contains the workflow, routing logic, and references to deeper modules.
-2. **`references/`** — Loaded on demand. Each file covers one domain (personas, stress testing, output formatting, etc.), keeping the main file focused while enabling deep dives when needed.
+2. **`references/`** — Loaded on demand. Each file covers one domain (personas, stress testing, output formatting, type annotations, HTML embedding, etc.), keeping the main file focused while enabling deep dives when needed.
+
+### Key Innovation: Two-Layer Annotation Framework
+
+spec-analyze uses two complementary annotation layers:
+
+| Layer | What It Controls | Mechanism |
+|-------|-----------------|-----------|
+| **L1/L2/L3 Tiers** | Annotation breadth — how many fields a component gets | Flat tier system |
+| **T1-T11 Types** | Annotation depth — what fields a component *must* have based on its interaction pattern | Type system with mandatory fields + state machines |
+
+The 11 interaction pattern types ensure that every component gets the right level of detail:
+
+| Type | Pattern | Examples | States (min) |
+|------|---------|---------|--------------|
+| T1 | Static Display | Label, Badge, Avatar | normal |
+| T2 | Data List | Table, CardList, LogList | normal / loading / empty / error |
+| T3 | Action Trigger | Button, IconButton | normal / disabled / loading |
+| T4 | Dropdown / Select | Dropdown, Select | normal / open / closed |
+| T5 | Dialog / Modal | ConfirmModal, FormModal | normal / open / submitting / apiError |
+| T6 | Form Fill | Form, InputGroup, Editor | normal / fieldError / submitting / success / apiError |
+| T7 | Search / Filter | SearchInput, SearchableSelect | idle / focus / searching / selected / empty / error |
+| T8 | Toggle / Switch | Toggle, Checkbox, Radio | normal / disabled / checked |
+| T9 | Notification | Toast, Alert, Banner | hidden / show |
+| T10 | Navigation | Tab, Breadcrumb, Pagination | normal / active / disabled |
+| T11 | Inline Edit | EditableCell, InlineInput | normal / editing / submitting / apiError |
+
+For full type definitions, see `references/annotation-templates.md`.
 
 ---
 
 ## How It Works: The Analysis Pipeline
 
-spec-analyze implements a 12-step pipeline with **4 quality gates**:
+spec-analyze implements a **13-step pipeline** with **6 quality gates**:
 
 ```
 User Input
     │
     ▼
-┌──────────────────────┐
-│ 1. Route Assessment  │  ──  Lightweight / Standard / Full
-└──────────┬───────────┘
-           ▼
-┌──────────────────────┐
-│ 2. Context Explore   │  ──  Read project files, check docs,
-│    (+ Web Research)  │      optionally search web for competitive intel
-└──────────┬───────────┘
-           │  G1: Context completeness gate
-           ▼
-┌──────────────────────┐
-│ 3. Persona Questions  │  ──  5 expert roles probe from different angles
-└──────────┬───────────┘
-           ▼
-┌──────────────────────┐
-│ 4. Stress Testing     │  ──  "What if" scenarios push for edge cases
-└──────────┬───────────┘
-           ▼
-┌──────────────────────┐
-│ 5. Converge           │  ──  2-3 approaches, Architecture Cleanliness
-│    + Decision Log     │      assessment, structured decision recording
-└──────────┬───────────┘
-           │  G2: Convergence completeness gate
-           ▼
-┌──────────────────────┐
-│ 6. Design Presentation│  ──  Section-by-section, user approves each
-└──────────┬───────────┘
-           │  G3: Output readiness gate
-           ▼
-┌──────────────────────┐
-│ 7. Generate Output    │  ──  Templates matched to routing path
-└──────────┬───────────┘
-           ▼
-┌──────────────────────┐
-│ 8. Quality Self-Check │  ──  Run DoD checklist for current path
-└──────────┬───────────┘
-           │  G4: Self-review completion gate
-           ▼
-┌──────────────────────┐
-│ 9. User Review        │  ──  Present output for final approval
-└──────────┬───────────┘
-           ▼
+┌─────────────────────────┐
+│ 1. Route Assessment     │  ──  Lightweight / Standard / Full
+└───────────┬─────────────┘
+            ▼
+┌─────────────────────────┐
+│ 2. Context Explore      │  ──  Read project files, check docs,
+│    (+ Web Research)     │      optionally search web for competitive intel
+└───────────┬─────────────┘
+            │  G1: Context completeness gate
+            ▼
+┌─────────────────────────┐
+│ 3. Persona Questions    │  ──  5 expert roles probe from different angles
+└───────────┬─────────────┘
+            ▼
+┌─────────────────────────┐
+│ 4. Stress Testing       │  ──  "What if" scenarios push for edge cases
+└───────────┬─────────────┘
+            ▼
+┌─────────────────────────┐
+│ 5. Converge             │  ──  2-3 approaches, Architecture Cleanliness
+│    + Decision Log       │      assessment, structured decision recording
+└───────────┬─────────────┘
+            │  G2: Convergence completeness gate
+            ▼
+┌─────────────────────────┐
+│ 6. Design Presentation  │  ──  Section-by-section, user approves each
+└───────────┬─────────────┘
+            │  G3: Output readiness gate
+            ▼
+┌─────────────────────────┐
+│ 7. Generate Output      │  ──  Templates matched to routing path
+└───────────┬─────────────┘
+            │  Full path sub-process:
+            │  7a. Component Enumeration (→ G3a)
+            │  7b. Annotation Generation per type template
+            ▼
+┌─────────────────────────┐
+│ 8. HTML Annotation      │  ──  (Conditional) Embed annotations into
+│    Embedding            │      HTML prototype as interactive sidebar
+└───────────┬─────────────┘
+            │  G3b: HTML annotation readiness gate
+            ▼
+┌─────────────────────────┐
+│ 9. Quality Self-Check   │  ──  Run DoD checklist for current path
+└───────────┬─────────────┘
+            │  G4: Self-review completion gate
+            ▼
+┌─────────────────────────┐
+│ 10. User Review         │  ──  Present output for final approval
+└───────────┬─────────────┘
+            ▼
     ┌──────────┐
     │ Done /   │  ──  Full path → handoff to implementation planning
     │ writing- │
@@ -127,7 +169,7 @@ User Input
 |------|-----------|----------|-------------|--------|----------|
 | **Lightweight** | Quick question | None | No | Insight Brief (½ page) | Clarifying a requirement, quick feasibility check |
 | **Standard** | Medium analysis | 2-3 most relevant | Yes | Analysis Report (1-2 pages) | Feature design, approach comparison, decision support |
-| **Full** | Complete design | All 5 | Yes | proposal.md + design.md + tasks.md | Complex features needing complete spec-to-implementation handoff |
+| **Full** | Complete design | All 5 | Yes | proposal.md + design.md + tasks.md (+ optional HTML annotations) | Complex features needing complete spec-to-implementation handoff |
 
 **Lightweight Upgrade Gate**: Before outputting a Lightweight result, the system auto-checks if the discussion crossed into implementation territory. If so, it proposes upgrading to Standard.
 
@@ -140,15 +182,22 @@ This is spec-analyze's core differentiator. Given a prototype or design concept,
 ```
 Prototype                    Annotated Spec
 ┌─────────────────┐          ┌────────────────────────────┐
-│  [Email input]  │   ──→   │  @EmailInput L2            │
+│  [Email input]  │   ──→   │  @EmailInput L2 (T6)       │
 │  [Password inp]  │          │  trigger: blur/click       │
 │  [Login button]  │          │  behavior: validate→API    │
-└─────────────────┘          │  state: 4 variants         │
+└─────────────────┘          │  state: 5 variants         │
                              │  style: border-radius 4px  │
                              └────────────────────────────┘
 ```
 
-### Three Annotation Tiers
+### Two-Layer Framework
+
+| Layer | Mechanism | Purpose |
+|-------|-----------|---------|
+| **L1/L2/L3 Tiers** | Flat tier system | Controls annotation breadth — how many fields |
+| **T1-T11 Types** | Interaction pattern types | Controls annotation depth — mandatory fields + state machine per type |
+
+### Three Annotation Tiers (Layer 1)
 
 | Tier | When to Use | Fields |
 |------|-------------|--------|
@@ -156,49 +205,63 @@ Prototype                    Annotated Spec
 | **L2 Standard** | Complex interactions (modal, dropdown, form validation) | L1 + placement / style / state / timing |
 | **L3 Complete** | Global/reusable components (DatePicker, Table) | L2 + accessibility / responsive / i18n |
 
-### Field Definitions
+### Shared Blocks
 
-```
-L1 Common
-──────────────────────────────────────
-trigger   Trigger condition     hover / click / focus / scroll / blur
-behavior  Behavior description  Show Tooltip / Expand dropdown / Submit / Navigate
-dismiss   Dismiss condition     mouse leave / click outside / Esc / auto-dismiss
+In addition to tier fields and type-specific requirements, annotation blocks can include shared blocks that are reused across components:
 
-L2 Adds
-──────────────────────────────────────
-placement Display position      top / bottom / topRight / center / left
-style     Visual details        color / spacing / font / z-index / content type
-state     State behaviors       normal / empty / loading / error / overflow / countdown
-timing    Animation & delay     200ms fade in / 100ms fade out / 300ms debounce
+| Block | Content | Applied To |
+|-------|---------|------------|
+| **Block A: Dialog Context** | ESC/overlay/Cancel close, timing | T4 (in dialog), T5, T6 (in dialog) |
+| **Block B: API Call** | Endpoint, request/response structure | All API-calling components |
+| **Block C: Permission** | Role-based access control | Restricted components |
 
-L3 Adds
-──────────────────────────────────────
-accessibility  Accessibility    Tab focus / Enter triggers / Esc closes / aria-label
-responsive    Responsive        Touch fallback / small screen adaptation / print
-i18n          Internationalization   Whether translation is needed
-```
-
-### State Specification Rules
+### State Coverage Standards
 
 State descriptions must cover two perspectives:
 
-| Perspective | Requirement | Example |
-|-------------|-------------|---------|
-| **Dev perspective** | Describe component behavior in that state | `submitting: button loading + disabled, text "Logging in..."` |
-| **Tester perspective** | Describe trigger-to-presentation path | `error: blur on invalid email → red border + "Invalid email format"` |
+| Perspective | Requirement |
+|-------------|-------------|
+| **Dev perspective** | Describe component behavior in that state |
+| **Tester perspective** | Describe full trigger-to-presentation path |
 
-**Minimum state coverage**: normal + at least 2 non-normal states (loading / error / empty / countdown)
+Each type has a minimum state machine. For example:
+- T2 DataList: normal / loading / empty / error
+- T6 FormFill: normal / fieldError / submitting / success / apiError
+- T7 Search: idle / focus / searching / selected / empty / error
 
-### Role ↔ Annotation Mapping
+---
 
-The annotation system is designed to serve all stakeholders:
+## HTML Annotation Embedding
 
-| Role | Fields of Interest | Reason |
-|------|-------------------|--------|
-| Developer | trigger, behavior, dismiss, state (boundaries) | Implementation logic, boundary handling |
-| Tester | state (all branches), trigger, dismiss | State transitions → test cases |
-| UI Designer | style, placement, timing | Visual details, position, animation |
+When the Full path generates output for a project that already has an HTML prototype with 3+ components, spec-analyze can optionally embed annotations directly into the prototype as an interactive **PRD annotation sidebar**:
+
+```
+┌──────────────────────────────────────────────────┐
+│  Prototype Page               ┌──────────────┐   │
+│  ┌──────────────────┐  📋   │ PRD Annotations│   │
+│  │ Stats Cards       │       │ C01 @StatsRow  │   │
+│  └──────────────────┘       │──────────────│   │
+│  ┌──────────────────┐  📋   │ [📊] [⚡] [📋] │   │
+│  │ Publisher Table   │       │               │   │
+│  └──────────────────┘       │ TRIGGER        │   │
+│  ┌──────────────────┐       │ Page load →    │   │
+│  │ Action Buttons   │       │ updateStats()  │   │
+│  └──────────────────┘       │               │   │
+│                              │ BEHAVIOR       │   │
+│                              │ ...            │   │
+│                              └──────────────┘   │
+└──────────────────────────────────────────────────┘
+```
+
+Key features:
+- **Slide-in panel** from right side, 400px width
+- **Navigation tabs** for switching between component annotations
+- **Inline trigger buttons** (📋) on each component section
+- **Header toggle button** for global access
+- **Keyboard shortcut**: ESC to close
+- **Back-propagation**: corrections made during embedding sync back to design.md
+
+See `references/html-annotation-system.md` for full implementation details.
 
 ---
 
@@ -214,7 +277,7 @@ Contains requirement overview, functional requirement table with three annotatio
 |----|-------------|----------|--------------------|-----------------|----------------------|-------------------|
 
 **Data Annotation** specifies: API source + format rule + boundary values
-**Interaction Annotation** specifies: interaction grade (L1/L2/L3) + behavior description
+**Interaction Annotation** specifies: interaction grade (L1/L2/L3) + type (T1-T11) + behavior description
 **UI Text Annotation** specifies: all visible copy — placeholder, label, error, tooltip, button text
 
 ### 2. design.md — Component Design
@@ -222,19 +285,21 @@ Contains requirement overview, functional requirement table with three annotatio
 Contains system architecture, interface design, data model, and component-level design with annotation blocks:
 
 ```
-[Dev]   trigger:   input → blur triggers field validation
-                  click "Log in" → triggers full validation + API call
-[Dev·Tester] behavior:  blur: validate single field, error→red border + red error text
-                  submit: full validation→pass→POST /api/auth/login
-                  → success: localStorage.setItem('token') → redirect to home
-                  → failure: Toast with backend error message
-[UI]   style:     border-radius 4px, height 40px; focus border highlight
-[Tester] state:    normal: empty form; focused: focus highlight;
-                  error: red border + error text; submitting: button loading + disabled
-[Dev]   dismiss:   success→redirect; failure→restore normal
+@EmailPasswordForm L2 (T6 FormFill)    ← proposal.md F001
+
+[Trigger]   input → blur triggers field validation
+            click "Log in" → triggers full validation + API call
+[Behavior]  blur: validate single field, error→red border + red error text
+            submit: POST /api/auth/login{email,password}
+            → success: {token} → redirect to home
+            → failure: Toast with backend error message
+[Style]     border-radius 4px, height 40px; focus border highlight
+[State]     normal: empty form; fieldError: red border + error text
+            submitting: button loading + disabled; apiError: Toast
+[Dismiss]   success→redirect; failure→restore normal
 ```
 
-Includes a **Field Specification Table** that connects every field across proposal (UI labels) → design (format constraints) → implementation (API paths).
+Includes a **Component Overview Table** (all components with IDs, types, levels) and a **Field Specification Table** that connects every field across proposal (UI labels) → design (format constraints) → implementation (API paths).
 
 ### 3. tasks.md — Implementation Tasks
 
@@ -242,7 +307,7 @@ Task breakdown with annotation references that point back to specific sections i
 
 ```
 > **Annotation references:**
-> - Annotation block → design.md §5.1 @EmailPasswordForm
+> - Annotation block → design.md §2.1 @EmailPasswordForm L2 (T6)
 > - Field copy → design.md Appendix "Field Specification Table"
 > - Data source → design.md §3
 ```
@@ -255,14 +320,16 @@ This design enables AI coding agents to read tasks.md, follow annotation referen
 
 Every output passes through checkpoints at each pipeline stage.
 
-### Quality Gates (G1–G4)
+### Quality Gates (G1–G4, G3a, G3b)
 
 | Gate | Location | What It Checks |
 |------|----------|----------------|
 | G1: Context completeness | Step 4 → 5 | Scope defined, project files read, web research done |
 | G2: Convergence complete | Step 7 → 8 | ≥2 approaches compared, Architecture Cleanliness assessed, decisions logged |
 | G3: Output readiness | Step 8 → 9 | Templates selected, all sections have data, output path set |
-| G4: Self-review complete | Step 10 → 11 | No placeholders, fact/inference/hypothesis distinguished, no scope creep |
+| G3a: Enumeration complete | Step 9a → 9b | All components enumerated, typed, no omissions |
+| G3b: HTML readiness | Step 9 → 10 | ANNOTATIONS data complete, triggers placed, keys match |
+| G4: Self-review complete | Step 11 → 12 | No placeholders, fact/inference distinguished, type compliance |
 
 ### Cross-Document Consistency Checks
 
@@ -270,14 +337,16 @@ Every output passes through checkpoints at each pipeline stage.
 - Proposal UI text ↔ Design field table: copy matches
 - Proposal feature IDs ↔ Tasks: full coverage
 - Task annotation references ↔ Design sections: one-to-one verified
+- ANNOTATIONS keys (HTML) ↔ @ComponentName: all present
+- data-annot attributes ↔ ANNOTATIONS keys: one-to-one match
 
-### Role-Specific Review Checklists
+### Type-Specific State Coverage
 
-Each stakeholder has a targeted checklist:
+Each component type has required minimum states (see `references/annotation-templates.md` §5.3). The quality checklist verifies that every component's annotation block covers its type-specific state machine.
 
-- **Dev**: Format constraints, boundary strategies, state coverage, API structure, error handling
-- **Tester**: State → test case conversion, error category coverage, boundary values, trigger testability
-- **UI**: Copy completeness, visual style, 3-state descriptions, responsive behavior, animation timing
+### Error Scenario Coverage
+
+The system verifies coverage across 6 error categories: form validation, data format, business blocking, empty results, network exceptions, and server errors.
 
 ---
 
@@ -323,15 +392,6 @@ Trigger conditions: competitive benchmarking, component/UX pattern validation, t
 
 ---
 
-## Quality Gates (G1–G4) with Failure Handling
-
-**Gate failure recovery:**
-- DoD item not met → Roll back to preceding step, fill gap, then proceed
-- User rejects output → Return to design presentation, re-iterate
-- Same gate blocked twice → Pause and evaluate: is the routing path wrong?
-
----
-
 ## Installation
 
 ### As a Claude Code Skill
@@ -366,21 +426,22 @@ This is what spec-analyze was built for. You have a prototype or design concept,
 
 1. **Describe your prototype** — explain what you've designed (upload wireframes, describe screens, list components)
 2. **Analysis pipeline runs** — spec-analyze assesses complexity, routes to the right path, asks targeted questions about interaction details
-3. **Annotated output generated** — every interactive component receives structured annotation blocks (trigger/behavior/dismiss/state/style/timing)
-4. **Engineering consumes directly** — developers or AI coding agents read the annotations and implement
+3. **Annotated output generated** — every interactive component receives structured annotation blocks (trigger/behavior/dismiss/state/style/timing) classified by type (T1-T11)
+4. **Optionally embedded** — if you have an HTML prototype, annotations can be embedded as an interactive sidebar
+5. **Engineering consumes directly** — developers or AI coding agents read the annotations and implement
 
 **Example session:**
 
 > You: *"I have a prototype for a two-step checkout flow. First step is address form, second is payment. The address form has 5 fields and a 'Continue' button. The payment step has card number, expiry, CVV, and a 'Pay' button. Can you add interaction annotations?"*
 >
-> spec-analyze: (assesses → Full path → runs analysis → outputs proposal.md + design.md + tasks.md with each component annotated)
+> spec-analyze: (assesses → Full path → runs analysis → outputs proposal.md + design.md + tasks.md with each component annotated and typed)
 
 ### Quick Reference
 
 | You Say | What Happens |
 |---------|-------------|
-| "I need a login page with email and password validation" | Full path → proposal + design + tasks with annotations |
-| "I have a prototype for user profile editing, can you annotate it for dev handoff?" | Full path → analyzes prototype → annotated component specs |
+| "I need a login page with email and password validation" | Full path → proposal + design + tasks with typed annotations |
+| "I have a prototype for user profile editing, can you annotate it for dev handoff?" | Full path → analyzes prototype → annotated component specs → optional HTML embed |
 | "How should we handle the user profile edit flow?" | Standard path → Analysis Report with approach comparison |
 | "What's the best way to display this data?" | Lightweight path → Insight Brief (upgradable) |
 
@@ -418,11 +479,27 @@ spec-analyze is designed as the **second stage** in a larger workflow:
 
 The skill follows Claude Code skill best practices:
 
-- **SKILL.md** stays focused (<250 lines) — it's the entry point and workflow definition
+- **SKILL.md** stays focused (<300 lines) — it's the entry point and workflow definition
 - **`references/`** contains domain-specific deep dives, loaded on demand
-- Each reference file has a single responsibility — personas, stress testing, output formats, quality checks, web research
+- Each reference file has a single responsibility — personas, stress testing, output formats, quality checks, web research, type templates, HTML embedding
 
 This modular structure enables progressive disclosure: the system only loads what it needs for the current pipeline step.
+
+---
+
+## Reference Files
+
+| File | Purpose |
+|------|---------|
+| `SKILL.md` | Main workflow definition, routing, quality gates |
+| `references/personas.md` | 5 expert analysis personas with red flags |
+| `references/scenario-stress-test.md` | 18 stress scenarios in 3 categories |
+| `references/decision-log-format.md` | Structured decision recording format |
+| `references/output-templates.md` | Output templates + two-layer annotation framework |
+| `references/quality-checklists.md` | Quality checklists with type-specific and HTML checks |
+| `references/web-research-guide.md` | Web research trigger conditions and strategy |
+| `references/annotation-templates.md` | 11 interaction pattern types (T1-T11) with state machines |
+| `references/html-annotation-system.md` | HTML annotation embedding with full templates |
 
 ---
 

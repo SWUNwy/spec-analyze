@@ -31,7 +31,7 @@ description: "需求分析与产品交互注释输出。核心场景：你在原
 |------|------|------|
 | **Lightweight** | 快速提问 → 讨论 → 升级门评估 | Insight Brief |
 | **Standard** | 2-3 角色视角 → 方案比对 → 报告 | Analysis Report |
-| **Full** | 5 角色全视角 + 压力测试 + 方案收敛 → 带注释提案 | proposal + design + tasks → `writing-plans` |
+| **Full** | 5 角色全视角 + 压力测试 + 方案收敛 → 带注释提案 | proposal + design + tasks → (可选) HTML 注释嵌入 → `writing-plans` |
 
 ### Lightweight 升级门
 
@@ -50,9 +50,12 @@ description: "需求分析与产品交互注释输出。核心场景：你在原
 7. **收敛阶段** — 2-3 方案 + 决策记录（见 `references/decision-log-format.md`）。**→ 检查 G2**
 8. **设计呈现** — 分节呈现，逐节获取批准。**→ 批准后检查 G3**
 9. **输出生成** — 按路径产生对应文档（见 `references/output-templates.md`）。**Lightweight 先评估升级门**
-10. **质量自检** — 运行 references/quality-checklists.md 中对应路径的自检
-11. **用户审阅** — 输出文档让用户确认
-12. **交接** — Full 路径 → 调用 `writing-plans`；其他 → 结束
+10. **HTML 注释嵌入** — 如果项目已有 HTML 原型且组件数 ≥ 3，按 `references/html-annotation-system.md` 将 design.md 的 Annotation Blocks 转换为 HTML 交互式注释面板。**→ 检查 G3b**
+11. **质量自检** — 运行 references/quality-checklists.md 中对应路径的自检
+12. **用户审阅** — 输出文档让用户确认
+13. **交接** — Full 路径 → 调用 `writing-plans`；其他 → 结束
+
+> **注**：Full 路径下，输出生成（Step 9）包含一个内部子流程：**Step 9a 组件枚举** → 检查 G3a → **Step 9b 注释生成**。详见 `references/annotation-templates.md` §8。
 
 ---
 
@@ -63,7 +66,11 @@ description: "需求分析与产品交互注释输出。核心场景：你在原
 | G1 | 步骤 4 → 5 | 跳过 | 需要 | 需要 |
 | G2 | 步骤 7 → 8 | 跳过 | 需要 | 需要 |
 | G3 | 步骤 8 → 9 | 跳过 | 需要 | 需要 |
-| G4 | 步骤 10 → 11 | 需要 | 需要 | 需要 |
+| G3a | 步骤 9a → 9b（Full 路径子流程） | 跳过 | 跳过 | 需要 |
+| G3b | 步骤 9 → 10（HTML 注释嵌入前） | 跳过 | 跳过 | 需要* |
+| G4 | 步骤 11 → 12 | 需要 | 需要 | 需要 |
+
+> *G3b 仅当项目有 HTML 原型且组件数 ≥ 3 时执行。否则跳过。
 
 ### G1: 上下文完备
 
@@ -86,13 +93,35 @@ description: "需求分析与产品交互注释输出。核心场景：你在原
 - [ ] 每个输出章节有分析数据支撑
 - [ ] 文件输出路径已确定
 
+### G3a: 组件枚举完整性（Full 路径子流程特有关卡）
+
+在输出生成的内部子流程中，Step 9a（组件枚举）完成后必须检查：
+
+- [ ] 页面上所有交互组件已列出
+- [ ] 每个组件映射到类型（T1-T11）
+- [ ] 每个组件有唯一编号（C01, C02, ...）
+- [ ] 嵌套关系已声明（父子组件）
+- [ ] 组件数已确认：无遗漏、无幽灵项
+- [ ] 每个组件引用源需求（F00X）
+
+### G3b: HTML 注释准备（条件性，仅 Full 路径 + 有 HTML 原型时）
+
+- [ ] 项目已有 HTML 原型且组件数 ≥ 3（满足嵌入条件）
+- [ ] design.md 中的 Annotation Blocks 数据完整，可映射为 JS ANNOTATIONS 对象
+- [ ] 每个组件有唯一 key（英文简短标识）
+- [ ] 触发按钮放置策略已确定（inline / header / nav 三种机制）
+- [ ] 导航标签的图标 + 短名已确定
+- [ ] ANNOTATIONS keys ↔ @ComponentName ↔ data-annot 属性：一对一匹配
+
 ### G4: 自检完成
 
 - [ ] 无占位文本（`{占位符}` 均已替换）
 - [ ] 所有声明已区分 Fact / Inference / Hypothesis
 - [ ] 没有 scope creep
-- [ ] Full 路径：注释符合质量自检清单全部标准
+- [ ] Full 路径：注释符合类型模板要求（见 `references/annotation-templates.md` §5）
 - [ ] Full 路径：proposal / design / tasks 引用链一致
+- [ ] Full 路径：API 调用组件已声明 Block B（API Call Declaration）
+- [ ] Full 路径：状态覆盖符合类型最低要求
 
 ### 失败处理
 
@@ -116,6 +145,9 @@ digraph spec_analyze_flow {
     "方案收敛\n→ references/decision-log-format.md" [shape=box];
     "设计呈现\n(逐节批准)" [shape=diamond];
     "输出生成\n→ references/output-templates.md" [shape=box];
+    "组件枚举\n→ 类型映射 T1-T11" [shape=box];
+    "注释生成\n→ 类型模板填充" [shape=box];
+    "HTML 注释嵌入\n→ references/html-annotation-system.md" [shape=box];
     "质量自检\n→ references/quality-checklists.md" [shape=box];
     "用户审阅" [shape=diamond];
     "writing-plans" [shape=doublecircle];
@@ -128,8 +160,12 @@ digraph spec_analyze_flow {
     "压力测试\n→ scenario-stress-test.md" -> "方案收敛\n→ decision-log-format.md";
     "方案收敛\n→ decision-log-format.md" -> "设计呈现\n(逐节批准)";
     "设计呈现\n(逐节批准)" -> "方案收敛\n→ decision-log-format.md" [label="修改"];
-    "设计呈现\n(逐节批准)" -> "输出生成\n→ output-templates.md" [label="批准"];
-    "输出生成\n→ output-templates.md" -> "质量自检\n→ quality-checklists.md";
+    "设计呈现\n(逐节批准)" -> "输出生成\n→ output-templates.md" [label="批准 | G3"];
+    "输出生成\n→ output-templates.md" -> "组件枚举\n→ 类型映射 T1-T11" [label="Full 路径子流程"];
+    "组件枚举\n→ 类型映射 T1-T11" -> "注释生成\n→ 类型模板填充" [label="G3a"];
+    "注释生成\n→ 类型模板填充" -> "HTML 注释嵌入\n→ html-annotation-system.md" [label="Full + 有原型 | G3b"];
+    "注释生成\n→ 类型模板填充" -> "质量自检\n→ quality-checklists.md" [label="Full(无原型)/Standard/Lightweight"];
+    "HTML 注释嵌入\n→ html-annotation-system.md" -> "质量自检\n→ quality-checklists.md";
     "质量自检\n→ quality-checklists.md" -> "用户审阅";
     "用户审阅" -> "输出生成\n→ output-templates.md" [label="修改"];
     "用户审阅" -> "writing-plans" [label="Full 路径"];
@@ -174,7 +210,14 @@ digraph spec_analyze_flow {
 
 ## 注释框架（Full 路径独有）
 
-分析完成后，Full 路径的文档使用三层注释体系。详见 `references/output-templates.md`。
+分析完成后，Full 路径的文档使用两层注释体系：
+
+| 层 | 控制 | 机制 |
+|----|------|------|
+| **L1/L2/L3** | 注释广度（覆盖多少字段） | 平面层级系统 |
+| **T1-T11 类型** | 注释深度（每个组件必须含什么） | 交互模式类型系统 |
+
+详见 `references/annotation-templates.md`（类型系统）和 `references/output-templates.md`（层级定义）。
 
 | 等级 | 适用场景 | 字段 |
 |------|----------|------|
@@ -220,6 +263,8 @@ digraph spec_analyze_flow {
 | `references/personas.md` | 5 个专家角色的定义、核心问题、红旗信号、升级路径 |
 | `references/scenario-stress-test.md` | 压力测试场景库：数据/用户/系统三大类 |
 | `references/decision-log-format.md` | 决策记录的结构化格式与示例 |
-| `references/output-templates.md` | 三条路径的输出模板 + 三层注释框架 + 全链路工作流 |
-| `references/quality-checklists.md` | 质量自检清单 + 跨文档一致性检查 + 各角色评审清单 |
+| `references/output-templates.md` | 三条路径的输出模板 + 两层注释框架 + 全链路工作流 |
+| `references/quality-checklists.md` | 质量自检清单 + 跨文档一致性检查 + 各角色评审清单 + 类型特定检查 + HTML 注释检查 |
 | `references/web-research-guide.md` | Web research 触发条件、搜索策略、信息整合框架 |
+| `references/annotation-templates.md` | 类型注释模板：11 种交互模式（T1-T11）、共享块、嵌套规则、内容质量规则、生成流程 |
+| `references/html-annotation-system.md` | HTML 注释嵌入：何时使用、架构、数据格式、组件映射、集成步骤、完整 CSS/JS/HTML 模板 |
