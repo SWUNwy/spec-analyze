@@ -6,6 +6,27 @@ spec-analyze is an AI agent skill that guides large language models through a st
 
 ---
 
+## Quick Start
+
+See spec-analyze in action in 30 seconds:
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/SWUNwy/spec-analyze.git
+cd spec-analyze
+
+# 2. Open the demo page
+open demo/index.html
+```
+
+The demo page shows a User Management UI with 3 annotated components — Stats Cards, Data Table, and a Create User Form. **Click any 📋 button** to open the annotation panel:
+
+![spec-analyze demo — annotation panel open](demo/screenshot-panel.png)
+
+Each annotation block shows the component's trigger conditions, behavior rules, API contracts, state machine, and dismiss logic — the same format that spec-analyze generates for real projects.
+
+---
+
 ## Why spec-analyze?
 
 ### The Core Use Case: Annotating Prototypes for Engineering Handoff
