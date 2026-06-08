@@ -1,0 +1,503 @@
+# Annotation Templates — 类型化注释模板系统
+
+> **版本:** v1.0
+> **设计原则:** 第一性原理——从注释的消费者（PM/Dev/Test/Design）需求出发，确保质量内建于框架而非依赖外部检查。
+
+---
+
+## 1. 概述
+
+### 1.1 痛点
+
+原 L1/L2/L3 框架是扁平通用模板——一个模板试图覆盖所有组件类型。导致：
+
+- 字段结构存在，但字段内容质量无约束（代码语言 vs 产品语言）
+- 关键维度遗漏（permission、validation 不在框架内）
+- 状态覆盖要求模糊（"至少一种"意味着可以跳过 submitting/error）
+- HTML trigger 无放置规则
+- 组件间一致性无法验证
+
+### 1.2 解法
+
+**类型化模板**——按交互模式对组件分类，每类有专属的字段定义、内容规则、状态机。质量由模板结构保障，而非靠人肉检查清单。
+
+### 1.3 设计原则
+
+1. **消费者驱动：** 每个字段的存在理由是"有角色需要这个信息"
+2. **类型驱动：** 同交互模式 = 同模板，不同模式 = 不同模板
+3. **内容规则 > 字段存在：** 字段填了不等于填对了，内容规则定义"什么算对"
+4. **状态机是强制门槛：** 类型级状态要求确保测试可操作性
+5. **共享块避免冗余：** DialogContext / APICall / Permission 三种上下文被类型引用而非内嵌
+
+---
+
+## 2. 组件类型分类（Component Taxonomy）
+
+分类依据是**交互模式**（interaction pattern）——同模式需要同模板，不同模式用不同模板。
+
+| ID | 类型名 | 交互模式 | 典型实例 | 消费者主要关注者 |
+|----|--------|---------|---------|:--------------:|
+| T1 | **DisplayMetric** | 展示数据指标，无用户输入 | 统计卡片 | PM / Dev |
+| T2 | **DataList** | 列表 + 分页 + 选择 | 流量主列表表格 | Dev / Test |
+| T3 | **ActionButton** | 单操作触发 | "添加"按钮 | Dev / PM |
+| T4 | **ActionMenu** | 多选一操作 | 批量操作 dropdown | Dev / Test |
+| T5 | **ConfirmAction** | 二次确认 | 批量确认弹窗 | PM / Test |
+| T6 | **FormFill** | 表单填写 + 校验 + 提交 | 创建流量主弹窗 | Dev / Test / PM |
+| T7 | **ItemSelect** | 搜索 + 筛选 + 选择 + 确认 | 添加已有流量主弹窗 | Dev / Test |
+| T8 | **SearchSelect** | 搜索式选择器（子组件） | 人员搜索器 | Dev |
+| T9 | **Toast** | 瞬态反馈 | 操作成功提示 | Dev / Design |
+| T10 | **StatusPlaceholder** | 空 / 加载 / 错误占位 | 骨架屏 / 空表格 | Dev / Design |
+| T11 | **PageInfo** | 页面辅助说明 | 标题 ⓘ 气泡 | PM / Design |
+
+### 2.1 分类规则
+
+- 视觉变化（颜色、间距）不独立成类——它们依附于交互组件
+- 嵌套组件在实例化时声明关系，不独立成类
+- 只出现一次且确定不复用的组件不需要独立成类，用已有类型标注
+- 弹窗（Dialog）不是类型，是上下文——FormFill / ItemSelect / ConfirmAction 通过 `context: DialogContext` 复用弹窗属性
+
+### 2.2 "对话" / "内容"行为如何处理
+
+"对话"（Chat）/ "内容"（Content Display）等行为有强展示逻辑但非高度交互的组件行为，依据底层交互模式选用类型处理、而无需为其单独设立类型：
+
+- WebRTC/IM/评论区：驱动模式符合表单/数据列表原型界面的基础行为，用 T6 FormFill 控件、T2 DataList 控件组合构成。
+- PDF/AI编辑器/文本编辑器：原生基于 Canvas/DOM + 快捷键/多点触控等多态交互，不适用于通用基于 CRUD 的模板体系，在需求分析阶段归入"高度交互"组件，在设计阶段单独定义。
+
+---
+
+## 3. 共享属性块
+
+三种被多个类型引用的共享块，避免字段重复定义。
+
+### 3.1 Block A：DialogContext — 弹窗上下文
+
+> 引用方式：类型定义中声明 `context: DialogContext`，可缺省默认值。
+
+| 字段 | 内容规则 | 约束 |
+|------|---------|:----:|
+| placement | 居中定位 + 宽度（px 或百分比） | 必填 |
+| timing | 入场/出场动效及时长，默认 "200ms slideUp" | 可选 |
+| dismiss | ESC / 遮罩层 / 关闭按钮（三选一或全选） | 必填 |
+| z-index | 层叠层级，默认 1000 | 可选 |
+
+### 3.2 Block B：APICall — 后端交互
+
+> 引用方式：类型定义中声明 `api: [Block B]`。无反向后端调用的组件不应出现此块。
+
+| 字段 | 内容规则 | 约束 |
+|------|---------|:----:|
+| endpoint | HTTP 方法 + 完整路径（含 path param 约定） | 必填 |
+| params | 查询参数（key: 说明），无则省略 | 可选 |
+| request | 请求体字段映射（从数据行/表单字段到 API 参数） | 必填（无 body 则填 N/A）|
+| response | 成功响应结构 + 关键字段说明 | 必填 |
+| error | 可预见的业务错误码 + 对应前端行为 | 可选 |
+
+### 3.3 Block C：Permission — 权限约束
+
+> 引用方式：类型定义中声明 `context: Block C`（或分别声明 view / operate）。
+
+| 字段 | 内容规则 | 约束 |
+|------|---------|:----:|
+| view | 谁可以看到这个组件 | 必填（无约束填"所有人"）|
+| operate | 谁可以操作（点击/编辑/提交）| 可选（与 view 相同时省略）|
+
+### 3.4 嵌套引用规则
+
+当组件 B 是组件 A 的子组件时（如 FormFill 在 EntryDialog 内），B 的共享块定义遵循以下层级：
+
+- **同层共享：** 子组件直接引用父组件的 DialogContext（不重复定义）
+- **向上覆盖：** 子组件权限缩小（例如列表中行内操作需额外权限）时，在子组件 Block C 中补充声明，仅声明的字段做 override，未声明的字段向父组件继承
+- **跨级禁止：** 不允许子组件引用非直接父级的共享块
+
+---
+
+## 4. 类型模板定义
+
+每个类型模板包含字段列表，每个字段标注：归属、必填等级、内容规则。
+
+### 4.1 T1 DisplayMetric — 数据指标展示
+
+| 字段 | 归属 | 必填 | 内容规则 |
+|------|------|:----:|---------|
+| trigger | — | 是 | 触发更新的时机：page load / data change event / manual refresh |
+| data | — | 是 | **指标计算规则**——用自然语言描述筛选逻辑，不能出现代码语法 |
+| interaction | — | 否 | 点击指标卡的行为描述；无则省略，不写"N/A" |
+| context | Block C | 视情况 | view 权限不涉及角色区分时可省略 |
+| state | — | 是 | **至少覆盖：** normal, loading, error |
+| style | — | 否 | 宽/高/间距/圆角/底色/阴影 |
+
+> **内容规则 - data 字段：** 写"只统计 type 字段值为 internal 的流量主"，而非 "count(type=internal)"。
+
+### 4.2 T2 DataList — 列表 + 分页 + 选择
+
+| 字段 | 归属 | 必填 | 内容规则 |
+|------|------|:----:|---------|
+| trigger | — | 是 | 加载/刷新列表的时机 |
+| columns | — | 是 | 每列：field + label + 渲染规则（枚举映射/格式化/联动） |
+| pagination | — | 是 | 每页条数、页码居中/居左、省略号策略 |
+| selection | — | 否 | 选择模式（none / single / multi）、跨页是否保持选择 |
+| rowActions | — | 否 | 行内操作按钮 + 触发条件/权限 |
+| api | Block B | 是 | 列表接口（含 query 参数约定） |
+| context | Block A | 否 | 如果在弹窗内则声明；否则省略 |
+| context | Block C | 是 | 数据行级权限差异（不同角色看到不同数据）|
+| state | — | 是 | **至少覆盖：** normal, loading, empty, error |
+| style | — | 否 | 行高、斑马线/实线边框、hover 高亮色 |
+
+### 4.3 T3 ActionButton — 单操作触发按钮
+
+| 字段 | 归属 | 必填 | 内容规则 |
+|------|------|:----:|---------|
+| trigger | — | 是 | click / 快捷键 |
+| behavior | — | 是 | **单句描述**——打开弹窗 / 跳转页面 / 调用接口 |
+| context | Block C | 是 | view + operate 权限 |
+| context | Block B | 否 | 如果直接调 API 则声明；否则不出现 |
+| dismiss | — | 否 | 按钮本身无 dismiss；若触发弹窗则在弹窗处声明 |
+| state | — | 是 | **至少覆盖：** normal, disabled（if 有条件禁用）, loading（if 直接调 API）|
+| style | — | 否 | variant（primary/secondary/danger）、size |
+
+> **设计原则：** ActionButton 本身极简。复杂度包裹在被它打开的弹窗或触发的流程中，不堆在按钮上。
+
+### 4.4 T4 ActionMenu — 多选一操作菜单
+
+| 字段 | 归属 | 必填 | 内容规则 |
+|------|------|:----:|---------|
+| trigger | — | 是 | click → 展开菜单 |
+| items | — | 是 | 每项：label, action, variant（danger？）, disabled condition |
+| context | Block C | 是 | 谁可以使用这个菜单 |
+| dismiss | — | 是 | 点击外部 / ESC / 选中后关闭 |
+| state | — | 是 | **至少覆盖：** normal（折叠态）, open（展开态）, disabled（灰色态）|
+| style | — | 否 | 触发按钮样式、下拉面板宽度、max-height |
+
+### 4.5 T5 ConfirmAction — 二次确认流程
+
+| 字段 | 归属 | 必填 | 内容规则 |
+|------|------|:----:|---------|
+| trigger | — | 是 | 什么操作会触发此确认（引用来源组件）|
+| behavior | — | 是 | 确认后执行什么（直接描述业务结果，或引用 APICall）|
+| content | — | 是 | icon + title + description + 确认列表摘要 |
+| context | Block A | 是 | DialogContext + Block C |
+| dismiss | Block A | 是 | 取消 / ESC / 遮罩 → 不执行；确认 → 执行 |
+| state | — | 是 | **至少覆盖：** normal, submitting, error |
+| style | Block A | 否 | 按钮排列（左取消右确认）、确认按钮颜色 |
+
+### 4.6 T6 FormFill — 表单填写 + 校验 + 提交
+
+| 字段 | 归属 | 必填 | 内容规则 |
+|------|------|:----:|---------|
+| trigger | — | 是 | 打开方式（页面加载 / 按钮点击→弹窗 / 行内展开）|
+| fields | — | 是 | 见下方字段级子表 |
+| api | Block B | 是 | 提交接口 |
+| behavior | — | 是 | 提交前校验触发器（blur / submit）、提交后行为（关闭→刷新→Toast）|
+| context | Block A | 视情况 | 如果在弹窗中必填 DialogContext |
+| context | Block C | 是 | view + operate |
+| dismiss | — | 是 | 未保存内容时关闭是否有提示；ESC/遮罩行为与 DialogContext 一致 |
+| state | — | 是 | **强制覆盖：** normal, fieldError, submitting, success, apiError |
+| style | — | 否 | label 宽度、input 高度、错误提示位置 |
+
+**fields 字段级子表：**
+
+| 子字段 | 必填 | 内容规则 |
+|--------|:----:|---------|
+| label | 是 | 展示给用户的文案 |
+| type | 是 | input / select / radio / textarea / url / email / password / number |
+| placeholder | 否 | 占位文案；无则省略，不填"N/A" |
+| required | 是 | true / false |
+| validation | 视情况 | required=true 时必填；URL 格式 / 邮箱格式 / 密码长度 / 唯一性校验 |
+| options | 否 | type=select 时枚举值列表；边界情况需包含说明和条件规则约定 |
+| default | 否 | 预填值及来源（自动生成 / 权限系统 / URL 参数）；明确是否需要用户修改 |
+
+### 4.7 T7 ItemSelect — 搜索 + 筛选 + 选择 + 确认
+
+| 字段 | 归属 | 必填 | 内容规则 |
+|------|------|:----:|---------|
+| trigger | — | 是 | 打开方式 |
+| search | — | 是 | 搜索触发方式（input / focus）、匹配逻辑（case-insensitive contains）|
+| filter | — | 否 | 分类筛选条件 |
+| selection | — | 是 | 模式（radio / checkbox）+ 选中后是否立即触发行为 |
+| preCheck | — | 否 | 确认前校验逻辑（如已认证流量主拦截）|
+| confirm | — | 是 | 确认后执行（API 调用 + 页面刷新）|
+| api | Block B | 是 | 列表接口 + 提交接口（两个声明）|
+| context | Block A | 视情况 | 如果在弹窗中必填 DialogContext |
+| context | Block C | 是 | 可选择的条目范围限制 |
+| dismiss | Block A | 是 | ESC / 遮罩 / 取消 |
+| state | — | 是 | **强制覆盖：** normal, loading, empty, searchEmpty, selected, confirming, error |
+| style | Block A | 否 | 列表高度、选中高亮色 |
+
+### 4.8 T8 SearchSelect — 搜索式选择器（子组件）
+
+> **与 T7 的关系：** SearchSelect 是子组件，出现在 FormFill 表单行中或被 ItemSelect / FormFill 复用。它不单独打开弹窗。如果一个弹窗只做"搜索并选择"一件事，用 T7 而非 T8。
+
+| 字段 | 归属 | 必填 | 内容规则 |
+|------|------|:----:|---------|
+| trigger | — | 是 | focus → 加载全部；input → 即时搜索（含 debounce 时长）|
+| api | Block B | 是 | 搜索接口 |
+| match | — | 是 | 匹配哪些字段 + 匹配模式（partial / prefix）|
+| display | — | 是 | 选中后展示格式（如 "{id} | {name}"）|
+| callback | — | 是 | 选中后触发（onSelect → 填充目标字段）|
+| dismiss | — | 是 | click 外部 / ESC / 选中 → 收起下拉 |
+| state | — | 是 | **至少覆盖：** idle, focus, searching, selected, empty, error |
+| style | — | 否 | 下拉 max-height、overflow-y、选中高亮色 |
+
+### 4.9 T9 Toast — 瞬态反馈
+
+| 字段 | 归属 | 必填 | 内容规则 |
+|------|------|:----:|---------|
+| trigger | — | 是 | 什么操作成功后/失败后触发（引用来源组件的成功/fail callback）|
+| behavior | — | 是 | showToast(message, type) → 自动隐藏（不支持手动关闭）|
+| types | — | 是 | 枚举：success / error / info；说明各类型的使用场景 |
+| timing | — | 是 | 显示时长 + 入场/出场动效类型及时长 |
+| placement | — | 是 | 屏幕位置（如"顶部右侧 fixed"）|
+| state | — | 是 | show / hidden |
+
+### 4.10 T10 StatusPlaceholder — 空 / 加载 / 错误占位
+
+| 字段 | 归属 | 必填 | 内容规则 |
+|------|------|:----:|---------|
+| trigger | — | 是 | 何时显示（数据为空 / API 失败 / 加载中）|
+| behavior | — | 是 | 每种状态展示什么 + 可操作按钮（if any）|
+| content | — | 是 | 每种状态：icon, title, description, actionButton |
+| dismiss | — | 否 | 数据加载成功 → 替换为正常内容（非手动关闭）|
+| state | — | 是 | empty / loading / error（根据触发条件区分）|
+
+### 4.11 T11 PageInfo — 页面辅助说明
+
+| 字段 | 归属 | 必填 | 内容规则 |
+|------|------|:----:|---------|
+| trigger | — | 是 | click ⓘ → toggle 气泡 |
+| content | — | 是 | 标题 + 正文文案 |
+| placement | — | 是 | 气泡箭头指向位置 + 气泡框宽度 |
+| dismiss | — | 是 | click 外部 → 关闭 |
+| responsive | — | 否 | ≤768px 时宽度收窄 + left 偏移防溢出 |
+| state | — | 是 | hidden / visible |
+
+---
+
+## 5. 嵌套关系规则
+
+### 5.1 嵌套声明
+
+在实例化注释时，嵌套关系通过 `context` 字段声明：
+
+```yaml
+# 实例化示例：添加已有流量主弹窗
+metadata:
+  key: addExisting
+  type: T7 ItemSelect
+  context:
+    dialog: DialogContext  # 引用共享块 A
+
+# 实例化示例：创建流量主表单
+metadata:
+  key: createNew
+  type: T6 FormFill
+  context:
+    dialog: DialogContext  # 引用共享块 A
+    components:
+      - key: personnelSearch
+        type: T8 SearchSelect
+        context: {}  # DialogContext 继承父级，不重复定义
+```
+
+### 5.2 继承规则
+
+- **DialogContext 继承：** 子组件不声明 DialogContext → 隐式使用父组件的 DialogContext
+- **Permission 覆盖：** 子组件可单独声明 Block C（缩小权限范围），仅声明的字段覆盖父级；未声明的字段向父组件继承
+- **跨级禁止：** 不允许子组件引用非直接父级的共享块。如需求需要跨级引用，说明组件树设计不合理，应重构
+
+### 5.3 影响范围
+
+当父组件标注为"修改"时，所有嵌套的子组件自动标注为"受影响需验证"。这是可维护性的基本机制。
+
+---
+
+## 6. 内容规则总则
+
+所有字段的注释内容必须遵守以下规则：
+
+### 6.1 语言规范
+
+- **使用产品语言：** 描述用户可感知的行为和业务规则，不使用实现语言
+  - 正确："仅统计 type 字段值为 internal 的流量主"
+  - 错误："count(type=internal AND status=active)"
+  - 正确："输入文字实时匹配流量主账号和名称"
+  - 错误："input → filter by name/publisherId (case-insensitive)"
+- **使用完整陈述句：** 不使用碎片化的关键词短语
+  - 正确："点击外部或按下 ESC 键关闭弹窗"
+  - 错误："click outside / ESC close"
+
+### 6.2 精度规范
+
+- **禁止模糊范围词：** 不使用"可能"、"应该"、"酌情"等模糊词——每个声明必须是确定的
+- **枚举值全列举：** select 的选项全列出，不使用"等"、"..."
+- **边界说明：** 数字类型的 min/max 显式标注
+
+### 6.3 完整性规范
+
+- **不留占位符：** 不允许 `{占位符}`、`{示例}` 等未替换文本
+- **不写 "N/A"：** 某字段对当前实例不适用时直接省略该字段，不写 "N/A" 或"不适用"
+- **不跨字段重复：** 同一信息只出现一次，引用使用 `→ 见 T6.FieldX`
+
+### 6.4 可追溯规范
+
+- 每条 behavior 如果对应 proposal 的 F00X，在括号内标注：`添加成员（F002）`
+- 每条 API 声明标注对应后端接口的文档来源（如有）
+
+---
+
+## 7. 与 L1/L2/L3 框架的映射
+
+类型化模板不替代 L1/L2/L3——它们解决不同的问题：
+
+| 维度 | L1/L2/L3 | 类型化模板 |
+|------|----------|-----------|
+| 解决的问题 | 注释深度（该写多详细） | 注释内容（该写什么字段） |
+| 选择依据 | 组件复杂度 | 组件交互模式 |
+| 覆盖范围 | 全局通用 | 类型特有 |
+| 内容质量控制 | 无 | 有（内容规则） |
+
+**使用方式：** 两种框架叠加使用：
+
+1. 先识别组件交互模式 → 选择类型模板（T1-T11）
+2. 根据复杂度选择注释等级（L1/L2/L3）
+3. 类型模板决定字段结构，注释等级决定字段深度
+
+| 等级 | 对类型模板的叠加要求 |
+|------|-------------------|
+| L1 | 仅填充 trigger / behavior / dismiss + 必填字段；state 覆盖 2 种即可 |
+| L2 | 填充全部必填字段 + 可选字段的大部分；state 覆盖全 |
+| L3 | L2 + responsive + accessibility + i18n |
+
+---
+
+## 8. 质量验证方法
+
+### 8.1 逐类型验证表
+
+生成 HTML 注释后，逐条验证：
+
+```
+[ ] 每个实例的 metadata.type 指向已定义的类型（T1-T11）
+[ ] 必填字段全部填充（markdown 无空白）
+[ ] 必填字段的内容遵守对应内容规则（无代码语言、无模糊词、无"N/A"）
+[ ] state 覆盖 >= 模板要求的最低覆盖量
+[ ] 嵌套组件的 context 链路完整（子→父可追溯）
+[ ] 修改父组件时标记了影响范围
+```
+
+### 8.2 跨组件一致性验证
+
+```
+[ ] 同类型的不同实例，字段填充深度一致（没有 A 写了 5 个 state、B 只写了 2 个）
+[ ] 同页面或同系统在同样交互模式使用同样类型模板
+[ ] 同一字段在不同注释中表述一致（例："媒介主管"不在 A 叫"主管"、B 叫"管理员"）
+```
+
+### 8.3 HTML trigger 放置验证
+
+```
+[ ] 每个组件实例有至少一个 trigger 按钮
+[ ] trigger 按钮在组件的可视边界内，间隔 ≤ 8px（视觉上"贴紧"）
+[ ] trigger 按钮的 data-annot 值与 ANNOTATIONS key 一致
+```
+
+---
+
+## 9. 使用流程集成
+
+类型化模板在 spec-analyze Full 路径中的位置：
+
+```
+Step 8 设计呈现（逐节批准）
+  ↓
+Step 8a 组件枚举 —— 列出页面所有交互组件及其类型（T1-T11）
+  ↓ 检查：是否有遗漏组件？类型选择是否合理？
+Step 8b 类型模板填充 —— 按类型模板逐组件填充注释
+  ↓ 检查：必填字段是否完整？内容规则是否遵守？
+Step 9 输出生成（proposal + design + tasks + HTML 注释）
+  ↓
+Step 10 质量验证 —— 运行 §8 验证表
+  ↓
+Step 11 用户审阅
+```
+
+> **关键 gate：** Step 8a 的组件枚举未完成并通过检查 → 禁止进入 Step 8b。
+> 组件枚举是质量的基础——遗漏组件在此门禁止是最后一道线。
+
+### 9.1 Back-propagation 同步机制
+
+当注释在生成阶段（Step 9-10）被发现与设计不一致而做了修正时，变更必须**反向同步**回 design.md。
+
+**触发条件：** HTML 注释生成或质量验证阶段（Step 9-10）发现以下任一情况：
+
+- 发现某组件缺失（设计阶段遗漏）→ 补充到 design.md §2 + tasks.md
+- 发现 behavior/state/permission 描述不准确 → 修正 design.md 对应 Annotation Block
+- 发现字段校验规则不完整 → 补充到 design.md 对应注释块 + Field Specification Table
+- 发现弹窗样式/动效与设计不一致 → 修正 design.md 的 style/timing 字段
+
+**执行方式：**
+
+1. 在 HTML 注释中做的每个修正，同步检查 design.md 中是否存在同一信息的描述
+2. 如果存在 → 用同样的修正更新 design.md
+3. 如果不存在 → 在 design.md 中补充
+4. 标记变更范围：`[BP] 源自 HTML 注释修正 — {日期}`，便于追溯
+
+**禁止规则：**
+
+- 不允许只修正 HTML 注释而不更新 design.md（导致引用链断裂）
+- 不允许只更新 design.md 而不通知 tasks.md 的引用变更（如果有）
+- 不允许绕过 back-propagation 直接进入 Step 12 用户审阅
+
+---
+
+## 10. 实例：R001 组件枚举
+
+```
+页面：内部流量主管理
+
+1. 统计卡片区（T1 DisplayMetric）
+   - 内部流量主数卡片
+   - 总流量主数卡片
+   - 活跃流量主数卡片
+
+2. 操作工具栏（T3 ActionButton + T4 ActionMenu）
+   - "添加已有流量主" 按钮 → 打开 T7 ItemSelect（复用 T8 SearchSelect）
+   - "分配内部流量主" 按钮 → 打开 T6 FormFill（嵌套 T8 SearchSelect）
+   - "添加媒体" 按钮 → 打开 T6 FormFill
+   - "批量操作" 下拉菜单（T4 ActionMenu）→ 触发 T5 ConfirmAction
+
+3. 流量主列表（T2 DataList + T5 ConfirmAction）
+   - 主表格（含选择、分页、行内操作）
+   - 行内"删除" → 触发 T5 ConfirmAction
+
+4. 页面标题（T11 PageInfo）
+   - ⓘ 说明气泡
+
+5. Detail 页
+   - 详情头部信息（T1 DisplayMetric + T3 ActionButton）
+   - 编辑表单（T6 FormFill）
+   - 媒体管理列表（T2 DataList）
+   - 备注编辑器（T6 FormFill — 单字段版）
+   - 操作日志（T2 DataList — 只读）
+   - 转让按钮（T3 ActionButton → 打开 T6 FormFill）
+
+6. Toast 通知（T9 Toast）— 全局 1 次定义
+7. 状态占位（T10 StatusPlaceholder）— 全局 1 次定义
+```
+
+---
+
+## 附录 A：类型定义总表
+
+| ID | 名称 | 共享块引用 | 最低 state 覆盖 | 最小注释等级 |
+|----|------|-----------|:-------------:|:----------:|
+| T1 | DisplayMetric | Block C（可选） | normal, loading, error | L1 |
+| T2 | DataList | Block B + Block C + Block A（可选） | normal, loading, empty, error | L2 |
+| T3 | ActionButton | Block C + Block B（可选） | normal, disabled, loading | L1 |
+| T4 | ActionMenu | Block C | normal, open, disabled | L2 |
+| T5 | ConfirmAction | Block A + Block C | normal, submitting, error | L2 |
+| T6 | FormFill | Block A（可选）+ Block B + Block C | normal, fieldError, submitting, success, apiError | L2 |
+| T7 | ItemSelect | Block A（可选）+ Block B + Block C | normal, loading, empty, searchEmpty, selected, confirming, error | L2 |
+| T8 | SearchSelect | Block B | idle, focus, searching, selected, empty, error | L2 |
+| T9 | Toast | — | show, hidden | L1 |
+| T10 | StatusPlaceholder | — | empty, loading, error | L1 |
+| T11 | PageInfo | — | hidden, visible | L1 |
