@@ -89,20 +89,26 @@ For multi-perspective analysis with approach comparison. Aim for 1-2 pages.
 
 ---
 
-## Full Path → Triple-Document Output
+## Full Path → Triple-Document Output (+ Optional HTML Annotation)
 
-The core differentiator of spec-analyze. Produces three interconnected documents with spec-analyze's exclusive **annotation framework**.
+The core differentiator of spec-analyze. Produces three interconnected documents with spec-analyze's exclusive **annotation framework**, plus an optional **HTML Annotation Injection** when a prototype already exists.
 
-### Two-Layer Annotation Framework
+### Annotation Framework
 
-The annotation system uses two complementary layers:
+The framework has two orthogonal layers: **Type Templates** (determine field structure) and **Annotation Tiers** (determine field depth). Both must be applied together.
 
-| Layer | Controls | Mechanism |
-|-------|----------|-----------|
-| **L1/L2/L3** | Annotation breadth | Flat tier system — how many fields a component gets |
-| **T1-T11 Types** | Annotation depth | Type system — what fields a component *must* have based on its interaction pattern |
+#### Layer 1: Type Templates (see `references/annotation-templates.md`)
 
-#### Layer 1: Three Annotation Tiers (Breadth)
+Components are classified by interaction pattern into 11 types (T1-T11). Each type defines:
+
+- What fields must exist (e.g., FormFill requires `fields[]`, DataList requires `columns`)
+- What state coverage is mandatory (e.g., FormFill: normal, fieldError, submitting, success, apiError)
+- What content rules apply (product language, not code)
+- What shared blocks are needed (DialogContext / APICall / Permission)
+
+**Usage rule:** Always start by mapping each component to a type. If no type fits, the component may be a novel interaction pattern that needs a new type definition.
+
+#### Layer 2: Annotation Tiers
 
 | Tier | When to Use | Fields |
 |------|-------------|--------|
@@ -111,25 +117,36 @@ The annotation system uses two complementary layers:
 | **L3 Complete** | High-precision / global components (DatePicker, Table, Modal) | L2 + accessibility / responsive / i18n |
 
 **Usage rules:**
-- **L1 default**: all interaction annotations start at L1
+- **L1 default**: all annotations start at L1
 - **Upgrade on demand**: only upgrade to L2 when L1 is insufficient for implementation
 - **L3 reserved for global components**: only for components reused across multiple pages
 - **Don't restate the obvious**: Ant Design / MUI default behavior doesn't need annotation
 
+#### Applying Both Layers Together
+
+1. Identify component → map to type (T1-T11) → determine required fields
+2. Choose annotation tier (L1-L3) → determine field depth
+3. For each type-mandatory field, fill at the chosen tier's depth
+
+**Example:** A FormFill component at L2 gets:
+- Type-mandatory fields: trigger, fields[], api, behavior, context (permission), dismiss, state (mandatory: normal, fieldError, submitting, success, apiError), style
+- L2 depth adds: placement (DialogContext), timing (200ms), full state descriptions
+- Fields NOT in the type template (e.g., pagination) are omitted
+
 #### Field Definitions
 
 ```
-L1 Common
+L1 Common (applied per type template)
 ──────────────────────────────────────
 trigger   Trigger condition     hover / click / focus / scroll / blur
-behavior  Behavior description  Show Tooltip / Expand dropdown / Submit / Navigate
-dismiss   Dismiss condition     mouse leave / click outside / Esc / auto-dismiss
+behavior  Behavior description  Describe user-perceptible outcomes, not implementation
+dismiss   Dismiss condition     mouse leave / click outside / Esc / auto-dismiss / confirm/cancel
 
-L2 Adds
+L2 Adds (applied per type template)
 ──────────────────────────────────────
-placement Display position      top / bottom / topRight / center / left
-style     Visual details        color / spacing / font / z-index / content type
-state     State behaviors       normal / empty / loading / error / overflow / countdown
+placement Display position      center / topRight / dropdown / tooltip direction
+style     Visual details        color / spacing / font / z-index / border / shadow
+state     State behaviors       See type-specific minimum coverage in annotation-templates.md §4
 timing    Animation & delay     200ms fade in / 100ms fade out / 300ms debounce
 
 L3 Adds
@@ -139,42 +156,39 @@ responsive    Responsive        Touch fallback / small screen adaptation / print
 i18n          Internationalization   Whether translation is needed
 ```
 
-#### Layer 2: Type Annotation System (Depth)
-
-Each component is classified into one of 11 interaction pattern types. The type determines mandatory fields and state coverage. See `annotation-templates.md` for full definitions.
-
-| Type | Pattern | Examples | Mandatory Fields | States (min) |
-|------|---------|---------|-----------------|--------------|
-| **T1** | Static Display | Label, Badge, Avatar | trigger, dismiss | normal |
-| **T2** | Data List | Table, CardList, LogList | trigger, behavior, state | normal / loading / empty / error |
-| **T3** | Action Trigger | Button, IconButton | trigger, behavior, state, dismiss | normal / disabled / loading |
-| **T4** | Dropdown / Select | Dropdown, Select | trigger, behavior, state, dismiss, placement | normal / open / closed |
-| **T5** | Dialog / Modal | ConfirmModal, FormModal | trigger, behavior, state, dismiss, timing | normal / open / submitting / apiError |
-| **T6** | Form Fill | Form, InputGroup, Editor | trigger, behavior, state, style, timing | normal / fieldError / submitting / success / apiError |
-| **T7** | Search / Filter | SearchInput, SearchableSelect | trigger, behavior, state, dismiss, timing | idle / focus / searching / selected / empty / error |
-| **T8** | Toggle / Switch | Toggle, Checkbox, Radio | trigger, behavior, state | normal / disabled / checked |
-| **T9** | Notification | Toast, Alert, Banner | trigger, behavior, state, placement, timing | hidden / show |
-| **T10** | Navigation | Tab, Breadcrumb, Pagination | trigger, behavior, state | normal / active / disabled |
-| **T11** | Inline Edit | EditableCell, InlineInput | trigger, behavior, state, dismiss, timing | normal / editing / submitting / apiError |
-
 #### State Specification Rules
 
-State must cover two perspectives:
+State coverage is **type-mandatory**, not discretionary. Each type template in `annotation-templates.md` §4 defines the minimum states:
+
+| Type | Mandatory State Coverage |
+|------|-------------------------|
+| DisplayMetric | normal, loading, error |
+| DataList | normal, loading, empty, error |
+| ActionButton | normal, disabled, loading |
+| ActionMenu | normal, open, disabled |
+| ConfirmAction | normal, submitting, error |
+| FormFill | normal, fieldError, submitting, success, apiError |
+| ItemSelect | normal, loading, empty, searchEmpty, selected, confirming, error |
+| SearchSelect | idle, focus, searching, selected, empty, error |
+| Toast | show, hidden |
+| StatusPlaceholder | empty, loading, error |
+| PageInfo | hidden, visible |
+
+Each state must cover two perspectives:
 
 | Perspective | Requirement | Example |
 |-------------|-------------|---------|
 | **Dev perspective** | Describe component behavior in that state | `submitting: button loading + disabled, text "Logging in..."` |
 | **Tester perspective** | Describe full trigger-to-presentation path | `error: blur on invalid email → red border + "Invalid email format"` |
 
-**State minimum coverage**: Each type has its own minimum states (see table above). Type requirements override the generic "normal + 2 non-normal" rule.
-
 #### Role ↔ Annotation Field Mapping
 
 | Role | Fields of Interest | Reason |
 |------|-------------------|--------|
-| Dev | trigger, behavior, dismiss, state (boundaries) | Know trigger conditions, implement behaviors, handle edges |
+| PM / Product Reviewer | behavior, context(permission), data, preCheck | Business rules, scope, access control |
+| Dev | trigger, behavior, dismiss, state, api, fields.validation | Implement behavior, API integration, error handling |
 | Tester | state (all branches), trigger, dismiss | State transitions become test cases |
-| UI | style, placement, timing | Visual details, position, animation |
+| UI | style, placement, timing, responsive | Visual details, position, animation |
 
 ### Template: proposal.md
 
@@ -245,56 +259,54 @@ State must cover two perspectives:
 
 ## 1. Design Overview
 
-## 2. Component Design
+## 2. System Architecture
 
-### 2.0 Component Overview
+## 3. Interface Design
 
-| # | Component | Type | Parent | Level | Responsibility | States |
-|---|-----------|------|--------|-------|---------------|--------|
-| C01 | @ComponentName | T2 DataList | — | L2 | description | normal / loading / empty / error |
+| Endpoint | Method | Parameters | Returns | Error Scenarios |
+|-----------|--------|------------|---------|-----------------|
 
-### 2.1 {Component Name}
+## 4. Data Model
 
-#### Annotation Block @{ComponentName} {L-level}  ← proposal.md F00X
+## 5. Component Design
 
-\```
-[Trigger]   ...
-[Behavior]  ... (include API or use [API] block)
-[Placement] (if applicable)
-[Style]     (if L2+)
-[State]     ...
-[Timing]    (if applicable)
-[Dismiss]   ...
-\```
+### 5.1 {Component Name}
 
-#### Filled Example: @EmailPasswordForm L2 (T6 FormFill)
+| Component | Responsibility | Props | State |
+|-----------|---------------|-------|-------|
+| {Name} | {responsibility} | {props} | {states} |
+
+#### Annotation Block @{ComponentName} {L-level}
 
 \```
-[Trigger]   input → blur triggers field validation
-            click "Log in" → triggers full validation + API call
-[Behavior]  blur: validate single field, error→red border + red error text
-            submit: full validation→pass→POST /api/auth/login
-            → success: localStorage.setItem('token') → redirect to home
-            → failure: Toast with backend error message
-[API]       POST /api/auth/login
-            Body: {email: string(required, email), password: string(required, min 6, max 32)}
-            → 200: {token: string, user: {id, name}}
-            → 401: Toast "邮箱或密码错误"
-            → 503: Toast "服务暂不可用，请稍后重试"
-[Style]     border-radius 4px, height 40px; focus border highlight
-[State]     normal: empty form; focused: focus highlight
-            error: red border + error text
-            submitting: button loading + disabled "Logging in..."
-            apiError: Toast with error message, form stays
-[Dismiss]   success→redirect; failure→restore normal
+[Dev]   trigger:   ...
+[Dev·Tester] behavior: ...
+[UI]   style:     ...
+[Tester] state:    ...
+[Dev]   dismiss:   ...
 \```
 
-## 3. Error Handling
+#### Example: Annotation Block @EmailPasswordForm L2
+
+\```
+[Dev]   trigger:   input → blur triggers field validation
+                  click "Log in" → triggers full validation + API call
+[Dev·Tester] behavior:  blur: validate single field, error→red border + red error text
+                  submit: full validation→pass→POST /api/auth/login
+                  → success: localStorage.setItem('token') → redirect to home
+                  → failure: Toast with backend m field
+[UI]   style:     border-radius 4px, height 40px; focus border highlight
+[Tester] state:    normal: empty form; focused: focus highlight;
+                  error: red border + error text; submitting: button loading + disabled "Logging in..."
+[Dev]   dismiss:   success→redirect; failure→restore normal
+\```
+
+## 6. Error Handling
 
 | Error Type | Scenario | Handling |
 |-----------|----------|----------|
 
-## 4. Appendix: Field Specification Table
+## 7. Appendix: Field Specification Table
 
 | Module | Field | UI Label | Format Constraint | Empty Strategy | Data Source |
 |--------|-------|----------|-------------------|---------------|-------------|
@@ -339,20 +351,37 @@ Product requirements (natural language)
    │       ├── Context exploration (files/docs/code)
    │       ├── Multi-role questioning (converge requirements)
    │       ├── Stress testing (identify boundaries & risks)
-   │       └── Solution convergence + design presentation
+   │       └── Solution convergence + design presentation → G3
    │
-   ├── 2. Component enumeration + annotation generation
-   │       ├── 2a. Enumerate all interactive components
-   │       │      └── Map each to T1-T11 type (annotation-templates.md §2)
-   │       ├── 2b. Generate annotation blocks per type
-   │       │      └── Fill mandatory fields + state machine per type
-   │       │      └── Apply content quality rules (product language §6)
-   │       └── Output: design.md with complete annotation blocks + component table
+   ├── 1b. Component enumeration & type mapping (see annotation-templates.md)
+   │       ├── List all interactive components on the page
+   │       ├── Map each to type (T1-T11)
+   │       └── Declare nesting relationships → G3a
    │
-   ├── 3. Output generation (Full path)
+   ├── 2. Output generation (Full path)
+   │       ├── Fill type templates per component (see annotation-templates.md §4)
    │       ├── proposal.md (functional requirements + 3-column annotations)
    │       ├── design.md (component design + annotation blocks + field table)
    │       └── tasks.md (task steps with annotation references)
+   │
+   ├── 2b. HTML Annotation Build-in (conditional — user agrees in Step 9)
+   │       ├── Decision point within Step 9: before generating HTML, ask user whether to include annotations
+   │       ├── If yes: generate HTML FROM SCRATCH with annotation system built in (not retrofitted)
+   │       ├──   ├── ANNOTATIONS JS data object from design.md Annotation Blocks
+   │       │   ├── CSS (.annot-trigger, .annot-panel, .annot-overlay, .annot-nav, .annot-body)
+   │       │   ├── HTML structure (overlay + panel + nav tabs + trigger buttons on each component)
+   │       │   └── JS (toggleAnnot, closeAnnot, renderAnnotBody, escapeHtml)
+   │       ├── Then Step 10: verify annotations are correctly embedded (not re-generate)
+   │       └── Run back-propagation: sync HTML annotation fixes back to design.md
+   │
+   │
+   ├── 3. Quality self-check → G4
+   │       ├── Content quality: product language, no code syntax, no placeholders
+   │       ├── State coverage: per type minimums (see annotation-templates.md §4)
+   │       ├── Permission & validation: declared for all relevant components
+   │       ├── Cross-component consistency: same type, same depth
+   │       ├── Trigger placement: every component has trigger ≤ 8px
+   │       └── Error scenarios: coverage against annotation-templates.md error table
    │
    ├── 4. Requirements review
    │       ├── PM → F00X descriptions + acceptance criteria

@@ -1,32 +1,6 @@
 # Quality Self-Check & Review Checklists
 
-Spec-analyze's unique quality assurance system. Each output type has its own self-check checklist, plus cross-doc consistency checks, type-specific checks, HTML annotation checks, and role-specific review checklists.
-
----
-
-## Quality Gates
-
-### G3a: Component Enumeration Completeness (Step 8a → 8b)
-
-Only checked for Full path. Verifies that all components have been identified before annotation generation.
-
-- [ ] All interactive components on the page are listed
-- [ ] Each component is mapped to a type (T1-T11)
-- [ ] Each component has a unique ID (C01, C02, ...)
-- [ ] Nesting relationships declared (parent-child)
-- [ ] Component count: no omissions, no phantom items
-- [ ] Each component references its source requirement (F00X)
-
-### G3b: HTML Annotation Readiness (Step 9 → 10)
-
-Only checked for Full path when HTML prototype exists and component count ≥ 3.
-
-- [ ] Project has HTML prototype and component count ≥ 3 (embedding condition met)
-- [ ] design.md Annotation Blocks complete, mappable to JS ANNOTATIONS object
-- [ ] Each component has unique key (English short identifier)
-- [ ] Trigger button placement strategy determined (inline / header / nav)
-- [ ] Nav tab icons and short names determined
-- [ ] ANNOTATIONS keys ↔ @ComponentName ↔ data-annot attribute: one-to-one match
+Spec-analyze's unique quality assurance system. Each output type has its own self-check checklist, plus cross-doc consistency checks and role-specific review checklists.
 
 ---
 
@@ -37,46 +11,22 @@ Only checked for Full path when HTML prototype exists and component count ≥ 3.
   - Field source: API path? Body parameter? Return field?
   - Format constraint: Data type? Length limit? Regex? Enum values?
   - Boundary value: Empty strategy? Default value? Overflow handling?
-- [ ] **Interaction annotation** marks grade (L1/L2/L3) + type (T1-T11) + one-line behavior description
+- [ ] **Interaction annotation** marks grade (L1/L2/L3) + one-line behavior description
 - [ ] **UI text annotation** includes all visible copy: placeholder / label / error / tooltip / button text
 - [ ] Interaction grade selection is reasonable (no over-annotation: simple interactions don't get L2+)
 
 ## Design Self-Check
 
 - [ ] Every interactive component has an annotation block
-- [ ] Annotation block fields are complete per type requirement (see annotation-templates.md §5)
-- [ ] State coverage meets type-specific minimums (see below)
-- [ ] Block B (API Call) declared for all API-calling components
+- [ ] Annotation block fields are complete per grade (L1 at minimum trigger/behavior/dismiss)
+- [ ] **State covers key states per component type (see annotation-templates.md §4 各类型 state 字段最低覆盖要求)**
+- [ ] **Permission is declared for every component with access restrictions (see annotation-templates.md Block C)**
+- [ ] **Validation rules are declared for every form/input component (see annotation-templates.md T6 fields.validation)**
 - [ ] **Error handling section covers: network error / validation failure / business error — all three categories**
 - [ ] **Field specification table includes: format constraint column (prevents proposal-design information gap)**
 - [ ] L3 components supplement with accessibility and responsive annotations
-
-### Type-Specific State Coverage Minimums
-
-| Type | Required States | Check Items |
-|------|----------------|-------------|
-| T1 Static | normal | N/A — minimal component |
-| T2 DataList | normal, loading, empty, error | empty: "暂无X" copy defined; error: retry action defined |
-| T3 Action | normal, disabled, loading | disabled condition clear; loading text defined |
-| T4 Dropdown | normal(closed), open | open: placement defined; closed: dismiss triggers defined |
-| T5 Dialog | normal(closed), open, submitting, apiError | apiError: Toast/keep-open behavior defined |
-| T6 Form | normal, fieldError, submitting, success, apiError | fieldError: per-field error msg; submitting: button loading; apiError: Toast |
-| T7 Search | idle, focus, searching, selected, empty, error | searching: debounce ms; empty: "未找到" copy; error: "服务异常" copy |
-| T8 Toggle | normal, disabled, checked | checked state visual defined |
-| T9 Notification | hidden, show | show duration; hide animation; multiple stack behavior |
-| T10 Nav | normal, active, disabled | active indicator defined |
-| T11 Inline | normal, editing, submitting, apiError | editing: field style; submitting: loading; apiError: keep-edit-state |
-
-### Error Scenario Coverage Table
-
-| Error Category | Must Cover | Example |
-|---------------|------------|---------|
-| 表单验证 | blur 校验 + submit 校验 | 空值 / 格式错误 / 长度超限 |
-| 数据格式 | 邮箱 / 密码 / URL / 数字 | 邮箱不含@、密码不够长、URL 非法 |
-| 业务拦截 | 去重 / 权限 / 状态冲突 | 重复分配、自交、已认证 |
-| 空结果 | 表格空态 / 搜索无结果 / 详情空态 | "暂无数据" + 操作入口 |
-| 网络异常 | timeout / offline / server error | Toast "网络异常" / "服务暂不可用" |
-| 服务端错误 | 4xx / 5xx | 409: 冲突提示; 503: "请稍后重试" |
+- [ ] **如果存在 HTML 原型（含本次新生成的）且组件数 ≥ 3：HTML 注释系统已按 `html-annotation-system.md` 内建并验证**
+- [ ] **Full 路径：组件枚举已完成（annotation-templates.md §9 Step 8a），无遗漏无幽灵项**
 
 ## Tasks Self-Check
 
@@ -90,9 +40,50 @@ Only checked for Full path when HTML prototype exists and component count ≥ 3.
 - [ ] **Proposal data annotation ↔ design interface/field design**: field names consistent
 - [ ] **Proposal UI text annotation ↔ design field table**: copy consistent
 - [ ] **Proposal F00X IDs ↔ tasks referenced features**: full coverage
-- [ ] **Tasks annotation references ↙ design.md sections**: one-to-one existence verified
-- [ ] **ANNOTATIONS keys (HTML prototype) ↔ design.md @ComponentName**: all components present
-- [ ] **data-annot attributes ↔ ANNOTATIONS keys**: one-to-one match
+- [ ] **Tasks annotation references ↘ design.md sections**: one-to-one existence verified
+- [ ] **如果生成了 HTML 注释：ANNOTATIONS keys ↔ design.md @ComponentName**: 一一对应，无遗漏
+- [ ] **如果生成了 HTML 注释：data-annot 属性值 ↔ ANNOTATIONS keys**: 完全一致
+- [ ] **Full 路径：注释内容语言为产品语言（无代码语法，无模糊词，无占位符）← 对照 annotation-templates.md §6**
+- [ ] **Full 路径：HTML trigger 按钮位置验证 — 每个组件至少 1 个 trigger，在可视边界内（≤ 8px）**
+- [ ] **Full 路径：Back-propagation 验证 — 如果 HTML 注释验证中有修正，检查 design.md 是否同步更新**
+
+---
+## 新增：类型化模板专检（Full 路径）
+
+在完成基础自检后，补充以下针对类型化模板的专项检查。
+
+### 组件枚举检查
+
+- [ ] 所有交互组件已列举，无遗漏
+- [ ] 每个组件已映射到 annotation-templates.md 的类型（T1-T11）
+- [ ] 类型选择合理：同交互模式使用同类型
+- [ ] 嵌套关系已通过 context 声明
+
+### 内容质量检查
+
+- [ ] 注释使用产品语言（完整陈述句，无代码语法）← annotation-templates.md §6.1
+- [ ] 无模糊词（"可能"、"应该"、"酌情"）← §6.2
+- [ ] 枚举值全列举，无"等"、"..." ← §6.2
+- [ ] 无占位符（{占位符}均已替换）← §6.3
+- [ ] 无 "N/A" 字段（不适用字段直接省略）← §6.3
+- [ ] 每条 behavior 如果对应 proposal 需求，标注了 F00X ID ← §6.4
+
+### 跨组件一致性检查
+
+- [ ] 同类型各实例字段填充深度一致
+- [ ] 同一术语在不同组件中表述一致
+
+### 错误场景与表现
+- [ ] 网络不通 - Toast error 提示
+- [ ] 操作误触/条件不满足导致操作时 - Disabled 体现、Toast 错误提示
+- [ ] 填写内容不符合规则 - Blur 边框置红、提示文案【标注格式约束、长度约束、枚举值约束】，submit 阻止提交，字段级错误提示
+- [ ] 空数据 - 空状态设计（占位插图 + 提示文案 + 补充操作按钮）
+- [ ] 数据加载中 - Skeleton 加载骨架屏
+- [ ] 业务规则拦截 - 弹窗/行内红色提示区块，禁用操作按钮
+- [ ] 超时/服务不可用 - 友好的中文错误提示（Toast/页面提示）
+- [ ] 并发/重复提交 - 按钮 loading 状态，防重复提交
+- [ ] 接口返回 409/其他业务冲突 - 具体错误提示（如"该人员已拥有账号「某名称」"）
+- [ ] 身份/权限异常 - Toast 提示"无法确认操作人身份"或操作按钮隐藏/禁用
 
 ---
 
@@ -102,24 +93,24 @@ Used during requirements review. Each role checks items line by line.
 
 ### Dev Perspective Review
 
-- [ ] Every field's format constraint is clear (type/length/regex/enum)
-- [ ] Every field's empty/boundary strategy is clear
-- [ ] Annotation state covers type-specific minimums
-- [ ] API request/response structure is complete (Block B present)
-- [ ] Error handling trigger conditions and presentation are clear
+- [ ] Every field's format constraint is clear (type/length/regex/enum)                          ← from annotation @{Component} behavior
+- [ ] Every field's empty/boundary strategy is clear                                              ← from annotation @{Component} state
+- [ ] Annotation state covers loading / error / empty                                             ← from annotation @{Component} state
+- [ ] API request/response structure is complete                                                  ← from annotation @{Component} behavior
+- [ ] Error handling trigger conditions and presentation are clear                                ← from annotation @{Component} trigger + state
 
 ### Tester Perspective Review
 
-- [ ] Annotation state is convertible to test cases (per type minimums)
-- [ ] Error handling section covers: network exception + data exception + business exception
-- [ ] Every input field's boundary values are defined (empty/overflow/special chars)
-- [ ] User action triggers are testable (blur / click / Enter)
-- [ ] Flow has clear "success" and "failure" determination conditions
+- [ ] Annotation state is convertible to test cases (normal / loading / error / empty)            ← from annotation @{Component} state
+- [ ] Error handling section covers: network exception + data exception + business exception      ← from annotation @{Component} state + behavior
+- [ ] Every input field's boundary values are defined (empty/overflow/special chars)              ← from annotation @{Component} state
+- [ ] User action triggers are testable (blur / click / Enter)                                    ← from annotation @{Component} trigger
+- [ ] Flow has clear "success" and "failure" determination conditions                              ← from annotation @{Component} dismiss + state
 
 ### UI Perspective Review
 
-- [ ] All visible copy is defined (placeholder / label / error / tooltip / button text)
-- [ ] Color/spacing/border-radius are annotated
-- [ ] Loading/empty/error visual states are described
-- [ ] Responsive/mobile behavior is defined (if applicable)
-- [ ] Animation timing is annotated (if applicable)
+- [ ] All visible copy is defined (placeholder / label / error / tooltip / button text)          ← from annotation @{Component} state
+- [ ] Color/spacing/border-radius are annotated                                                   ← from annotation @{Component} style
+- [ ] Loading/empty/error visual states are described                                             ← from annotation @{Component} state
+- [ ] Responsive/mobile behavior is defined (if applicable)                                       ← from annotation @{Component} responsive
+- [ ] Animation timing is annotated (if applicable)                                               ← from annotation @{Component} timing
