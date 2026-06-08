@@ -118,70 +118,80 @@ For full type definitions, see `references/annotation-templates.md`.
 
 ---
 
-## How It Works: The Analysis Pipeline
+## Pipeline Overview
 
-spec-analyze implements a **13-step pipeline** with **6 quality gates**:
+spec-analyze implements a **13-step pipeline** with **7 quality gates**:
 
 ```
 User Input
     │
     ▼
-┌─────────────────────────┐
-│ 1. Route Assessment     │  ──  Lightweight / Standard / Full
-└───────────┬─────────────┘
-            ▼
-┌─────────────────────────┐
-│ 2. Context Explore      │  ──  Read project files, check docs,
-│    (+ Web Research)     │      optionally search web for competitive intel
-└───────────┬─────────────┘
-            │  G1: Context completeness gate
-            ▼
-┌─────────────────────────┐
-│ 3. Persona Questions    │  ──  5 expert roles probe from different angles
-└───────────┬─────────────┘
-            ▼
-┌─────────────────────────┐
-│ 4. Stress Testing       │  ──  "What if" scenarios push for edge cases
-└───────────┬─────────────┘
-            ▼
-┌─────────────────────────┐
-│ 5. Converge             │  ──  2-3 approaches, Architecture Cleanliness
-│    + Decision Log       │      assessment, structured decision recording
-└───────────┬─────────────┘
-            │  G2: Convergence completeness gate
-            ▼
-┌─────────────────────────┐
-│ 6. Design Presentation  │  ──  Section-by-section, user approves each
-└───────────┬─────────────┘
-            │  G3: Output readiness gate
-            ▼
-┌─────────────────────────┐
-│ 7. Generate Output      │  ──  Templates matched to routing path
-└───────────┬─────────────┘
-            │  Full path sub-process:
-            │  7a. Component Enumeration (→ G3a)
-            │  7b. Annotation Generation per type template
-            ▼
-┌─────────────────────────┐
-│ 8. HTML Annotation      │  ──  (Conditional) Embed annotations into
-│    Embedding            │      HTML prototype as interactive sidebar
-└───────────┬─────────────┘
-            │  G3b: HTML annotation readiness gate
-            ▼
-┌─────────────────────────┐
-│ 9. Quality Self-Check   │  ──  Run DoD checklist for current path
-└───────────┬─────────────┘
-            │  G4: Self-review completion gate
-            ▼
-┌─────────────────────────┐
-│ 10. User Review         │  ──  Present output for final approval
-└───────────┬─────────────┘
-            ▼
-    ┌──────────┐
-    │ Done /   │  ──  Full path → handoff to implementation planning
-    │ writing- │
-    │ plans    │
-    └──────────┘
+┌─────────────────────────────┐
+│ 1. Quick Assessment         │  ──  Discussion nature, complexity, expected output
+└─────────────┬───────────────┘
+              ▼
+┌─────────────────────────────┐
+│ 2. Route Confirmation       │  ──  Path-specific message declaring output & annotation scope
+└─────────────┬───────────────┘
+              │  + Continuous scope monitoring (see 2.5 Agent Role Dynamics)
+              ▼
+┌─────────────────────────────┐
+│ 3-4. Context Explore        │  ──  Read project files, check docs,
+│      (+ Web Research)       │      optionally search web for competitive intel
+└─────────────┬───────────────┘
+              │  G1: Context completeness gate
+              ▼
+┌─────────────────────────────┐
+│ 5. Persona Questions        │  ──  5 expert roles probe from different angles
+└─────────────┬───────────────┘  [skip Lightweight]
+              ▼
+┌─────────────────────────────┐
+│ 6. Stress Testing           │  ──  "What if" scenarios push for edge cases
+└─────────────┬───────────────┘  [skip Lightweight]
+              ▼
+┌─────────────────────────────┐
+│ 7. Converge + Decision Log  │  ──  2-3 approaches, Architecture Cleanliness
+│                             │      assessment, structured decision recording
+└─────────────┬───────────────┘
+              │  G2: Convergence completeness gate
+              ▼
+┌─────────────────────────────┐
+│ 8. Design Presentation      │  ──  Section-by-section, user approves each
+└─────────────┬───────────────┘
+              │  G3: Output readiness gate
+              ▼
+┌─────────────────────────────┐
+│ 8a-8b. Component Enumeration│  ──  Full path: list components → map to types
+│        & Template Filling   │      (T1-T11) → fill annotation fields
+└─────────────┬───────────────┘
+              │  G3a: Enumeration completeness gate
+              ▼
+┌─────────────────────────────┐
+│ 9. Output Generation        │  ──  Templates matched to routing path
+│    (with annotation         │      If HTML prototype + ≥3 components:
+│     decision sub-process)   │      → ask user whether to build-in annotation panel
+└─────────────┬───────────────┘
+              │  G3b: Output planning gate (HTML + ≥3 comps only)
+              ▼
+┌─────────────────────────────┐
+│ 10. HTML Annotation Verify  │  ──  (Conditional) Verify annotations correctly
+│                             │      built-in: triggers, ANNOTATIONS data, panel
+└─────────────┬───────────────┘
+              │  G3c: Annotation verification gate
+              ▼
+┌─────────────────────────────┐
+│ 11. Quality Self-Check      │  ──  Run DoD checklist for current path
+└─────────────┬───────────────┘
+              │  G4: Self-review completion gate
+              ▼
+┌─────────────────────────────┐
+│ 12. User Review             │  ──  Present output for final approval
+└─────────────┬───────────────┘
+              ▼
+    ┌────────────────┐
+    │ 13. Done /      │  ──  Full path → handoff to implementation planning
+    │ writing-plans   │
+    └────────────────┘
 ```
 
 ### Three Routing Paths
@@ -190,7 +200,7 @@ User Input
 |------|-----------|----------|-------------|--------|----------|
 | **Lightweight** | Quick question | None | No | Insight Brief (½ page) | Clarifying a requirement, quick feasibility check |
 | **Standard** | Medium analysis | 2-3 most relevant | Yes | Analysis Report (1-2 pages) | Feature design, approach comparison, decision support |
-| **Full** | Complete design | All 5 | Yes | proposal.md + design.md + tasks.md (+ optional HTML annotations) | Complex features needing complete spec-to-implementation handoff |
+| **Full** | Complete design | All 5 | Yes | proposal.md + design.md + tasks.md (+ user-decided HTML annotation panel) | Complex features needing complete spec-to-implementation handoff |
 
 **Lightweight Upgrade Gate**: Before outputting a Lightweight result, the system auto-checks if the discussion crossed into implementation territory. If so, it proposes upgrading to Standard.
 
@@ -252,9 +262,9 @@ Each type has a minimum state machine. For example:
 
 ---
 
-## HTML Annotation Embedding
+## HTML Annotation System
 
-When the Full path generates output for a project that already has an HTML prototype with 3+ components, spec-analyze can optionally embed annotations directly into the prototype as an interactive **PRD annotation sidebar**:
+When the Full path generates (or modifies) an HTML prototype with 3+ components, the agent asks the user whether to **build-in** an interactive **PRD annotation sidebar**. If agreed, the annotation system is generated as part of the HTML from scratch (not retrofitted):
 
 ```
 ┌──────────────────────────────────────────────────┐
@@ -280,7 +290,7 @@ Key features:
 - **Inline trigger buttons** (📋) on each component section
 - **Header toggle button** for global access
 - **Keyboard shortcut**: ESC to close
-- **Back-propagation**: corrections made during embedding sync back to design.md
+- **back-propagation**: corrections found during verification sync back to design.md
 
 See `references/html-annotation-system.md` for full implementation details.
 
@@ -341,15 +351,16 @@ This design enables AI coding agents to read tasks.md, follow annotation referen
 
 Every output passes through checkpoints at each pipeline stage.
 
-### Quality Gates (G1–G4, G3a, G3b)
+### Quality Gates (G1–G4, G3a, G3b, G3c)
 
 | Gate | Location | What It Checks |
 |------|----------|----------------|
 | G1: Context completeness | Step 4 → 5 | Scope defined, project files read, web research done |
 | G2: Convergence complete | Step 7 → 8 | ≥2 approaches compared, Architecture Cleanliness assessed, decisions logged |
-| G3: Output readiness | Step 8 → 9 | Templates selected, all sections have data, output path set |
-| G3a: Enumeration complete | Step 9a → 9b | All components enumerated, typed, no omissions |
-| G3b: HTML readiness | Step 9 → 10 | ANNOTATIONS data complete, triggers placed, keys match |
+| G3: Output readiness | Step 8 → 8a | All sections have data, output path set |
+| G3a: Enumeration complete | Step 8a → 8b | All components enumerated, typed, no omissions |
+| G3b: Output planning | Step 9 | If HTML + ≥3 components: user consulted, enumeration data complete |
+| G3c: Annotation verify | Step 10 | Triggers placed, ANNOTATIONS data complete, back-propagation done |
 | G4: Self-review complete | Step 11 → 12 | No placeholders, fact/inference distinguished, type compliance |
 
 ### Cross-Document Consistency Checks
@@ -448,7 +459,7 @@ This is what spec-analyze was built for. You have a prototype or design concept,
 1. **Describe your prototype** — explain what you've designed (upload wireframes, describe screens, list components)
 2. **Analysis pipeline runs** — spec-analyze assesses complexity, routes to the right path, asks targeted questions about interaction details
 3. **Annotated output generated** — every interactive component receives structured annotation blocks (trigger/behavior/dismiss/state/style/timing) classified by type (T1-T11)
-4. **Optionally embedded** — if you have an HTML prototype, annotations can be embedded as an interactive sidebar
+4. **User decides on annotations** — if an HTML prototype is involved, the agent asks whether to build in the interactive annotation sidebar
 5. **Engineering consumes directly** — developers or AI coding agents read the annotations and implement
 
 **Example session:**
@@ -520,7 +531,7 @@ This modular structure enables progressive disclosure: the system only loads wha
 | `references/quality-checklists.md` | Quality checklists with type-specific and HTML checks |
 | `references/web-research-guide.md` | Web research trigger conditions and strategy |
 | `references/annotation-templates.md` | 11 interaction pattern types (T1-T11) with state machines |
-| `references/html-annotation-system.md` | HTML annotation embedding with full templates |
+| `references/html-annotation-system.md` | HTML annotation build-in system with full templates |
 
 ---
 
