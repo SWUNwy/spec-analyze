@@ -3,3 +3,6 @@
 
 # macOS
 .DS_Store
+
+# Hot-pluggable knowledge assets (company-specific, not open source)
+knowledge/

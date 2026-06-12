@@ -424,6 +424,28 @@ Trigger conditions: competitive benchmarking, component/UX pattern validation, t
 
 ---
 
+## Business Knowledge Hot-Plug
+
+spec-analyze supports injecting business domain context from a `knowledge/` directory.
+
+```
+spec-analyze/
+├── SKILL.md
+├── references/
+├── knowledge/              ← Create this directory
+│   └── your-domain-knowledge.md
+└── .gitignore
+```
+
+How it works:
+
+1. Create `knowledge/` in the skill directory
+2. Place `.md` files with your business knowledge (industry terms, system architecture, business processes)
+3. When you run spec-analyze, it detects the files and asks if you want to load them as analysis context
+4. Loaded knowledge is referenced during analysis — decision records can cite source sections
+
+The `knowledge/` directory is gitignored by default, keeping proprietary knowledge out of the open-source repository.
+
 ## Installation
 
 ### As a Claude Code Skill
