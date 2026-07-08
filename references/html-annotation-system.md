@@ -164,7 +164,7 @@ Behavior 和 State 中常用树形结构表示条件分支：
 
 ### 4.0 前置条件：组件枚举与类型映射
 
-在放置 trigger 按钮之前，必须先完成组件枚举和类型映射（参见 `annotation-templates.md` §9 Step 8a）：
+在放置 trigger 按钮之前，必须先完成组件枚举和类型映射（参见 `annotation-templates.md` §9 — 对应 SKILL.md Full 路径 Step 6F）：
 
 - 列出页面所有交互组件
 - 映射每个组件到类型（T1-T11），确定字段结构

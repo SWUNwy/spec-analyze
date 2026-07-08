@@ -407,27 +407,29 @@ metadata:
 类型化模板在 spec-analyze Full 路径中的位置：
 
 ```
-Step 8 设计呈现（逐节批准）
-  ↓
-Step 8a 组件枚举 —— 列出页面所有交互组件及其类型（T1-T11）
-  ↓ 检查：是否有遗漏组件？类型选择是否合理？
-Step 8b 类型模板填充 —— 按类型模板逐组件填充注释
+Step 5F 设计呈现（逐节批准）
+  ↓ 批准 → S3
+Step 6F 组件枚举 —— 列出页面所有交互组件及其类型（T1-T11）
+  ↓ 检查：是否有遗漏组件？类型选择是否合理？→ S3a
+Step 7F 类型模板填充 —— 按类型模板逐组件填充注释
   ↓ 检查：必填字段是否完整？内容规则是否遵守？
-Step 9 输出生成（proposal + design + tasks + HTML 注释）
+Step 8F 输出生成（proposal + design + tasks + HTML 注释）
+  ↓ → S3b
+Step 9F HTML 注释验证（条件性，仅用户同意内建时）
+  ↓ → S3c
+Step 10F 质量验证 —— 运行 §8 验证表
   ↓
-Step 10 质量验证 —— 运行 §8 验证表
-  ↓
-Step 11 用户审阅
+用户审阅
 ```
 
-> **关键 gate：** Step 8a 的组件枚举未完成并通过检查 → 禁止进入 Step 8b。
-> 组件枚举是质量的基础——遗漏组件在此门禁止是最后一道线。
+> **关键门禁（S3a）：** Step 6F 的组件枚举未完成并通过检查 → 禁止进入 Step 7F。
+> 组件枚举是质量的基础——遗漏组件在此门禁是最后一道线。
 
 ### 9.1 Back-propagation 同步机制
 
-当注释在生成阶段（Step 9-10）被发现与设计不一致而做了修正时，变更必须**反向同步**回 design.md。
+当注释在输出生成或验证阶段（Step 8F-9F）被发现与设计不一致而做了修正时，变更必须**反向同步**回 design.md。
 
-**触发条件：** HTML 注释生成或质量验证阶段（Step 9-10）发现以下任一情况：
+**触发条件：** HTML 注释生成或质量验证阶段（Step 8F-9F）发现以下任一情况：
 
 - 发现某组件缺失（设计阶段遗漏）→ 补充到 design.md §2 + tasks.md
 - 发现 behavior/state/permission 描述不准确 → 修正 design.md 对应 Annotation Block
@@ -445,7 +447,7 @@ Step 11 用户审阅
 
 - 不允许只修正 HTML 注释而不更新 design.md（导致引用链断裂）
 - 不允许只更新 design.md 而不通知 tasks.md 的引用变更（如果有）
-- 不允许绕过 back-propagation 直接进入 Step 12 用户审阅
+- 不允许绕过 back-propagation 直接进入用户审阅
 
 ---
 

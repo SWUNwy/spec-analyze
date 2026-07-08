@@ -26,7 +26,7 @@ Spec-analyze's unique quality assurance system. Each output type has its own sel
 - [ ] **Field specification table includes: format constraint column (prevents proposal-design information gap)**
 - [ ] L3 components supplement with accessibility and responsive annotations
 - [ ] **如果存在 HTML 原型（含本次新生成的）且组件数 ≥ 3：HTML 注释系统已按 `html-annotation-system.md` 内建并验证**
-- [ ] **Full 路径：组件枚举已完成（annotation-templates.md §9 Step 8a），无遗漏无幽灵项**
+- [ ] **Full 路径：组件枚举已完成（annotation-templates.md §9），无遗漏无幽灵项**
 
 ## Tasks Self-Check
 

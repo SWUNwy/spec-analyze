@@ -2,6 +2,16 @@
 
 Three output formats matching the three routing paths. Full path uses spec-analyze's exclusive annotation framework and triple-document output.
 
+## Output Paths
+
+| Path | Output | Default Location |
+|------|--------|-----------------|
+| Lightweight | Insight Brief | Conversation only (no file written) |
+| Standard | Analysis Report + proposal.md | `docs/spec-analyze/reports/YYYY-MM-DD-<topic>-report.md` |
+| Full | proposal.md + design.md + tasks.md (+ HTML prototype) | `docs/spec-analyze/specs/R0XX-<topic>/` |
+
+User preferences override defaults. Show path before generation. Auto-create target directory.
+
 ---
 
 ## Lightweight Path → Insight Brief
@@ -351,12 +361,12 @@ Product requirements (natural language)
    │       ├── Context exploration (files/docs/code)
    │       ├── Multi-role questioning (converge requirements)
    │       ├── Stress testing (identify boundaries & risks)
-   │       └── Solution convergence + design presentation → G3
+   │       └── Solution convergence + design presentation → S3
    │
    ├── 1b. Component enumeration & type mapping (see annotation-templates.md)
    │       ├── List all interactive components on the page
    │       ├── Map each to type (T1-T11)
-   │       └── Declare nesting relationships → G3a
+   │       └── Declare nesting relationships → S3a
    │
    ├── 2. Output generation (Full path)
    │       ├── Fill type templates per component (see annotation-templates.md §4)
@@ -364,18 +374,18 @@ Product requirements (natural language)
    │       ├── design.md (component design + annotation blocks + field table)
    │       └── tasks.md (task steps with annotation references)
    │
-   ├── 2b. HTML Annotation Build-in (conditional — user agrees in Step 9)
-   │       ├── Decision point within Step 9: before generating HTML, ask user whether to include annotations
+   ├── 2b. HTML Annotation Build-in (conditional — user agrees in Step 8F)
+   │       ├── Decision point within Step 8F: before generating HTML, ask user whether to include annotations
    │       ├── If yes: generate HTML FROM SCRATCH with annotation system built in (not retrofitted)
    │       ├──   ├── ANNOTATIONS JS data object from design.md Annotation Blocks
    │       │   ├── CSS (.annot-trigger, .annot-panel, .annot-overlay, .annot-nav, .annot-body)
    │       │   ├── HTML structure (overlay + panel + nav tabs + trigger buttons on each component)
    │       │   └── JS (toggleAnnot, closeAnnot, renderAnnotBody, escapeHtml)
-   │       ├── Then Step 10: verify annotations are correctly embedded (not re-generate)
+   │       ├── Then Step 9F: verify annotations are correctly embedded (not re-generate)
    │       └── Run back-propagation: sync HTML annotation fixes back to design.md
    │
    │
-   ├── 3. Quality self-check → G4
+   ├── 3. Quality self-check → S4
    │       ├── Content quality: product language, no code syntax, no placeholders
    │       ├── State coverage: per type minimums (see annotation-templates.md §4)
    │       ├── Permission & validation: declared for all relevant components
