@@ -146,7 +146,7 @@ spec_analyze_state:
 | 0 | 路由确认 | 用户确认 Standard 路径 | — |
 | 1S | 完整上下文探索 | 项目文件/文档查阅 + knowledge/ 加载 + web research + 视觉伴侣 | S1 |
 | 2S | 多角色提问 | 激活 2-3 最相关的角色视角（见 `references/personas.md`），每个角色至少 1-2 个问题 | — |
-| 3S | 压力测试 | 选择 2-3 个相关场景做 what-if 探测（见 `references/scenario-stress-test.md`） | — |
+| 3S | 多框架发散 | 按意图选择发散框架，做多维度 what-if 探测（见 `references/divergence-frameworks.md`） | — |
 | 4S | 方案收敛 | 2-3 方案对比 + 决策记录（见 `references/decision-log-format.md`）+ 范围锁定 | S2 |
 | 5S | 设计呈现 | 分节呈现，逐节获取批准 → **批准 → 继续；否决 → 回到 4S** | S3 |
 | 6S | 输出 Analysis Report | 输出 Analysis Report + proposal.md 到 `docs/spec-analyze/reports/` | S4 |
@@ -159,7 +159,7 @@ spec_analyze_state:
 | 0 | 路由确认 | 用户确认 Full 路径 | — |
 | 1F | 完整上下文探索 | 项目文件/文档查阅 + knowledge/ 加载 + web research + 视觉伴侣 | S1 |
 | 2F | 多角色提问 | 激活全部 5 角色（见 `references/personas.md`），Risk Challenger 全程参与 | — |
-| 3F | 压力测试 | 选择 2-4 个相关场景做 what-if 探测（见 `references/scenario-stress-test.md`） | — |
+| 3F | 多框架发散 | 按意图选择发散框架 + 组合，做多层次 what-if 探测（见 `references/divergence-frameworks.md`） | — |
 | 4F | 方案收敛 | 2-3 方案对比 + 决策记录（见 `references/decision-log-format.md`）+ 范围锁定 | S2 |
 | 5F | 设计呈现 | 分节呈现，逐节获取批准 → **批准 → 继续；否决 → 回到 4F** | S3 |
 | 6F | 组件枚举 | 列出页面所有交互组件，映射到 `references/annotation-templates.md` 的类型（T1-T11） | S3a |
@@ -407,7 +407,7 @@ digraph spec_analyze_flow {
 |------|------|------|
 | 路由 | 引导者 | 评估输入、推荐路径、等待确认 |
 | 上下文探索 | 调查者 | 查阅文件、检查 knowledge/、提议 web research |
-| 发散（提问/压力测试） | 挑战者 | 推边界、问 what-if、暴露盲点 |
+| 发散（多框架路由） | 挑战者 | 按意图选框架、多维度 what-if、暴露盲点 |
 | 收敛 | 顾问 | 推荐方案、做 trade-off 决策 |
 | 设计呈现 | 协作者 | 分节呈现、按反馈迭代 |
 | **▸ 全程** | **范围监听者** | ① Lightweight 路径监听升级信号（Step 1L 起）<br>② 知识已加载但后续需求偏离知识领域 → 询问是否忽略知识上下文 |
@@ -450,7 +450,7 @@ digraph spec_analyze_flow {
 | 文件 | 用途 |
 |------|------|
 | `references/personas.md` | 5 个专家角色的定义、核心问题、红旗信号、升级路径 |
-| `references/scenario-stress-test.md` | 压力测试场景库：数据/用户/系统三大类 |
+| `references/divergence-frameworks.md` | 发散框架库：18 个框架 + 场景压力测试 + 组合规则 |
 | `references/decision-log-format.md` | 决策记录的结构化格式与示例 |
 | `references/output-templates.md` | 三条路径的输出模板 + 三层注释框架 + 全链路工作流 |
 | `references/html-annotation-system.md` | HTML 注释系统：何时使用、架构、数据格式、组件映射、集成步骤、完整 CSS/JS/HTML 模板 |
