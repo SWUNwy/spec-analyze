@@ -320,6 +320,15 @@ Each state must cover two perspectives:
 
 | Module | Field | UI Label | Format Constraint | Empty Strategy | Data Source |
 |--------|-------|----------|-------------------|---------------|-------------|
+
+## 8. Component Manifest
+
+> 组件注册表，用于 Step 9.5F 交互式注释编辑的组件定位。Full 路径生成时自动填充。
+
+| ID | Name | Type | Location | L-level |
+|----|------|------|----------|---------|
+| C01 | @ComponentName | T{N}-{TypeName} | §5.{N} | L{N} |
+| C02 | @ComponentName | T{N}-{TypeName} | §5.{N} | L{N} |
 ```
 
 ### Template: tasks.md

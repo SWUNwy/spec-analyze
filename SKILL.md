@@ -34,7 +34,13 @@ spec_analyze_state:
     S3a: pending
     S3b: pending
     S3c: pending
+    S3d: pending
     S4: pending
+  interactive_annotation:         # 交互式注释编辑状态
+    mode: null                     # inline | standalone
+    document_path: null            # 当前操作的目标文档路径
+    component_manifest: []         # 从文档解析的组件清单
+    edit_history: []               # 本次编辑操作记录（用于 undo）
   interrupt_recovery:             # 中断恢复信息
     last_step: null
     progress_summary: null
@@ -53,7 +59,7 @@ spec_analyze_state:
 
 **状态展示格式：**
 ```
-[spec-analyze] Full | Step 6F 组件枚举 | S3a: pending | 知识: 已加载
+[spec-analyze] Full | Step 9.5F 交互式注释编辑 | S3d: pending | 知识: 已加载
 ```
 
 ---
@@ -85,7 +91,7 @@ spec_analyze_state:
 |------|------|------|:--------:|
 | **Lightweight** | 轻量扫描 → 快速提问 → 升级门评估 → 输出 | Insight Brief | 无 |
 | **Standard** | 完整探索 → 2-3 角色 → 压力测试 → 收敛 → 呈现 → 输出 | Analysis Report | proposal 三列注释 |
-| **Full** | 完整探索 → 5 角色 → 压力测试 → 收敛 → 呈现 → 枚举 → 填充 → 输出 → 验证 | proposal + design + tasks | proposal 三列 + design Annotation Block + (经用户决策) HTML 注释面板 |
+| **Full** | 完整探索 → 5 角色 → 压力测试 → 收敛 → 呈现 → 枚举 → 填充 → 输出 → 验证 → 交互编辑 | proposal + design + tasks | proposal 三列 + design Annotation Block + (经用户决策) HTML 注释面板 |
 
 ---
 
@@ -164,10 +170,213 @@ spec_analyze_state:
 | 5F | 设计呈现 | 分节呈现，逐节获取批准 → **批准 → 继续；否决 → 回到 4F** | S3 |
 | 6F | 组件枚举 | 列出页面所有交互组件，映射到 `references/annotation-templates.md` 的类型（T1-T11） | S3a |
 | 7F | 模板填充 | 按类型模板逐组件填充注释字段（见 `references/annotation-templates.md` §4） | — |
-| 8F | 输出生成 | 生成 proposal + design + tasks 三文档（见 `references/output-templates.md`）；组件≥3 时询问是否内建 HTML 注释 | S3b |
+| 8F | 输出生成 | 生成 proposal + design + tasks 三文档（见 `references/output-templates.md`）；design.md 末尾需包含 Component Manifest（§8）；组件≥3 时询问是否内建 HTML 注释 | S3b |
 | 9F | HTML 注释验证 | 按 `references/html-annotation-system.md` 验证注释正确内建 + back-propagation（仅当用户同意内建时） | S3c |
+| 9.5F | 交互式注释编辑 | 用户指定组件和字段目标，AI 按模板规则执行编辑 → 跨文档同步 → 输出 diff 摘要。详见下方「Step 9.5F: 交互式注释编辑」章节 | S3d |
 | 10F | 质量自检 | 运行质量自检清单（见 `references/quality-checklists.md`） | S4 |
 | — | 用户审阅 | 用户确认 → 结束；用户否决 → 回到 5F | — |
+
+---
+
+## Step 9.5F: 交互式注释编辑
+
+在 Step 9F（HTML 注释验证 + back-propagation）完成后，用户可以对产出文档中的任意组件注释进行定向编辑。也支持作为独立模式调用（用户拿到已产出的文档后要求补充注释）。
+
+### 模式入口
+
+| 模式 | 触发条件 | 初始状态 |
+|------|---------|---------|
+| **流程内（inline）** | Step 9F 完成后，用户发起注释编辑请求 | 已有完整 session 上下文，文档路径已知 |
+| **独立（standalone）** | 用户在无 session 上下文的场景下要求编辑已有文档的注释 | 需要先发现文档 |
+
+### 9.5F-P1: 文档发现（仅独立模式）
+
+```
+用户发起独立调用
+  │
+  ├─ ① 当前项目扫描 ──────────────────
+  │   扫描 docs/spec-analyze/specs/ 下所有 R0XX-* 目录
+  │   读取每个 design.md 头部信息（标题、日期）
+  │   → 找到 0 个 → 提示用户提供路径
+  │   → 找到 1 个 → 自动选中
+  │   → 找到 ≥2 个 → 按修改时间排序，展示列表让用户选
+  │
+  └─ ② 确认 → 进入 P2
+```
+
+"当前项目"判定：流程内调用使用 session 上下文；独立调用使用当前 working directory；不在项目目录时询问用户路径。
+
+### 9.5F-P2: 组件定位
+
+```
+读取 design.md 的 Component Manifest（§8）
+  │
+  ├─ Manifest 存在 → 直接匹配
+  │   ├─ 匹配唯一 → 确认后进入 P3
+  │   ├─ 匹配多个 → 列出候选 + 位置上下文 → 用户选择
+  │   └─ 匹配不到 → ③
+  │
+  ├─ Manifest 不存在 → fallback 按 @ComponentName 正则匹配
+  │   （同上三种结果）
+  │
+  └─ ③ 匹配不到 → "未找到组件「xxx」，是否新增？"
+        ├─ 是 → 进入 9.5F-Add 新增子流程
+        └─ 否 → 返回
+```
+
+### 9.5F-P3: 操作解析与执行
+
+**入口声明：** 进入 P3 时，AI 输出 scope 边界声明：
+
+> "已定位到组件「@ComponentName」（T{N}-{Type}，L{level}）。
+>
+> **支持的操作：** 追加 / 修改 / 删除注释字段；新增或删除组件；批处理。
+> **不支持的操作：** 修改需求优先级、scope、F00X 条目；修改非注释内容（架构、数据模型、接口设计）；修改 HTML 原型布局。这些请走正常审阅迭代。
+>
+> 当前可用字段：[列出组件类型模板定义的字段]
+>
+> 请指定要编辑的字段和内容。"
+
+#### 字段目标引导
+
+当用户未提供字段目标时，AI 按组件类型提示可用字段：
+
+> "当前可编辑字段：
+> - **trigger**：[当前值摘要]
+> - **behavior**：[当前值摘要]
+> - **dismiss**：[当前值摘要]
+> - **style**：[当前值摘要]
+> - **state**：[当前值摘要]
+> - **+新增字段**
+>
+> 请指定要修改的字段和内容。例如：
+> > "在 behavior 追加：确认后发送 POST /api/batch/delete""
+
+#### 操作类型
+
+| 操作 | 行为 | 示例 |
+|------|------|------|
+| **追加字段** | 在现有字段末尾追加内容 | "在 behavior 追加：确认后 10s 内可撤回" |
+| **修改字段** | 替换现有字段全文 | "把 style 改成：弹窗宽度 480px，圆角 8px" |
+| **删除字段** | 移除字段；必填字段不可删（trigger/behavior） | "把 style 删掉" |
+| **删除状态** | 从 states 列表移除指定条目；不能低于类型最低状态数 | "去掉 loading 状态" |
+| **新增组件** | 走 9.5F-Add 子流程 | "新增一个「撤回确认」弹窗" |
+| **删除组件** | 移除 Annotation Block + Manifest + HTML 对应内容 | "把 C03 删掉" |
+| **批处理** | 按类型/关键词/ID 列表匹配多个组件，执行同一操作 | "给所有弹窗加 ESC 关闭" |
+| **撤回** | 单级 undo，恢复上一次操作前的状态 | "撤回刚才的修改" |
+
+#### 编辑执行流程
+
+```
+用户指令 → 解析(组件 + 字段 + 操作 + 内容)
+         → 校验(字段是否存在于该类型模板、必填字段保护)
+         → 备份原值到 edit_history（用于 undo）
+         → 执行编辑（追加/修改/删除/新增）
+         → 更新 design.md Annotation Block
+         → 更新 proposal.md 对应三列注释（如有对应 F00X）
+         → 更新 HTML ANNOTATIONS 对象（如有 HTML 原型）
+         → 输出变更摘要（diff 格式）
+```
+
+#### 批处理执行流程
+
+```
+用户指令 → 匹配组件（按类型/关键词/ID列表）
+         → 展示匹配结果让用户确认
+         → 逐个备份 → 逐个执行
+         → 输出变更摘要
+```
+
+**约束：** 批处理只支持同字段的追加/修改；不支持批量新增组件。
+
+#### Undo 流程
+
+```
+用户发起撤回
+  ├─ 检查 edit_history 是否为空 → 空则提示无可撤回操作
+  ├─ 读取最近一条操作记录，展示给用户确认
+  ├─ 用户确认 → 遍历 affected_docs，逐个恢复备份
+  │   ├─ append → 从备份恢复原文（删除追加内容）
+  │   ├─ modify → 用备份原文覆盖
+  │   ├─ delete → 用备份原文恢复
+  │   └─ add_component → 从 Manifest 移除 + 删除 Annotation Block + 清理 HTML
+  ├─ 从 edit_history 移除该记录
+  └─ 输出"已撤回：xxx"
+```
+
+**约束：** 单级 undo（不保留 redo 栈）；撤回后执行新操作则覆盖旧历史；跨 session 不可撤回。
+
+### 9.5F-Add: 新增组件子流程
+
+当用户要求新增一个组件时，走轻量版 6F→8F 流程：
+
+```
+9.5F-Add.1 类型映射 ── 用户确认新组件的类型映射
+9.5F-Add.2 模板填充 ── 按类型模板逐字段填充
+9.5F-Add.3 插入定位 ── 确定在 design.md 中的插入位置
+9.5F-Add.4 写入文档 ── 插入 Annotation Block + 更新 Manifest
+9.5F-Add.5 同步     ── 同步 proposal + HTML（如有）
+9.5F-Add.6 验证     ── 确认位置、Manifest、HTML trigger
+```
+
+### 9.5F-P4: 变更摘要输出
+
+每次编辑完成后输出 diff 格式的变更摘要：
+
+```
+━━━ 变更摘要 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📄 design.md §5.2 @BatchConfirmModal (T5 · L2)
+
+  [behavior] 追加 1 行:
+    + 确认后 10s 内可撤回（显示撤回按钮）
+
+📄 proposal.md F003: 批量删除流量主
+
+  [Interaction Annotation] 追加:
+    + L2: 确认后 10s 内可撤回
+
+📄 HTML index.html
+
+  [ANNOTATIONS.batch.blocks] behavior 追加 1 行
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+| 变更类型 | 前缀 |
+|---------|------|
+| 追加内容 | `+ ` |
+| 删除内容 | `- ` |
+| 修改内容 | `- ` + `+ ` |
+| 新增组件 | `+ ` 全文 |
+
+用户要求保存变更记录时 → 输出到 `docs/spec-analyze/specs/R0XX-<topic>/changelog.md`。
+
+### Standard 路径适配
+
+当 Standard 路径下的用户发起注释编辑时：
+
+- 通过 proposal.md 的 Description 列匹配组件名 → 定位到对应 F00X 行
+- 追加到对应注释列（Data / Interaction / UI Text）
+- **不生成** Annotation Block，不升级路径
+- 匹配多个 F00X 时列出候选让用户选择
+
+### 组件注册表（Component Manifest）
+
+在每个 Full 路径产出的 design.md 末尾追加 Component Manifest 区块：
+
+```markdown
+## 8. Component Manifest
+
+| ID | Name | Type | Location | L-level |
+|----|------|------|----------|---------|
+| C01 | @StatsCardRow | T1-DisplayMetric | §5.1 | L2 |
+| C02 | @BatchAction | T4-ActionMenu | §5.2 | L1 |
+| C03 | @PublisherTable | T2-DataList | §5.3 | L2 |
+```
+
+**作用：** 独立调用时快速定位组件；编辑后同步更新 Manifest。
+**旧文档兼容：** Manifest 不存在时 fallback 到 `@ComponentName` 正则匹配。
 
 ---
 
@@ -215,10 +424,12 @@ Step 3L → 统一评估：任一标记触发 → 提议升级
 | S3a | Step 6F → 7F（组件枚举 → 模板填充） | 跳过 | 跳过 | 需要 |
 | S3b | Step 8F（内建注释决策） | 跳过 | 跳过 | 需要* |
 | S3c | Step 9F（注释验证 + back-propagation） | 跳过 | 跳过 | 需要† |
+| S3d | Step 9.5F（交互式注释编辑验证） | 跳过 | 跳过 | 条件性‡ |
 | S4 | 质量自检 → 用户审阅 | 需要 | 需要 | 需要 |
 
 > *S3b 仅当 Full 路径 + 涉及 HTML 原型 + 组件数 ≥ 3 时执行。否则跳过。
 > †S3c 仅当用户同意内建注释时执行。否则跳过。
+> ‡S3d 仅在用户发起注释编辑时执行。未发起则跳过，从 9F 直接到 10F。
 
 ### S1: 上下文完备
 
@@ -262,6 +473,33 @@ Step 3L → 统一评估：任一标记触发 → 提议升级
 - [ ] 注释面板可正常渲染，无空白 block、无占位符
 - [ ] 导航标签齐全，图标 + 短名已确定
 - [ ] Back-propagation 已完成：HTML 注释中的任何修正已同步回 design.md
+
+### S3d: 注释编辑验证（条件性，仅用户发起注释编辑时）
+
+**基础检查（所有操作）：**
+- [ ] 目标组件已定位（歧义已消解，用户确认匹配）
+- [ ] 字段目标已明确（用户提供或 AI 引导后用户确认）
+- [ ] 编辑内容符合对应类型模板的内容规则
+- [ ] design.md 已更新
+- [ ] proposal.md 已同步更新（如有对应 F00X）
+- [ ] HTML ANNOTATIONS 已同步更新（如有 HTML 原型）
+- [ ] 变更摘要已输出（diff 格式）
+
+**新增组件额外检查：**
+- [ ] 类型映射已确认
+- [ ] 插入位置已确认
+- [ ] Component Manifest 已更新
+- [ ] HTML 触发按钮已放置（如有 HTML）
+
+**批处理额外检查：**
+- [ ] 匹配列表已展示给用户并确认
+- [ ] 每个组件的编辑已独立验证
+- [ ] 变更摘要已输出
+
+**删除操作额外检查：**
+- [ ] 用户已确认删除
+- [ ] 必填字段未被删除（trigger / behavior）
+- [ ] Manifest 编号已重新排序
 
 ### S4: 自检完成
 
@@ -322,6 +560,7 @@ digraph spec_analyze_flow {
         "7F. 模板填充" [shape=box];
         "8F. 输出生成\n(三文档) → S3b" [shape=box];
         "9F. HTML 注释验证\n→ S3c" [shape=box];
+        "9.5F. 交互式注释编辑\n→ S3d" [shape=box style=dashed];
         "10F. 质量自检 → S4" [shape=box];
     }
 
@@ -355,8 +594,10 @@ digraph spec_analyze_flow {
     "6F. 组件枚举\n→ S3a" -> "7F. 模板填充";
     "7F. 模板填充" -> "8F. 输出生成\n(三文档) → S3b";
     "8F. 输出生成\n(三文档) → S3b" -> "9F. HTML 注释验证\n→ S3c" [label="用户同意内建注释"];
-    "8F. 输出生成\n(三文档) → S3b" -> "10F. 质量自检 → S4" [label="纯文档/用户拒绝"];
-    "9F. HTML 注释验证\n→ S3c" -> "10F. 质量自检 → S4";
+    "8F. 输出生成\n(三文档) → S3b" -> "9.5F. 交互式注释编辑\n→ S3d" [label="用户发起编辑" style=dashed];
+    "8F. 输出生成\n(三文档) → S3b" -> "10F. 质量自检 → S4" [label="纯文档/不编辑" style=dashed];
+    "9F. HTML 注释验证\n→ S3c" -> "9.5F. 交互式注释编辑\n→ S3d" [label="用户发起编辑"];
+    "9.5F. 交互式注释编辑\n→ S3d" -> "10F. 质量自检 → S4";
     "10F. 质量自检 → S4" -> "质量自检 → S4";
 
     "质量自检 → S4" -> "用户审阅";
@@ -455,5 +696,6 @@ digraph spec_analyze_flow {
 | `references/output-templates.md` | 三条路径的输出模板 + 三层注释框架 + 全链路工作流 |
 | `references/html-annotation-system.md` | HTML 注释系统：何时使用、架构、数据格式、组件映射、集成步骤、完整 CSS/JS/HTML 模板 |
 | `references/annotation-templates.md` | **类型化注释模板系统：11 种组件类型 + 3 个共享块 + 内容规则 + 质量验证方法（Full 路径使用）** |
-| `references/quality-checklists.md` | 质量自检清单 + 跨文档一致性检查 + 各角色评审清单 |
+| `references/quality-checklists.md` | 质量自检清单 + 跨文档一致性检查 + 各角色评审清单 + S3d 检查项 |
 | `references/web-research-guide.md` | Web research 触发条件、搜索策略、信息整合框架 |
+| `SKILL.md §Step 9.5F` | 交互式注释编辑模式完整定义（P1-P4 + Add 子流程 + Standard 适配 + Component Manifest） |

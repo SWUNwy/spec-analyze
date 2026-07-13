@@ -43,6 +43,8 @@ Spec-analyze's unique quality assurance system. Each output type has its own sel
 - [ ] **Tasks annotation references ↘ design.md sections**: one-to-one existence verified
 - [ ] **如果生成了 HTML 注释：ANNOTATIONS keys ↔ design.md @ComponentName**: 一一对应，无遗漏
 - [ ] **如果生成了 HTML 注释：data-annot 属性值 ↔ ANNOTATIONS keys**: 完全一致
+- [ ] **Full 路径：Component Manifest ↔ design.md Annotation Block**: Manifest 中的每个条目在文档中有对应的 §5.x 和 Annotation Block（一一对应，无遗漏无多余）
+- [ ] **Full 路径：编辑操作 edit_history 已全部同步到文档**（如有未同步的记录 → 在 S3d 中补全）
 - [ ] **Full 路径：注释内容语言为产品语言（无代码语法，无模糊词，无占位符）← 对照 annotation-templates.md §6**
 - [ ] **Full 路径：HTML trigger 按钮位置验证 — 每个组件至少 1 个 trigger，在可视边界内（≤ 8px）**
 - [ ] **Full 路径：Back-propagation 验证 — 如果 HTML 注释验证中有修正，检查 design.md 是否同步更新**
