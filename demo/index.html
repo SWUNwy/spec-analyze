@@ -197,6 +197,26 @@
   opacity: 1; background: #2563eb; border-color: #2563eb; color: #fff;
 }
 
+/* Field-level trigger buttons */
+.annot-trigger-field {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%;
+  border: none; background: transparent;
+  cursor: pointer; font-size: 11px; line-height: 1;
+  opacity: 0.4; vertical-align: middle; margin-left: 2px;
+  transition: opacity .2s ease;
+}
+.annot-trigger-field:hover { opacity: 0.8; }
+.annot-trigger-col {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%;
+  border: none; background: transparent;
+  cursor: pointer; font-size: 11px; line-height: 1;
+  opacity: 0.4; vertical-align: middle; margin-left: 2px;
+  transition: opacity .2s ease;
+}
+.annot-trigger-col:hover { opacity: 0.8; }
+
 /* Overlay */
 .annot-overlay {
   position: fixed; inset: 0; z-index: 9999;
@@ -299,17 +319,17 @@
     <div class="stats-row annot-section">
       <button class="annot-trigger" data-annot="stats" onclick="toggleAnnot('stats')" title="View PRD annotations">📋</button>
       <div class="stat-card">
-        <div class="stat-label">Total Users</div>
+        <div class="stat-label">Total Users <button class="annot-trigger-field" data-annot-field="stats.total" onclick="toggleFieldAnnot('stats','total')" title="View field annotation">ℹ️</button></div>
         <div class="stat-value">1,284</div>
         <div class="stat-sub">All registered users</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Active Users</div>
+        <div class="stat-label">Active Users <button class="annot-trigger-field" data-annot-field="stats.active" onclick="toggleFieldAnnot('stats','active')" title="View field annotation">ℹ️</button></div>
         <div class="stat-value">847</div>
         <div class="stat-sub">Active in last 30 days</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">New Today</div>
+        <div class="stat-label">New Today <button class="annot-trigger-field" data-annot-field="stats.newToday" onclick="toggleFieldAnnot('stats','newToday')" title="View field annotation">ℹ️</button></div>
         <div class="stat-value">23</div>
         <div class="stat-sub">Registered in last 24h</div>
       </div>
@@ -336,7 +356,7 @@
       <div class="table-container">
         <table>
           <thead>
-            <tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th></tr>
+            <tr><th>Name <button class="annot-trigger-col" data-annot-col="table.name" onclick="toggleFieldAnnot('table','name')" title="View column annotation">ℹ️</button></th><th>Email <button class="annot-trigger-col" data-annot-col="table.email" onclick="toggleFieldAnnot('table','email')" title="View column annotation">ℹ️</button></th><th>Role <button class="annot-trigger-col" data-annot-col="table.role" onclick="toggleFieldAnnot('table','role')" title="View column annotation">ℹ️</button></th><th>Status <button class="annot-trigger-col" data-annot-col="table.status" onclick="toggleFieldAnnot('table','status')" title="View column annotation">ℹ️</button></th><th>Joined <button class="annot-trigger-col" data-annot-col="table.joined" onclick="toggleFieldAnnot('table','joined')" title="View column annotation">ℹ️</button></th></tr>
           </thead>
           <tbody>
             <tr><td>Alex Johnson</td><td>alex@example.com</td><td>Admin</td><td><span class="status-badge active">Active</span></td><td>2025-12-01</td></tr>
@@ -365,15 +385,15 @@
     <div class="annot-section">
       <div class="form-card">
         <div class="form-group">
-          <label>Full Name <span style="color:#ef4444;">*</span></label>
+          <label>Full Name <span style="color:#ef4444;">*</span> <button class="annot-trigger-field" data-annot-field="form.name" onclick="toggleFieldAnnot('form','name')" title="View field annotation">ℹ️</button></label>
           <input placeholder="Enter full name">
         </div>
         <div class="form-group">
-          <label>Email <span style="color:#ef4444;">*</span></label>
+          <label>Email <span style="color:#ef4444;">*</span> <button class="annot-trigger-field" data-annot-field="form.email" onclick="toggleFieldAnnot('form','email')" title="View field annotation">ℹ️</button></label>
           <input placeholder="Enter email address">
         </div>
         <div class="form-group">
-          <label>Role <span style="color:#ef4444;">*</span></label>
+          <label>Role <span style="color:#ef4444;">*</span> <button class="annot-trigger-field" data-annot-field="form.role" onclick="toggleFieldAnnot('form','role')" title="View field annotation">ℹ️</button></label>
           <select><option>Select role...</option><option>Admin</option><option>Editor</option><option>Viewer</option></select>
         </div>
         <div class="form-actions">
@@ -441,7 +461,21 @@ const ANNOTATIONS = {
         'error: all cards show "—" with retry button'
       ]},
       { title: 'Dismiss', lines: ['Data refresh → recalculate and update display'] }
-    ]
+    ],
+    fields: {
+      total: { label: 'Total Users', desc: 'Total registered user count across all statuses', blocks: [
+        { title: 'Definition', lines: ['Count of all registered users (non-deleted)'] },
+        { title: 'Permission', lines: ['Admin, Operator, Viewer'] }
+      ]},
+      active: { label: 'Active Users', desc: 'Users with activity in the last 30 days', blocks: [
+        { title: 'Definition', lines: ['Users active in last 30 days'] },
+        { title: 'Permission', lines: ['Admin, Operator'] }
+      ]},
+      newToday: { label: 'New Today', desc: 'Users who registered in the last 24 hours', blocks: [
+        { title: 'Definition', lines: ['Users registered in last 24 hours'] },
+        { title: 'Permission', lines: ['Admin only'] }
+      ]}
+    }
   },
   table: {
     id: 'C02',
@@ -477,7 +511,29 @@ const ANNOTATIONS = {
         'No results → empty state with create action',
         'Search clears → restore full list'
       ]}
-    ]
+    ],
+    columns: {
+      name: { label: 'Name', desc: 'Unique display name of the user', blocks: [
+        { title: 'Format', lines: ['string, max 50, unique'] },
+        { title: 'Source', lines: ['user.name'] }
+      ]},
+      email: { label: 'Email', desc: 'Email address used for login and notifications', blocks: [
+        { title: 'Format', lines: ['string, email format, max 100'] },
+        { title: 'Source', lines: ['user.email'] }
+      ]},
+      role: { label: 'Role', desc: 'Access control role determining user permissions', blocks: [
+        { title: 'Format', lines: ['enum: Admin / Editor / Viewer'] },
+        { title: 'Source', lines: ['user.role'] }
+      ]},
+      status: { label: 'Status', desc: 'Current account state', blocks: [
+        { title: 'Format', lines: ['enum: active / inactive, color-coded badge'] },
+        { title: 'Color', lines: ['active: green(#10b981), inactive: gray(#6b7280)'] }
+      ]},
+      joined: { label: 'Joined', desc: 'Date when the user first registered', blocks: [
+        { title: 'Format', lines: ['Date string, display as YYYY-MM-DD'] },
+        { title: 'Source', lines: ['user.created_at'] }
+      ]}
+    }
   },
   form: {
     id: 'C03',
@@ -522,7 +578,18 @@ const ANNOTATIONS = {
         'Cancel → reset form to pristine state',
         'Success → auto-reset after 2s'
       ]}
-    ]
+    ],
+    fields: {
+      name: { label: 'Full Name', desc: 'Real name of the user for display purposes', blocks: [
+        { title: 'Validation', lines: ['required, string, max 50, unique'] }
+      ]},
+      email: { label: 'Email', desc: 'Email address used for login and notifications', blocks: [
+        { title: 'Validation', lines: ['required, email format, max 100'] }
+      ]},
+      role: { label: 'Role', desc: 'Access control role assigned to the user', blocks: [
+        { title: 'Options', lines: ['Admin: full access', 'Editor: content management', 'Viewer: read-only'] }
+      ]}
+    }
   }
 };
 
@@ -565,16 +632,28 @@ function toggleAnnot(key) {
   renderAnnotBody(data, false);
 }
 
-function renderNav(key) {
+function renderNav(key, activeField) {
   var nav = document.getElementById('annotNav');
+  var data = ANNOTATIONS[key];
+  if (!data) return;
   var html = '';
-  var keys = Object.keys(ANNOTATIONS);
-  keys.forEach(function(k) {
-    var data = ANNOTATIONS[k];
-    var label = data.label || k;
-    var active = k === key ? ' active' : '';
-    html += '<button class="annot-nav-btn' + active + '" onclick="toggleAnnot(\'' + k + '\')">' + escapeHtml(label) + '</button>';
-  });
+  if (activeField) {
+    var fields = data.fields || data.columns;
+    if (fields) {
+      Object.keys(fields).forEach(function(fk) {
+        var active = fk === activeField ? ' active' : '';
+        html += '<button class="annot-nav-btn' + active + '" onclick="toggleFieldAnnot(\'' + key + '\',\'' + fk + '\')">' + escapeHtml(fields[fk].label) + '</button>';
+      });
+    }
+  } else {
+    var keys = Object.keys(ANNOTATIONS);
+    keys.forEach(function(k) {
+      var d = ANNOTATIONS[k];
+      var label = d.label || k;
+      var active = k === key ? ' active' : '';
+      html += '<button class="annot-nav-btn' + active + '" onclick="toggleAnnot(\'' + k + '\')">' + escapeHtml(label) + '</button>';
+    });
+  }
   nav.innerHTML = html;
 }
 
@@ -619,6 +698,47 @@ function renderAnnotBody(data, editable) {
     html += '<button class="btn" onclick="toggleEditMode()">Cancel</button>';
     html += '</div>';
   }
+  body.innerHTML = html;
+}
+
+// ============================================
+// Field-level Annotation Control
+// ============================================
+function toggleFieldAnnot(componentKey, fieldKey) {
+  var data = ANNOTATIONS[componentKey];
+  if (!data) return;
+
+  var fieldData = data.fields && data.fields[fieldKey];
+  var colData = data.columns && data.columns[fieldKey];
+  var entry = fieldData || colData;
+  if (!entry) return;
+
+  state.panelKey = componentKey;
+  state.panelField = fieldKey;
+  state.editMode = false;
+  document.getElementById('annotTitle').textContent = data.id + ' ' + data.name + ' › ' + entry.label;
+  document.getElementById('annotOverlay').classList.add('open');
+  document.getElementById('annotPanel').classList.add('open');
+  state.panelOpen = true;
+
+  renderNav(componentKey, fieldKey);
+  renderFieldBody(entry);
+}
+
+function renderFieldBody(entry) {
+  var body = document.getElementById('annotBody');
+  var html = '';
+  if (entry.desc) {
+    html += '<div class="annot-block"><div class="annot-section-title">DESCRIPTION</div>';
+    html += '<div class="annot-line">' + escapeHtml(entry.desc) + '</div></div>';
+  }
+  entry.blocks.forEach(function(b) {
+    html += '<div class="annot-block"><div class="annot-section-title">' + escapeHtml(b.title.toUpperCase()) + '</div>';
+    b.lines.forEach(function(l) {
+      html += '<div class="annot-line">' + escapeHtml(l) + '</div>';
+    });
+    html += '</div>';
+  });
   body.innerHTML = html;
 }
 
