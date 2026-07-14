@@ -206,6 +206,7 @@ const ANNOTATIONS = {
     fields: {
       'internal': {
         label: '内部流量主',
+        desc: 'type=internal 且状态非 deleted 的流量主',
         blocks: [
           { title: 'Definition', lines: ['type=internal 且 status 非 deleted 的流量主'] },
           { title: 'Permission', lines: ['管理员、运营可见'] }
@@ -213,6 +214,7 @@ const ANNOTATIONS = {
       },
       'total': {
         label: '总流量主',
+        desc: '全部流量主（含内部和外部）',
         blocks: [
           { title: 'Definition', lines: ['全部流量主（含内部+外部）'] },
           { title: 'Permission', lines: ['管理员、运营、财务可见'] }
@@ -220,6 +222,7 @@ const ANNOTATIONS = {
       },
       'active': {
         label: '活跃流量主',
+        desc: 'type=internal、status=active 且近 7 天有 API 请求的流量主',
         blocks: [
           { title: 'Definition', lines: ['type=internal 且 status=active 且近 7 天有请求的流量主'] },
           { title: 'Permission', lines: ['仅管理员可见'] }

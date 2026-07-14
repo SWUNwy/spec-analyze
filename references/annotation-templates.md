@@ -368,6 +368,7 @@ metadata:
 
 **字段级注释内容规则：**
 - 字段级注释聚焦该字段本身，不重复组件级内容
+- 每个字段必须包含 `desc` 字段，用一句话描述该字段的含义和用途，用于需求评审阶段快速理解
 - 统计字段：包含 Definition（定义）、Permission（权限）、Calculation（计算规则，如适用）
 - 表格列：包含 Format（格式约束）、Source（数据来源）、Color（颜色语义，如适用）
 - 表单字段：包含 Validation（校验规则）、Options（枚举值）、Default（默认值）
