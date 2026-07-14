@@ -44,6 +44,12 @@ spec_analyze_state:
   interrupt_recovery:             # 中断恢复信息
     last_step: null
     progress_summary: null
+  smart_analysis:                 # 智能节点分析状态
+    user_intent: null             # new_input / feedback / question / reject / approve
+    content_maturity: null        # M0 / M1 / M2 / M3
+    anomaly_flags: []             # repeated_edit / consecutive_reject / stale_node / scope_creep
+    node_stay_count: 0            # 当前节点停留轮数
+    recommended_action: null      # 推荐动作
 ```
 
 **状态更新规则：**
@@ -59,8 +65,14 @@ spec_analyze_state:
 
 **状态展示格式：**
 ```
-[spec-analyze] Full | Step 9.5F 交互式注释编辑 | S3d: pending | 知识: 已加载
+[spec-analyze] Full · 5F 设计呈现 | S3: pending | 成熟度: M3 | 已完成: 2F→3F→4F | 下一步: 逐节呈现
 ```
+
+**状态栏输出规则：**
+- **状态变化时**：输出完整状态栏
+- **同状态重复轮次**：输出简写 `[同节点，第 N 轮]`
+- **异常触发时**：追加异常标记 `⚠️ @StatsRow 修改 3 次，建议锁定范围`
+- **每 5 轮或模式切换时**：输出 Stage Summary
 
 ---
 
@@ -92,6 +104,47 @@ spec_analyze_state:
 | **Lightweight** | 轻量扫描 → 快速提问 → 升级门评估 → 输出 | Insight Brief | 无 |
 | **Standard** | 完整探索 → 2-3 角色 → 压力测试 → 收敛 → 呈现 → 输出 | Analysis Report | proposal 三列注释 |
 | **Full** | 完整探索 → 5 角色 → 压力测试 → 收敛 → 呈现 → 枚举 → 填充 → 输出 → 验证 → 交互编辑 | proposal + design + tasks | proposal 三列 + design Annotation Block + (经用户决策) HTML 注释面板 |
+
+---
+
+## Step 0.5: 智能节点分析（全程生效）
+
+在每轮用户输入后执行三层分析，持续维护当前节点状态。
+
+### Layer 1: 意图识别
+
+| 用户输入信号 | 意图类型 | 自动行为 |
+|-------------|---------|---------|
+| 含"重做""不行""不对""推翻" | reject | 标记为否决，回到上一级步骤 |
+| 含"通过""可以""没问题""继续" | approve | 标记为批准，推进到下一步 |
+| 含"加一个""新增""补充" + 组件名 | new_input | 标记为新需求，建议回到发散阶段 |
+| 含"这个组件""第X点""这里" + 反馈内容 | feedback | 继续当前步骤，应用到当前节点 |
+| 其他/不确定 | question | 提问确认后停留在当前节点 |
+
+**置信度分级：**
+- **高置信度**（匹配明确关键词）→ 自动执行
+- **中置信度**（有线索但不确定）→ 提问确认
+- **低置信度**（无匹配）→ 不触发智能分析，走正常流程
+
+### Layer 2: 内容成熟度分析
+
+| 等级 | 特征 | 处理方式 |
+|------|------|---------|
+| **M0 碎片想法** | 一句话需求、模糊描述、无边界 | 引导梳理，不建议进入方案 |
+| **M1 方向种子** | 有明确目标但无细节、无约束 | 建议发散框架，探索可能性 |
+| **M2 多个想法** | 有 2-3 个方向、有简单对比 | 建议收敛，方案对比 |
+| **M3 半成型** | 有明确 scope、约束、优先级 | 可进入 Spec 或输出阶段 |
+
+**判断依据：** 检查用户输入是否包含 scope 边界、排期、优先级、约束条件——≥2 项为 M3，1 项为 M2，仅有目标为 M1，仅有情绪/碎片为 M0。
+
+### Layer 3: 异常检测
+
+| 条件 | 触发 | 行为 |
+|------|------|------|
+| 同一组件反复修改 ≥ 3 次 | anomaly_flags += repeated_edit | 状态栏追加 ⚠️ "检测到该组件需求不稳定，建议先锁定范围" |
+| 连续否决 ≥ 2 次 | anomaly_flags += consecutive_reject | 输出 "连续否决，建议暂停评估路径选择" |
+| 当前节点停留 ≥ 5 轮 | anomaly_flags += stale_node | 输出 "当前节点已停留 N 轮，需要调整方向吗？" |
+| 输入超出 scope | anomaly_flags += scope_creep | 输出 "此内容不在当前 scope 内，需要扩展 scope 吗？" |
 
 ---
 
@@ -164,13 +217,13 @@ spec_analyze_state:
 |------|------|------|------|
 | 0 | 路由确认 | 用户确认 Full 路径 | — |
 | 1F | 完整上下文探索 | 项目文件/文档查阅 + knowledge/ 加载 + web research + 视觉伴侣 | S1 |
-| 2F | 多角色提问 | 激活全部 5 角色（见 `references/personas.md`），Risk Challenger 全程参与 | — |
+| 2F | 多角色提问 | 入口执行 Layer 1 意图分析 → 匹配当前节点；激活全部 5 角色（见 `references/personas.md`），Risk Challenger 全程参与 | — |
 | 3F | 多框架发散 | 按意图选择发散框架 + 组合，做多层次 what-if 探测（见 `references/divergence-frameworks.md`） | — |
 | 4F | 方案收敛 | 2-3 方案对比 + 决策记录（见 `references/decision-log-format.md`）+ 范围锁定 | S2 |
-| 5F | 设计呈现 | 分节呈现，逐节获取批准 → **批准 → 继续；否决 → 回到 4F** | S3 |
-| 6F | 组件枚举 | 列出页面所有交互组件，映射到 `references/annotation-templates.md` 的类型（T1-T11） | S3a |
-| 7F | 模板填充 | 按类型模板逐组件填充注释字段（见 `references/annotation-templates.md` §4） | — |
-| 8F | 输出生成 | 生成 proposal + design + tasks 三文档（见 `references/output-templates.md`）；design.md 末尾需包含 Component Manifest（§8）；组件≥3 时询问是否内建 HTML 注释 | S3b |
+| 5F | 设计呈现 | 入口执行 Layer 1 意图分析 + Layer 2 成熟度评估 → 分节呈现，逐节获取批准 → **批准 → 继续；否决 → 回到 4F** | S3 |
+| 6F | 组件枚举 | 列出页面所有交互组件 → 映射 T1-T11 → 声明嵌套关系 → **标识字段级注释需求（统计字段定义/表格列格式/表单校验）** | S3a |
+| 7F | 类型模板填充 | 按类型模板逐组件填充注释 → **为每个字段补充字段级注释（统计字段: Definition + Permission / 表格列: Format + Source / 表单字段: Validation + Options）** | S3a |
+| 8F | 输出生成 | 入口执行展示模式决策（内联/侧边/双模式）；生成 proposal + design + tasks 三文档（见 `references/output-templates.md`）；design.md 末尾需包含 Component Manifest（§8）；组件≥3 时询问是否内建 HTML 注释 | S3b |
 | 9F | HTML 注释验证 | 按 `references/html-annotation-system.md` 验证注释正确内建 + back-propagation（仅当用户同意内建时） | S3c |
 | 9.5F | 交互式注释编辑 | 用户指定组件和字段目标，AI 按模板规则执行编辑 → 跨文档同步 → 输出 diff 摘要。详见下方「Step 9.5F: 交互式注释编辑」章节 | S3d |
 | 10F | 质量自检 | 运行质量自检清单（见 `references/quality-checklists.md`） | S4 |
@@ -683,6 +736,8 @@ digraph spec_analyze_flow {
 | **增量验证** | 分节呈现设计，逐节获取批准 |
 | **记录决策** | 不只记录结论，还要记录"为什么" |
 | **路径自适应** | 同一编号的步骤在不同路径下行为不同 |
+| **状态透明** | 每轮输出当前状态栏，让用户始终知道自己在流程中的位置。不依赖用户记忆流程 |
+| **置信度分级** | 智能分析结果标记高/中/低置信度，低置信度走提问确认而非自动执行 |
 
 ---
 

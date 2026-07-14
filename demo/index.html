@@ -254,6 +254,15 @@
 @media (max-width: 480px) {
   .annot-panel { width: 100%; right: -100%; }
 }
+
+/* Edit Mode */
+.annot-edit-textarea {
+  width: 100%; padding: 6px 8px; border: 1px solid #d1d5db;
+  border-radius: 4px; font-size: 12px; font-family: monospace;
+  line-height: 1.5; resize: vertical; background: #fff;
+}
+.annot-edit-textarea:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.1); }
+.btn-annot-edit.active { background: #2563eb !important; color: #fff !important; border-color: #2563eb !important; }
 </style>
 </head>
 <body>
@@ -388,12 +397,14 @@
 <div class="annot-panel" id="annotPanel">
   <div class="annot-header">
     <h3 id="annotTitle">PRD Annotations</h3>
-    <button class="annot-close" onclick="closeAnnot()">✕</button>
+    <div>
+      <button class="btn-annot-edit" id="btnEditMode" onclick="toggleEditMode()" style="font-size:12px;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;margin-right:6px;">✏️ Edit Annotations</button>
+      <button class="btn-annot-verify" onclick="runVerification()" style="font-size:12px;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;margin-right:6px;">✅ Verify</button>
+      <button class="annot-close" onclick="closeAnnot()">✕</button>
+    </div>
   </div>
   <div class="annot-nav" id="annotNav">
-    <button class="annot-nav-btn" onclick="toggleAnnot('stats')">📊 Stats</button>
-    <button class="annot-nav-btn" onclick="toggleAnnot('table')">📋 Data Table</button>
-    <button class="annot-nav-btn" onclick="toggleAnnot('form')">✏️ Create Form</button>
+    <!-- Rendered by JS -->
   </div>
   <div class="annot-body" id="annotBody">
     <!-- Rendered by JS -->
@@ -409,6 +420,7 @@ const ANNOTATIONS = {
     id: 'C01',
     name: '@StatsRow',
     level: 'L1',
+    label: '📊 Stats',
     desc: 'Dashboard summary cards displaying key user metrics.',
     states: 'normal / empty / loading / error',
     blocks: [
@@ -435,6 +447,7 @@ const ANNOTATIONS = {
     id: 'C02',
     name: '@DataTable',
     level: 'L2',
+    label: '📋 Data Table',
     desc: 'Filterable, searchable user list with pagination.',
     states: 'normal / loading / empty / error',
     blocks: [
@@ -470,6 +483,7 @@ const ANNOTATIONS = {
     id: 'C03',
     name: '@CreateUserForm',
     level: 'L2',
+    label: '✏️ Create Form',
     desc: 'User creation form with validation.',
     states: 'normal / fieldError / submitting / success / apiError',
     blocks: [
@@ -512,14 +526,24 @@ const ANNOTATIONS = {
   }
 };
 
-let currentAnnot = null;
+var state = {
+  panelOpen: false,
+  panelKey: null,
+  panelField: null,
+  editMode: false,
+  editHistory: []
+};
 
 // ============================================
 // Annotation Panel Control
 // ============================================
 function toggleAnnot(key) {
-  if (currentAnnot === key) { closeAnnot(); return; }
-  currentAnnot = key;
+  if (state.panelKey === key && state.panelOpen) { closeAnnot(); return; }
+  state.panelKey = key;
+  state.panelField = null;
+  state.editMode = false;
+  var editBtn = document.getElementById('btnEditMode');
+  if (editBtn) editBtn.textContent = '✏️ Edit Annotations';
   const data = ANNOTATIONS[key];
   if (!data) return;
 
@@ -535,38 +559,66 @@ function toggleAnnot(key) {
   document.getElementById('annotTitle').textContent = data.id + ' ' + data.name + ' ' + data.level;
   document.getElementById('annotOverlay').classList.add('open');
   document.getElementById('annotPanel').classList.add('open');
+  state.panelOpen = true;
 
-  document.querySelectorAll('.annot-nav-btn').forEach(function(b) { b.classList.remove('active'); });
-  var navBtns = document.querySelectorAll('.annot-nav-btn');
+  renderNav(key);
+  renderAnnotBody(data, false);
+}
+
+function renderNav(key) {
+  var nav = document.getElementById('annotNav');
+  var html = '';
   var keys = Object.keys(ANNOTATIONS);
-  var idx = keys.indexOf(key);
-  if (idx >= 0 && navBtns[idx]) navBtns[idx].classList.add('active');
-
-  renderAnnotBody(data);
+  keys.forEach(function(k) {
+    var data = ANNOTATIONS[k];
+    var label = data.label || k;
+    var active = k === key ? ' active' : '';
+    html += '<button class="annot-nav-btn' + active + '" onclick="toggleAnnot(\'' + k + '\')">' + escapeHtml(label) + '</button>';
+  });
+  nav.innerHTML = html;
 }
 
 function closeAnnot() {
-  currentAnnot = null;
+  state.panelKey = null;
+  state.panelField = null;
+  state.editMode = false;
+  state.panelOpen = false;
   document.getElementById('annotOverlay').classList.remove('open');
   document.getElementById('annotPanel').classList.remove('open');
   document.querySelectorAll('.annot-nav-btn, .annot-trigger, .annot-trigger-inline, .annot-trigger-header')
     .forEach(function(b) { b.classList.remove('active'); });
 }
 
-function renderAnnotBody(data) {
+function renderAnnotBody(data, editable) {
   var body = document.getElementById('annotBody');
   var html = '';
   html += '<div class="annot-block"><div class="annot-section-title">DESCRIPTION</div>';
-  html += '<div class="annot-line">' + escapeHtml(data.desc) + '</div>';
+  if (editable) {
+    html += '<textarea class="annot-edit-textarea" data-field="desc" rows="2">' + escapeHtml(data.desc) + '</textarea>';
+  } else {
+    html += '<div class="annot-line">' + escapeHtml(data.desc) + '</div>';
+  }
   html += '<div class="annot-line"><span class="annot-label">States:</span> ' + escapeHtml(data.states) + '</div></div>';
-  data.blocks.forEach(function(b) {
+  data.blocks.forEach(function(b, bi) {
     html += '<div class="annot-block"><div class="annot-section-title">' + escapeHtml(b.title.toUpperCase()) + '</div>';
-    b.lines.forEach(function(l) {
-      var line = l.replace(/^  ├── /, '&nbsp;&nbsp;&nbsp;&nbsp;├── ').replace(/^  └── /, '&nbsp;&nbsp;&nbsp;&nbsp;└── ');
-      html += '<div class="annot-line">' + line + '</div>';
-    });
+    if (editable) {
+      html += '<textarea class="annot-edit-textarea" data-block="' + bi + '" rows="' + Math.max(b.lines.length + 1, 3) + '">' + b.lines.map(function(l) { return escapeHtml(l); }).join('\n') + '</textarea>';
+      html += '<div style="margin-top:4px;font-size:12px;"><a href="#" onclick="event.preventDefault();appendLine(this)" style="color:#2563eb;text-decoration:none;">+ Append</a></div>';
+    } else {
+      b.lines.forEach(function(l) {
+        var line = l.replace(/^  ├── /, '&nbsp;&nbsp;&nbsp;&nbsp;├── ').replace(/^  └── /, '&nbsp;&nbsp;&nbsp;&nbsp;└── ');
+        html += '<div class="annot-line">' + line + '</div>';
+      });
+    }
     html += '</div>';
   });
+  if (editable) {
+    html += '<div class="annot-edit-actions" style="display:flex;gap:8px;margin-top:16px;padding-top:12px;border-top:1px solid #e5e7eb;align-items:center;">';
+    html += '<button class="btn btn-primary" onclick="saveEdit()">💾 Save Changes</button>';
+    html += '<button class="btn btn-cancel" onclick="undoEdit()" style="margin-right:auto;" title="Undo last change">↩ Undo</button>';
+    html += '<button class="btn" onclick="toggleEditMode()">Cancel</button>';
+    html += '</div>';
+  }
   body.innerHTML = html;
 }
 
@@ -574,8 +626,193 @@ function escapeHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// ============================================
+// Annotation Edit Mode
+// ============================================
+function toggleEditMode() {
+  state.editMode = !state.editMode;
+  if (state.panelKey) {
+    var data = ANNOTATIONS[state.panelKey];
+    if (data) renderAnnotBody(data, state.editMode);
+  }
+  var btn = document.getElementById('btnEditMode');
+  if (btn) {
+    btn.textContent = state.editMode ? '✅ Done Editing' : '✏️ Edit Annotations';
+    btn.classList.toggle('active', state.editMode);
+  }
+}
+
+function saveEdit() {
+  if (!state.panelKey) return;
+  var data = ANNOTATIONS[state.panelKey];
+  var oldData = JSON.parse(JSON.stringify(data));
+
+  var descField = document.querySelector('[data-field="desc"]');
+  if (descField && descField.value !== data.desc) {
+    data.desc = descField.value;
+  }
+
+  data.blocks.forEach(function(b, bi) {
+    var textarea = document.querySelector('[data-block="' + bi + '"]');
+    if (textarea) {
+      var newLines = textarea.value.split('\n').filter(function(l) { return l.trim() !== ''; });
+      b.lines = newLines;
+    }
+  });
+
+  state.editHistory.push({ key: state.panelKey, before: oldData, after: JSON.parse(JSON.stringify(data)) });
+  state.editMode = false;
+  var btn = document.getElementById('btnEditMode');
+  if (btn) { btn.textContent = '✏️ Edit Annotations'; btn.classList.remove('active'); }
+  renderAnnotBody(data, false);
+  showDiffSummary(oldData, data);
+}
+
+function appendLine(link) {
+  var textarea = link.parentElement.previousElementSibling;
+  if (textarea && textarea.tagName === 'TEXTAREA') {
+    textarea.value += '\n';
+    textarea.focus();
+    textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
+  }
+}
+
+function undoEdit() {
+  var last = state.editHistory.pop();
+  if (!last) { showToast('info', 'Nothing to undo'); return; }
+  ANNOTATIONS[last.key] = JSON.parse(JSON.stringify(last.before));
+  state.editMode = false;
+  var btn = document.getElementById('btnEditMode');
+  if (btn) { btn.textContent = '✏️ Edit Annotations'; btn.classList.remove('active'); }
+  renderAnnotBody(ANNOTATIONS[last.key], false);
+  showToast('success', 'Undone: ' + last.key);
+}
+
+function showDiffSummary(oldData, newData) {
+  var header = document.querySelector('.annot-header');
+  if (!header) return;
+  var diffHtml = '<div id="diffSummary" style="padding:8px 20px;background:#f0fdf4;border-bottom:1px solid #bbf7d0;font-size:12px;color:#166534;">';
+  var changes = [];
+  if (oldData.desc !== newData.desc) changes.push('description updated');
+  newData.blocks.forEach(function(b, bi) {
+    var oldLines = oldData.blocks[bi] ? oldData.blocks[bi].lines : [];
+    if (JSON.stringify(oldLines) !== JSON.stringify(b.lines)) {
+      changes.push(b.title.toLowerCase() + ' (' + oldLines.length + '→' + b.lines.length + ' lines)');
+    }
+  });
+  diffHtml += '<strong>Changes saved:</strong> ' + changes.join(', ');
+  diffHtml += '</div>';
+  var existing = document.getElementById('diffSummary');
+  if (existing) existing.remove();
+  header.insertAdjacentHTML('afterend', diffHtml);
+  setTimeout(function() {
+    var el = document.getElementById('diffSummary');
+    if (el) el.remove();
+  }, 4000);
+}
+
+function showToast(type, msg) {
+  var container = document.getElementById('toastContainer');
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
+
+// ============================================
+// Verification Mode
+// ============================================
+function runVerification() {
+  var results = [];
+  var keys = Object.keys(ANNOTATIONS);
+
+  // Check 1: Trigger coverage
+  var allCovered = true;
+  keys.forEach(function(k) {
+    var hasTrigger = document.querySelector('[data-annot="' + k + '"]');
+    if (!hasTrigger) {
+      results.push({ type: 'error', msg: k + ': missing trigger button' });
+      allCovered = false;
+    }
+  });
+  if (allCovered) results.push({ type: 'pass', msg: 'All components have trigger buttons' });
+
+  // Check 2: State coverage
+  var stateMinimums = { T1: ['normal','loading','error'], T2: ['normal','loading','empty','error'], T6: ['normal','fieldError','submitting','success','apiError'] };
+  keys.forEach(function(k) {
+    var data = ANNOTATIONS[k];
+    if (data.type && stateMinimums[data.type]) {
+      var min = stateMinimums[data.type];
+      var covered = data.states.split('/').map(function(s) { return s.trim(); });
+      var missing = min.filter(function(m) { return covered.indexOf(m) === -1; });
+      if (missing.length > 0) {
+        results.push({ type: 'warn', msg: k + ' (' + data.type + '): missing states: ' + missing.join(', ') });
+      }
+    }
+  });
+
+  // Check 3: Empty blocks
+  keys.forEach(function(k) {
+    var data = ANNOTATIONS[k];
+    if (data.blocks) {
+      data.blocks.forEach(function(b) {
+        if (!b.lines || b.lines.length === 0) {
+          results.push({ type: 'warn', msg: k + '.' + b.title + ': empty block' });
+        }
+      });
+    }
+  });
+
+  // Check 4: Code patterns in content
+  var codePatterns = [/count\(/i, /SELECT /i, /WHERE /i, /=>/, /===/, /\.map\(/, /\.filter\(/];
+  keys.forEach(function(k) {
+    var data = ANNOTATIONS[k];
+    if (data.blocks) {
+      data.blocks.forEach(function(b) {
+        if (b.lines) {
+          b.lines.forEach(function(l) {
+            codePatterns.forEach(function(p) {
+              if (p.test(l)) {
+                results.push({ type: 'warn', msg: k + '.' + b.title + ': may contain code syntax "' + l.trim().substring(0, 40) + '"' });
+              }
+            });
+          });
+        }
+      });
+    }
+  });
+
+  renderVerificationResults(results);
+}
+
+function renderVerificationResults(results) {
+  var body = document.getElementById('annotBody');
+  var pass = results.filter(function(r) { return r.type === 'pass'; }).length;
+  var warn = results.filter(function(r) { return r.type === 'warn'; }).length;
+  var err = results.filter(function(r) { return r.type === 'error'; }).length;
+  var total = results.length;
+  var html = '';
+  html += '<div class="annot-block"><div class="annot-section-title">VERIFICATION RESULTS</div>';
+  html += '<div style="font-size:24px;font-weight:700;margin-bottom:12px;">';
+  if (err === 0) html += '✅ ' + pass + '/' + total + ' passed';
+  else html += '⚠️ ' + pass + '/' + total + ' passed';
+  html += ' <span style="font-size:13px;font-weight:400;color:#6b7280;">(' + warn + ' warnings, ' + err + ' errors)</span>';
+  html += '</div></div>';
+  results.forEach(function(r) {
+    var icon = r.type === 'pass' ? '✅' : r.type === 'warn' ? '⚠️' : '❌';
+    var color = r.type === 'pass' ? '#166534' : r.type === 'warn' ? '#92400e' : '#991b1b';
+    var bg = r.type === 'pass' ? '#f0fdf4' : r.type === 'warn' ? '#fffbeb' : '#fef2f2';
+    html += '<div class="annot-block" style="background:' + bg + ';border-radius:6px;padding:8px 12px;margin-bottom:6px;border-left:3px solid ' + color + ';">';
+    html += '<div style="font-size:13px;color:' + color + ';">' + icon + ' ' + escapeHtml(r.msg) + '</div>';
+    html += '</div>';
+  });
+  body.innerHTML = html;
+  document.getElementById('annotTitle').textContent = '✅ Verification';
+}
+
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape' && currentAnnot) closeAnnot();
+  if (e.key === 'Escape' && state.panelKey) closeAnnot();
 });
 </script>
 </body>

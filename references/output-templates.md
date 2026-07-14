@@ -288,6 +288,21 @@ Each state must cover two perspectives:
 
 #### Annotation Block @{ComponentName} {L-level}
 
+<!--
+  内联注释渲染说明：
+  - 此 Annotation Block 渲染为折叠卡片，位于组件内容下方
+  - 默认折叠，显示完整 L2 字段
+  - 渲染顺序由 type 决定（T1-T11），见 html-annotation-system.md §2.2
+  - 视觉锚定：虚线分隔 + 左侧色块 + 背景色区分
+  - 每个组件独占一个折叠状态，组件间独立
+
+  v2 字段级注释：
+  - 组件内每个字段（统计指标/表格列/表单输入）可附加独立注释
+  - 字段级注释用 ℹ️ 触发，弹窗展示
+  - 字段级 key 使用 dot notation: componentKey.fieldKey
+  - 字段级注释写入 ANNOTATIONS[componentKey].fields 或 .columns 子对象
+-->
+
 \```
 [Dev]   trigger:   ...
 [Dev·Tester] behavior: ...
@@ -325,11 +340,22 @@ Each state must cover two perspectives:
 
 > 组件注册表，用于 Step 9.5F 交互式注释编辑的组件定位。Full 路径生成时自动填充。
 
-| ID | Name | Type | Location | L-level |
-|----|------|------|----------|---------|
-| C01 | @ComponentName | T{N}-{TypeName} | §5.{N} | L{N} |
-| C02 | @ComponentName | T{N}-{TypeName} | §5.{N} | L{N} |
-```
+| ID | Name | Type | Location | L-level | Field Annotations |
+|----|------|------|----------|---------|-----------------|
+| C01 | @StatsRow | T1-DisplayMetric | §5.1 | L1 | internal, total, active |
+| C02 | @DataTable | T2-DataList | §5.2 | L2 | name, type, status, createdAt |
+| C03 | @CreateUserForm | T6-FormFill | §5.2 | L2 | name, email, type |
+
+## 7.5 注释展示模式决策
+
+> 组件枚举完成后，确认注释展示模式偏好。
+> 在 Step 8F 输出生成时向用户询问。
+
+| 模式 | 说明 | 适用场景 |
+|------|------|---------|
+| 内联模式 | 注释在组件下方折叠展示 | 默认推荐，评审者逐组件查看 |
+| 侧边面板 | 注释仅在右侧面板展示 | 组件数多（≥10），需要快速切换 |
+| 双模式 | 两者同时启用 | 需要同时查看当前组件和全局对比 |
 
 ### Template: tasks.md
 
@@ -384,12 +410,14 @@ Product requirements (natural language)
    │       └── tasks.md (task steps with annotation references)
    │
    ├── 2b. HTML Annotation Build-in (conditional — user agrees in Step 8F)
-   │       ├── Decision point within Step 8F: before generating HTML, ask user whether to include annotations
+   │       ├── Step 8F: 确认注释展示模式（内联/侧边/双模式）
    │       ├── If yes: generate HTML FROM SCRATCH with annotation system built in (not retrofitted)
-   │       ├──   ├── ANNOTATIONS JS data object from design.md Annotation Blocks
-   │       │   ├── CSS (.annot-trigger, .annot-panel, .annot-overlay, .annot-nav, .annot-body)
-   │       │   ├── HTML structure (overlay + panel + nav tabs + trigger buttons on each component)
-   │       │   └── JS (toggleAnnot, closeAnnot, renderAnnotBody, escapeHtml)
+   │       ├──   ├── ANNOTATIONS JS data object (含 type 字段) from design.md Annotation Blocks
+   │       │   ├── CSS: 内联注释样式 + 侧边面板样式 (.annot-trigger, .annot-inline, .annot-panel, .annot-overlay, .annot-nav, .annot-body)
+   │       │   ├── HTML: 内联容器 + 侧边面板结构 (overlay + panel + nav tabs + trigger buttons + inline containers)
+   │       │   └── JS: toggleInline + togglePanel + renderInline + editAnnot + closeAnnot + escapeHtml
+   │       ├── 如果选择内联或双模式: 生成带内联注释容器的 HTML
+   │       ├── 如果选择纯侧边面板: 使用现有方案（不变）
    │       ├── Then Step 9F: verify annotations are correctly embedded (not re-generate)
    │       └── Run back-propagation: sync HTML annotation fixes back to design.md
    │

@@ -27,6 +27,13 @@ Spec-analyze's unique quality assurance system. Each output type has its own sel
 - [ ] L3 components supplement with accessibility and responsive annotations
 - [ ] **如果存在 HTML 原型（含本次新生成的）且组件数 ≥ 3：HTML 注释系统已按 `html-annotation-system.md` 内建并验证**
 - [ ] **Full 路径：组件枚举已完成（annotation-templates.md §9），无遗漏无幽灵项**
+   - [ ] **注释展示模式已确认（内联/侧边/双模式），在 Step 8F 中记录决策**
+   - [ ] **内联注释渲染数据已准备（ANNOTATIONS 包含 type 字段，用于决定渲染顺序）**
+   - [ ] **每个组件有对应的内联注释容器占位（在 HTML 结构中）**
+   - [ ] **字段级注释已定义：统计卡片每个指标有 Definition + Permission**
+   - [ ] **字段级注释已定义：表格每个列头有 Format + Source**
+   - [ ] **字段级注释已定义：表单每个字段有 Validation + Options**
+   - [ ] **字段级 ℹ️ 触发按钮已放置在对应的字段值/标签旁**
 
 ## Tasks Self-Check
 
@@ -48,6 +55,13 @@ Spec-analyze's unique quality assurance system. Each output type has its own sel
 - [ ] **Full 路径：注释内容语言为产品语言（无代码语法，无模糊词，无占位符）← 对照 annotation-templates.md §6**
 - [ ] **Full 路径：HTML trigger 按钮位置验证 — 每个组件至少 1 个 trigger，在可视边界内（≤ 8px）**
 - [ ] **Full 路径：Back-propagation 验证 — 如果 HTML 注释验证中有修正，检查 design.md 是否同步更新**
+- [ ] **双模式数据同步验证：editAnnot() 修改后，内联和面板同时更新**
+- [ ] **内联注释渲染顺序验证：ANNOTATIONS.type 字段存在，且渲染顺序与 html-annotation-system.md §2.2 一致**
+- [ ] **内联注释折叠状态持久化：localStorage 在所有浏览器中正常工作**
+- [ ] **弹窗替换验证：所有 .annot-panel 引用已替换为 .annot-modal**
+- [ ] **弹窗功能验证：居中展示、缩放动画、遮罩层关闭、ESC 关闭**
+- [ ] **编辑模式验证：editAnnot() 函数调用后内联和弹窗同步更新**
+- [ ] **字段级注释验证：字段级 data-annot-field 值与 ANNOTATIONS.fields/columns key 一致**
 
 ---
 ## 新增：类型化模板专检（Full 路径）
@@ -86,6 +100,9 @@ Spec-analyze's unique quality assurance system. Each output type has its own sel
 - [ ] 并发/重复提交 - 按钮 loading 状态，防重复提交
 - [ ] 接口返回 409/其他业务冲突 - 具体错误提示（如"该人员已拥有账号「某名称」"）
 - [ ] 身份/权限异常 - Toast 提示"无法确认操作人身份"或操作按钮隐藏/禁用
+- [ ] 编辑模式下修改注释 → 保存后内联注释同步更新
+- [ ] 编辑模式下不保存直接关闭 → 内容不丢失（取消按钮恢复原始内容）
+- [ ] 字段级注释弹窗 → 关闭后再打开 → 内容保持正确
 
 ---
 
