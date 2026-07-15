@@ -526,25 +526,26 @@ Behavior 和 State 中常用树形结构表示条件分支：
 在 `</body>` 前插入：
 
 ```html
-<!-- 遮罩层 -->
-<div class="annot-overlay" id="annotOverlay" onclick="closeAnnot()"></div>
-<!-- 注释弹窗 -->
-<div class="annot-modal" id="annotModal">
-  <div class="annot-modal-header">
+<!-- Floating Annotation Panel -->
+<div class="annot-panel" id="annotPanel">
+  <div class="annot-panel-header">
     <h3 id="annotTitle">PRD 注释</h3>
     <div>
       <button class="btn-annot-edit" id="btnEditMode" onclick="toggleEditMode()"
               style="font-size:12px;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;margin-right:8px;">✏️ 编辑注释</button>
-      <button class="annot-modal-close" onclick="closeAnnot()">✕</button>
+      <button class="annot-panel-close" onclick="closeAnnot()">✕</button>
     </div>
   </div>
   <div class="annot-nav" id="annotNav">
     <!-- 导航标签 -->
   </div>
-  <div class="annot-modal-body" id="annotBody">
+  <div class="annot-panel-body" id="annotBody">
     <!-- 由 JS 渲染 -->
   </div>
 </div>
+
+<!-- Floating Action Button (visible when panel closed) -->
+<button class="annot-fab" id="annotFab" onclick="openModal()" title="打开 PRD 注释">📋</button>
 ```
 
 ### Step 4: 添加触发按钮
@@ -560,17 +561,16 @@ Behavior 和 State 中常用树形结构表示条件分支：
 - `ANNOTATIONS` 对象包含所有组件数据
 - `toggleAnnot()` 和 `closeAnnot()` 函数定义正确
 - `keys` 数组顺序与导航标签一致
-- `escapeHtml()` 函数存在（防止 XSS）
 
 ### Step 6: 验证
 
 - [ ] 组件枚举清单中的所有组件都已放置 trigger 按钮（无遗漏）
 - [ ] 每个 trigger 按钮在其组件可视边界内，间距 ≤ 8px
-- [ ] 点击 header「📋 PRD 注释」按钮 → 弹窗打开，显示第一个组件注释
+- [ ] 点击 header「📋 PRD 注释」按钮 → 面板打开，显示第一个组件注释
 - [ ] 点击导航标签 → 切换对应组件注释
-- [ ] 点击 inline 📋 按钮 → 打开弹窗并定位到对应组件的注释
-- [ ] 点击 ✕ / 遮罩层 / ESC → 弹窗关闭
-- [ ] 弹窗内容完整，无空白 block，无 HTML 转义问题
+- [ ] 点击 inline 📋 按钮 → 打开面板并定位到对应组件的注释
+- [ ] 点击 ✕ / ESC → 面板关闭，FAB 按钮重新显示
+- [ ] 面板内容完整，无空白 block，无 HTML 转义问题
 - [ ] 触发按钮 `data-annot` 属性与 `ANNOTATIONS` key 一致
 - [ ] Back-propagation 已完成（如有修正 → design.md 已同步更新）
 
@@ -609,14 +609,14 @@ Behavior 和 State 中常用树形结构表示条件分支：
 - [ ] 取消按钮 → 恢复原始内容，不保存
 - [ ] 编辑完成后 "✏️ 编辑注释" 按钮恢复原始状态
 
-### 弹窗替换验证（v2 新增）
+### 面板交互验证（v2 新增）
 
-- [ ] 侧边面板（.annot-panel）已完全移除
-- [ ] 弹窗（.annot-modal）居中展示，有缩放动画
-- [ ] 弹窗最大宽度 600px，最大高度 80vh
-- [ ] 超过最大高度时内部滚动
-- [ ] 点击遮罩层关闭弹窗
-- [ ] ESC 关闭弹窗
+- [ ] 浮动操作按钮（.annot-fab）固定在右下角，点击后打开面板（.annot-panel）
+- [ ] 面板（.annot-panel）从右下角浮入，带 transform 动画
+- [ ] 面板打开时 FAB 按钮隐藏（.hidden）
+- [ ] 面板关闭时 FAB 按钮重新显示
+- [ ] 面板最大宽度 480px，最大高度 60vh，支持内部滚动
+- [ ] ESC 关闭面板
 - [ ] 弹窗内导航标签支持切换不同组件
 
 ---
@@ -804,22 +804,50 @@ const ANNOTATIONS = {
     id: 'C01',
     name: '@StatsCardRow',
     level: 'L2',
-    desc: '展示 3 张统计卡片',
-    states: 'normal / zero',
+    label: '📊 统计卡片',
+    desc: '展示 3 张统计卡片，概览流量主数据',
+    states: 'normal / loading / empty / error',
     blocks: [
       { title: 'Trigger', lines: ['页面加载 → updateStats()'] },
       { title: 'Behavior', lines: [
-        '内部流量主 = count(type=internal)',
-        '总流量主 = count(all)',
-        '活跃流量主 = count(type=internal AND status=active)'
+        '内部流量主：统计 type 为 internal 且状态非 deleted 的流量主数量',
+        '总流量主：统计全部流量主数量（含内部和外部）',
+        '活跃流量主：统计 type 为 internal、状态为 active 且近 7 天有 API 请求的流量主数量'
       ]},
       { title: 'Dismiss', lines: ['数据变更 → updateStats()'] }
     ]
   }
 };
 
-let currentAnnot = null;
-let currentField = null;
+// ============================================
+// Unified State Management
+// ============================================
+var state = {
+  panelOpen: false,     // panel visibility
+  inlineKey: null,      // current inline component (null = none)
+  panelKey: null,       // component shown in panel
+  panelField: null,     // field shown in panel (null = component-level)
+  editMode: false,      // edit mode on/off
+  editHistory: []       // [{type, key, field, before, after}]
+};
+
+// ============================================
+// State-dependent Render Helper
+// ============================================
+function render() {
+  if (!state.panelKey) return;
+  var data = ANNOTATIONS[state.panelKey];
+  if (!data) return;
+
+  if (state.panelField) {
+    var fields = data.fields || data.columns;
+    if (fields && fields[state.panelField]) {
+      renderFieldBody(fields[state.panelField], state.editMode);
+    }
+  } else {
+    renderAnnotBody(data, state.editMode);
+  }
+}
 
 // ============================================
 // Annotation Panel Control
@@ -841,7 +869,7 @@ function openModal(key) {
   } else {
     const keys = Object.keys(ANNOTATIONS);
     if (keys.length > 0) {
-      const target = currentInline || keys[0];
+      const target = state.inlineKey || keys[0];
       switchPanelTo(target);
     }
     panel.classList.add('open');
@@ -850,9 +878,9 @@ function openModal(key) {
 }
 
 function switchPanelTo(key) {
-  currentAnnot = key;
-  currentField = null;
-  editMode = false;
+  state.panelKey = key;
+  state.panelField = null;
+  state.editMode = false;
   var editBtn = document.getElementById('btnEditMode');
   if (editBtn) editBtn.textContent = '✏️ 编辑注释';
   const data = ANNOTATIONS[key];
@@ -885,19 +913,19 @@ function renderNav(key, activeField) {
     }
   } else {
     var keys = Object.keys(ANNOTATIONS);
-    var labels = { stats: '📊 统计卡片', table: '📋 数据表格', form: '➕ 创建表单' };
     keys.forEach(function(k) {
       var active = k === key ? ' active' : '';
-      html += '<button class="annot-nav-btn' + active + '" onclick="switchPanelTo(\'' + k + '\')">' + (labels[k] || k) + '</button>';
+      var label = ANNOTATIONS[k].label || k;
+      html += '<button class="annot-nav-btn' + active + '" onclick="switchPanelTo(\'' + k + '\')">' + escapeHtml(label) + '</button>';
     });
   }
   nav.innerHTML = html;
 }
 
 function closeAnnot() {
-  currentAnnot = null;
-  currentField = null;
-  editMode = false;
+  state.panelKey = null;
+  state.panelField = null;
+  state.editMode = false;
   document.getElementById('annotPanel').classList.remove('open');
   document.getElementById('annotFab').classList.remove('hidden');
   document.querySelectorAll('.annot-nav-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -910,27 +938,46 @@ function closeAnnot() {
 // ============================================
 // Annotation Body Renderer
 // ============================================
-function renderAnnotBody(data) {
+function renderAnnotBody(data, editable) {
   var body = document.getElementById('annotBody');
   var html = '';
 
   // Description block
   html += '<div class="annot-block"><div class="annot-section-title">DESCRIPTION</div>';
-  html += '<div class="annot-line">' + escapeHtml(data.desc) + '</div>';
+  if (editable) {
+    html += '<textarea class="annot-edit-textarea" data-field="desc" rows="2">'
+          + escapeHtml(data.desc) + '</textarea>';
+  } else {
+    html += '<div class="annot-line">' + escapeHtml(data.desc) + '</div>';
+  }
   html += '<div class="annot-line"><span class="annot-label">States:</span> '
         + escapeHtml(data.states) + '</div></div>';
 
   // Annotation blocks
-  data.blocks.forEach(function(b) {
+  data.blocks.forEach(function(b, bi) {
     html += '<div class="annot-block"><div class="annot-section-title">'
           + escapeHtml(b.title.toUpperCase()) + '</div>';
-    b.lines.forEach(function(l) {
-      var line = l.replace(/^  ├── /, '&nbsp;&nbsp;&nbsp;&nbsp;├── ')
-                   .replace(/^  └── /, '&nbsp;&nbsp;&nbsp;&nbsp;└── ');
-      html += '<div class="annot-line">' + line + '</div>';
-    });
+    if (editable) {
+      html += '<textarea class="annot-edit-textarea" data-block="' + bi + '" rows="'
+            + Math.max(b.lines.length + 1, 3) + '">'
+            + b.lines.map(function(l) { return escapeHtml(l); }).join('\n')
+            + '</textarea>';
+    } else {
+      b.lines.forEach(function(l) {
+        var line = l.replace(/^  ├── /, '&nbsp;&nbsp;&nbsp;&nbsp;├── ')
+                     .replace(/^  └── /, '&nbsp;&nbsp;&nbsp;&nbsp;└── ');
+        html += '<div class="annot-line">' + line + '</div>';
+      });
+    }
     html += '</div>';
   });
+
+  if (editable) {
+    html += '<div class="annot-edit-actions">';
+    html += '<button class="btn btn-primary" onclick="saveEdit()">💾 保存修改</button>';
+    html += '<button class="btn btn-cancel" onclick="toggleEditMode()">取消</button>';
+    html += '</div>';
+  }
 
   body.innerHTML = html;
 }
@@ -942,32 +989,30 @@ function escapeHtml(s) {
 
 // Close on ESC
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape' && currentAnnot) closeAnnot();
+  if (e.key === 'Escape' && state.panelKey) closeAnnot();
 });
 
 // ============================================
 // Inline Annotation Control
 // ============================================
 
-let currentInline = null;  // 当前展开的内联组件 key
-
 function toggleInline(key) {
   const container = document.getElementById('annotInline-' + key);
   if (!container) return;
 
-  if (currentInline === key && container.style.display !== 'none') {
+  if (state.inlineKey === key && container.style.display !== 'none') {
     // 折叠
     container.style.display = 'none';
-    currentInline = null;
+    state.inlineKey = null;
     updateTriggerState(key, false);
     return;
   }
 
   // 折叠前一个
-  if (currentInline && currentInline !== key) {
-    const prev = document.getElementById('annotInline-' + currentInline);
+  if (state.inlineKey && state.inlineKey !== key) {
+    const prev = document.getElementById('annotInline-' + state.inlineKey);
     if (prev) prev.style.display = 'none';
-    updateTriggerState(currentInline, false);
+    updateTriggerState(state.inlineKey, false);
   }
 
   // 展开当前
@@ -975,7 +1020,7 @@ function toggleInline(key) {
   if (!data) return;
   renderInline(key, data);
   container.style.display = 'block';
-  currentInline = key;
+  state.inlineKey = key;
   updateTriggerState(key, true);
 
   // 如果弹窗打开，同步切换
@@ -1058,8 +1103,8 @@ function toggleFieldAnnot(componentKey, fieldKey) {
   const entry = fieldData || colData;
   if (!entry) return;
 
-  currentAnnot = componentKey;
-  currentField = fieldKey;
+  state.panelKey = componentKey;
+  state.panelField = fieldKey;
   document.getElementById('annotTitle').textContent = data.id + ' ' + data.name + ' › ' + entry.label;
   document.getElementById('annotPanel').classList.add('open');
   document.getElementById('annotFab').classList.add('hidden');
@@ -1088,7 +1133,6 @@ function renderFieldBody(entry) {
 // ============================================
 
 function editAnnot(key, field, operation, content) {
-  // 1. 修改 ANNOTATIONS 数据源
   var data = ANNOTATIONS[key];
   if (!data) return;
 
@@ -1103,18 +1147,17 @@ function editAnnot(key, field, operation, content) {
     block.lines = [content];
   }
 
-  // 2. 更新内联 DOM（如果当前展开）
+  // 更新内联 DOM（如果当前展开）
   var inlineContainer = document.getElementById('annotInline-' + key);
   if (inlineContainer && inlineContainer.style.display !== 'none') {
     renderInline(key, data);
   }
 
-  // 3. 更新弹窗（如果当前显示该组件）
-  if (currentAnnot === key) {
-    renderAnnotBody(data);
+  // 更新弹窗（如果当前显示该组件）
+  if (state.panelKey === key) {
+    renderAnnotBody(data, state.editMode);
   }
 
-  // 4. 输出变更摘要
   console.log('[Annot] ' + key + ' ' + field + ' ' + operation + ': ' + content);
 }
 
@@ -1122,67 +1165,23 @@ function editAnnot(key, field, operation, content) {
 // Annotation Edit Mode
 // ============================================
 
-let editMode = false;
-
 function toggleEditMode() {
-  editMode = !editMode;
-  if (currentAnnot) {
-    const data = ANNOTATIONS[currentAnnot];
-    if (data) renderAnnotBody(data, editMode);
+  state.editMode = !state.editMode;
+  if (state.panelKey) {
+    const data = ANNOTATIONS[state.panelKey];
+    if (data) renderAnnotBody(data, state.editMode);
   }
   const btn = document.getElementById('btnEditMode');
   if (btn) {
-    btn.textContent = editMode ? '✅ 完成编辑' : '✏️ 编辑注释';
-    btn.classList.toggle('active', editMode);
+    btn.textContent = state.editMode ? '💾 保存修改' : '✏️ 编辑注释';
+    btn.classList.toggle('active', state.editMode);
   }
-}
-
-function renderAnnotBody(data, editable) {
-  var body = document.getElementById('annotBody');
-  var html = '';
-
-  html += '<div class="annot-block">';
-  html += '<div class="annot-section-title">DESCRIPTION</div>';
-  if (editable) {
-    html += '<textarea class="annot-edit-textarea" data-field="desc" rows="2">'
-          + escapeHtml(data.desc) + '</textarea>';
-  } else {
-    html += '<div class="annot-line">' + escapeHtml(data.desc) + '</div>';
-  }
-  html += '<div class="annot-line"><span class="annot-label">States:</span> '
-        + escapeHtml(data.states) + '</div></div>';
-
-  data.blocks.forEach(function(b, bi) {
-    html += '<div class="annot-block">';
-    html += '<div class="annot-section-title">' + escapeHtml(b.title.toUpperCase()) + '</div>';
-    if (editable) {
-      html += '<textarea class="annot-edit-textarea" data-block="' + bi + '" rows="'
-            + Math.max(b.lines.length + 1, 3) + '">'
-            + b.lines.map(function(l) { return escapeHtml(l); }).join('\n')
-            + '</textarea>';
-    } else {
-      b.lines.forEach(function(l) {
-        var line = l.replace(/^  ├── /, '&nbsp;&nbsp;&nbsp;&nbsp;├── ')
-                     .replace(/^  └── /, '&nbsp;&nbsp;&nbsp;&nbsp;└── ');
-        html += '<div class="annot-line">' + line + '</div>';
-      });
-    }
-    html += '</div>';
-  });
-
-  if (editable) {
-    html += '<div class="annot-edit-actions">';
-    html += '<button class="btn btn-primary" onclick="saveEdit()">💾 保存修改</button>';
-    html += '<button class="btn btn-cancel" onclick="toggleEditMode()">取消</button>';
-    html += '</div>';
-  }
-
-  body.innerHTML = html;
 }
 
 function saveEdit() {
-  if (!currentAnnot) return;
-  var data = ANNOTATIONS[currentAnnot];
+  if (!state.panelKey) return;
+  var data = ANNOTATIONS[state.panelKey];
+  var before = JSON.stringify(data);
 
   var descField = document.querySelector('[data-field="desc"]');
   if (descField && descField.value !== data.desc) {
@@ -1197,17 +1196,153 @@ function saveEdit() {
     }
   });
 
-  var inlineContainer = document.getElementById('annotInline-' + currentAnnot);
+  // Record history
+  state.editHistory.push({
+    type: 'edit',
+    key: state.panelKey,
+    before: before,
+    after: JSON.stringify(data)
+  });
+
+  // 同步更新内联
+  var inlineContainer = document.getElementById('annotInline-' + state.panelKey);
   if (inlineContainer && inlineContainer.style.display !== 'none') {
-    renderInline(currentAnnot, data);
+    renderInline(state.panelKey, data);
   }
 
-  editMode = false;
+  state.editMode = false;
   var btn = document.getElementById('btnEditMode');
   if (btn) { btn.textContent = '✏️ 编辑注释'; btn.classList.remove('active'); }
   renderAnnotBody(data, false);
 
-  console.log('[Annot] Saved edits for ' + currentAnnot);
+  showDiffSummary(data, before);
+  console.log('[Annot] Saved edits for ' + state.panelKey);
+}
+
+function undoEdit() {
+  var last = state.editHistory.pop();
+  if (!last) return;
+  var data = ANNOTATIONS[last.key];
+  if (!data) return;
+  var restored = JSON.parse(last.before);
+  Object.assign(data, restored);
+  if (state.panelKey === last.key) {
+    renderAnnotBody(data, false);
+  }
+  var inlineContainer = document.getElementById('annotInline-' + last.key);
+  if (inlineContainer && inlineContainer.style.display !== 'none') {
+    renderInline(last.key, data);
+  }
+  console.log('[Annot] Undo: ' + last.key);
+}
+
+function showDiffSummary(newData, before) {
+  var oldData = JSON.parse(before);
+  var changes = [];
+  newData.blocks.forEach(function(b, bi) {
+    var oldBlock = oldData.blocks[bi];
+    if (!oldBlock) return;
+    var oldLines = oldBlock.lines.join('\n');
+    var newLines = b.lines.join('\n');
+    if (oldLines !== newLines) {
+      changes.push(b.title + ' (' + oldBlock.lines.length + '→' + b.lines.length + ' 行)');
+    }
+  });
+  if (changes.length > 0) {
+    var bar = document.createElement('div');
+    bar.style.cssText = 'padding:8px 16px;background:#f0fdf4;border-bottom:1px solid #bbf7d0;font-size:12px;color:#166534;';
+    bar.textContent = '✅ 已保存: ' + changes.join(', ');
+    var header = document.querySelector('.annot-panel-header');
+    if (header) header.parentNode.insertBefore(bar, header.nextSibling);
+    setTimeout(function() { bar.remove(); }, 3000);
+  }
+}
+
+// ============================================
+// Verification Mode
+// ============================================
+
+function runVerification() {
+  var results = [];
+  var keys = Object.keys(ANNOTATIONS);
+
+  // Check 1: Trigger coverage
+  keys.forEach(function(k) {
+    var hasTrigger = document.querySelector('[data-annot="' + k + '"]');
+    if (!hasTrigger) {
+      results.push({ type: 'error', msg: k + ': 缺少 trigger 按钮' });
+    }
+  });
+  if (keys.every(function(k) { return document.querySelector('[data-annot="' + k + '"]'); })) {
+    results.push({ type: 'pass', msg: '所有组件均有 trigger 按钮' });
+  }
+
+  // Check 2: State coverage
+  var stateMinimums = {
+    T1: ['normal','loading','error'],
+    T2: ['normal','loading','empty','error'],
+    T3: ['normal','disabled','loading'],
+    T4: ['normal','open','disabled'],
+    T5: ['normal','submitting','error'],
+    T6: ['normal','fieldError','submitting','success','apiError'],
+    T7: ['normal','loading','empty','searchEmpty','selected','confirming','error'],
+    T8: ['idle','focus','searching','selected','empty','error'],
+    T9: ['show','hidden'],
+    T10: ['empty','loading','error'],
+    T11: ['hidden','visible']
+  };
+  keys.forEach(function(k) {
+    var data = ANNOTATIONS[k];
+    var min = stateMinimums[data.type];
+    if (min) {
+      var covered = data.states.split('/').map(function(s) { return s.trim(); });
+      var missing = min.filter(function(m) { return covered.indexOf(m) === -1; });
+      if (missing.length > 0) {
+        results.push({ type: 'warn', msg: k + ' (' + data.type + '): 缺少状态 ' + missing.join(', ') });
+      }
+    }
+  });
+
+  // Check 3: Content rules — flag code patterns
+  var codePatterns = [/count\(/i, /SELECT /i, /WHERE /i, /=>/, /===/, /\.map\(/, /\.filter\(/];
+  keys.forEach(function(k) {
+    var data = ANNOTATIONS[k];
+    data.blocks.forEach(function(b) {
+      b.lines.forEach(function(l) {
+        codePatterns.forEach(function(p) {
+          if (p.test(l)) {
+            results.push({ type: 'warn', msg: k + '.' + b.title + ': 可能包含代码语法 "' + l.trim().substring(0, 40) + '"' });
+          }
+        });
+      });
+    });
+  });
+
+  // Render results
+  renderVerificationResults(results);
+}
+
+function renderVerificationResults(results) {
+  var body = document.getElementById('annotBody');
+  var pass = results.filter(function(r) { return r.type === 'pass'; }).length;
+  var warn = results.filter(function(r) { return r.type === 'warn'; }).length;
+  var err = results.filter(function(r) { return r.type === 'error'; }).length;
+  var total = results.length;
+
+  var icon = err > 0 ? '❌' : warn > 0 ? '⚠️' : '✅';
+  var html = '<div class="annot-block">';
+  html += '<div class="annot-section-title">' + icon + ' 验证结果 (' + pass + '/' + total + ' 通过)</div>';
+  results.forEach(function(r) {
+    var ic = r.type === 'pass' ? '✅' : r.type === 'warn' ? '⚠️' : '❌';
+    html += '<div class="annot-line" style="color:' + (r.type === 'pass' ? '#166534' : r.type === 'warn' ? '#92400e' : '#991b1b') + '">' + ic + ' ' + escapeHtml(r.msg) + '</div>';
+  });
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+// Re-export switchPanelTo for HTML onclick use
+function switchPanelToFromTrigger(key) {
+  switchPanelTo(key);
 }
 ```
 
