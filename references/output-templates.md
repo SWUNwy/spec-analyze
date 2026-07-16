@@ -9,6 +9,7 @@ Three output formats matching the three routing paths. Full path uses spec-analy
 | Lightweight | Insight Brief | Conversation only (no file written) |
 | Standard | Analysis Report + proposal.md | `docs/spec-analyze/reports/YYYY-MM-DD-<topic>-report.md` |
 | Full | proposal.md + design.md + tasks.md (+ HTML prototype) | `docs/spec-analyze/specs/R0XX-<topic>/` |
+| 已有方案注释 | 补充注释的 design.md / HTML 注释面板 | 输入文件同目录（追加注释，不创建新文件） |
 
 User preferences override defaults. Show path before generation. Auto-create target directory.
 
@@ -356,6 +357,7 @@ Each state must cover two perspectives:
 | 内联模式 | 注释在组件下方折叠展示 | 默认推荐，评审者逐组件查看 |
 | 侧边面板 | 注释仅在右侧面板展示 | 组件数多（≥10），需要快速切换 |
 | 双模式 | 两者同时启用 | 需要同时查看当前组件和全局对比 |
+```
 
 ### Template: tasks.md
 

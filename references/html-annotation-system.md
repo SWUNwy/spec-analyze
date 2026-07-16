@@ -312,6 +312,7 @@ const ANNOTATIONS = {
   }
 };
 ```
+```
 
 ### 3.3 字段提取对照表
 
@@ -377,6 +378,33 @@ Behavior 和 State 中常用树形结构表示条件分支：
 - 内联和弹窗的渲染函数是纯函数——输入 ANNOTATIONS 数据，输出 DOM
 - 不存在"编辑中"状态——编辑是即时的（非异步），不存在时序冲突
 
+### 3.6 跨引用格式（Cross-Reference Format）
+
+当注释内容需要引用外部文档时，使用 `→` 前缀定义引用目标：
+
+| 引用类型 | 语法 | 示例 | 渲染效果 |
+|---------|------|------|---------|
+| 设计文档章节 | `→ design.md §N.M` | `→ design.md §4.1` | 可点击链接，跳转至设计文档 |
+| 决策记录 | `→ decision-log #D00X` | `→ decision-log #D003` | 可点击链接，跳转至决策记录 |
+| 功能需求 | `→ F00X` | `→ F001` | 可点击链接，跳转至需求文档 |
+| 流程图 | `→ REF-ID` | `→ R001-MENU-MERGE` | 可点击链接，跳转至流程图 |
+
+**内容规则：**
+- 引用必须放在行尾，格式：`{描述文字}（→ {引用}）`
+- 示例：`合并入口是因为用户报备流程中需要先判断报备类型（→ design.md §4.1 R001-MENU-MERGE）`
+- 不允许引用无对应的文档锚点
+
+**渲染规则（popup 模式）：**
+- `→` 符号渲染为 `↗` 外部链接图标
+- 引用文本渲染为蓝色可点击链接
+- 鼠标悬停显示 tooltip 引用来源
+- 不支持跨文档跳转时，显示为半透明（disabled）状态
+
+**渲染规则（inline 模式）：**
+- 引用显示为 `[↗]` 标记，不展开完整链接
+- 点击 `[↗]` 打开侧边面板的引用详情
+- 优先显示引用目标而不是完整 URL
+
 ---
 
 ## 4. Component Mapping — 触发按钮布局
@@ -391,6 +419,85 @@ Behavior 和 State 中常用树形结构表示条件分支：
 - 确保无遗漏、无幽灵项
 
 触发按钮只应在枚举清单中的组件上放置。清单外的不放置，清单内的不遗漏。
+
+### 4.0.1 空组件触发流程（无 ANNOTATIONS 数据时）
+
+当组件已在枚举清单中但尚无 ANNOTATIONS 数据时，触发按钮表现为"空状态"——点击后引导用户创建注释，而非展示空面板。
+
+#### 判断条件
+
+| 条件 | 触发按钮表现 |
+|------|------------|
+| 组件在 ANNOTATIONS 中有对应条目 | 正常展示注释面板/弹窗 |
+| 组件在枚举清单中但 ANNOTATIONS 无对应条目 | 空状态触发按钮，引导创建 |
+| 组件不在枚举清单中 | 不放置触发按钮 |
+
+#### 空状态触发按钮样式
+
+```html
+<!-- 空状态触发按钮 — 虚线和问号表示"待注释" -->
+<button class="annot-trigger annot-trigger-empty" data-annot="C04_NewComponent"
+        onclick="openAnnotationEditor('C04_NewComponent')"
+        title="该组件尚未添加注释，点击添加">❓</button>
+```
+
+```css
+/* 空状态触发按钮样式 */
+.annot-trigger-empty {
+  border: 1.5px dashed #f59e0b !important;  /* 橙色虚线边框 */
+  background: #fffbeb !important;           /* 淡橙色背景 */
+  opacity: 0.8;
+}
+.annot-trigger-empty:hover {
+  opacity: 1;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+```
+
+#### 点击行为
+
+点击空状态触发按钮时，打开"注释创建向导"：
+
+1. **类型选择**：展示 T1-T11 类型候选列表（按关键词匹配排序），用户选择或跳过
+2. **字段引导**：按类型模板逐字段引导用户输入（见 SKILL.md Step 11F-P2 → 11F-P5）
+3. **实时预览**：每填充一个字段，右侧预览区同步更新注释面板
+4. **保存**：用户确认后，写入 ANNOTATIONS 数据，触发按钮恢复为正常状态
+
+#### 创建向导 HTML 结构
+
+```html
+<!-- 注释创建向导弹窗 -->
+<div id="annotCreateWizard" class="annot-modal" style="display:none;">
+  <div class="annot-modal-content" style="width: 640px; max-height: 85vh;">
+    <div class="annot-modal-header">
+      <span>添加注释 — <span id="wizardComponentName">组件名</span></span>
+      <button onclick="closeWizard()" class="annot-close">&times;</button>
+    </div>
+    <div class="wizard-body">
+      <div class="wizard-step" id="wizardStep1">
+        <h4>Step 1: 选择组件类型</h4>
+        <div id="typeCandidates"><!-- 由 JS 动态生成 --></div>
+      </div>
+      <div class="wizard-step" id="wizardStep2" style="display:none;">
+        <h4>Step 2: 填写注释内容</h4>
+        <div id="fieldEditor"><!-- 由 JS 动态生成 --></div>
+      </div>
+      <div class="wizard-step" id="wizardStep3" style="display:none;">
+        <h4>Step 3: 预览</h4>
+        <div id="previewPanel"><!-- 实时预览 --></div>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+#### 创建完成后
+
+- 新注释数据追加到 `window.ANNOTATIONS`
+- 触发按钮状态从 `annot-trigger-empty` 切换为 `annot-trigger`
+- 触发按钮图标从 `❓` 切换为 `📋`
+- 组件在 Component Manifest 中标记为"已注释"
+- 触发 `validate-annotations.js` 验证新注释
 
 ### 4.1 触发按钮放置规则
 

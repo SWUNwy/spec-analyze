@@ -1,6 +1,6 @@
 ---
 name: spec-analyze
-version: 2.1.0
+version: 2.3.0
 description: "需求分析与产品交互注释输出。核心场景：你在原型/线稿/Figma 设计稿上，给每个交互组件加上 trigger/behavior/state/style 的结构化注释，让研发直接照着实现。也适用于需求分析、产品方案设计、功能拆解、竞品调研——但独特价值是输出带三层研发注释（L1 trigger-behavior-dismiss / L2 +placement-style-state-timing / L3 +accessibility-responsive-i18n）的 proposal / design / tasks 三文档。当用户提到「原型注释」「交互标注」「给设计稿加注释」「输出研发规范文档」「方案标注」「写开发文档」「补充交互细节」「产品交互说明」「标注组件行为状态」「annotate prototype」「interaction spec」「developer handoff」时 MUST 触发。区别于通用分析工具：spec-analyze 的分析结果直接输出为带研发注释的可交付文档。"
 ---
 
@@ -28,6 +28,10 @@ spec_analyze_state:
   knowledge_loaded: false         # 是否已加载 knowledge/
   personas_activated: []          # 已激活的角色
   output_generated: false         # 是否已生成输出
+  level_labels:                    # 注释等级标签映射（可配置）
+    L1: "基础"                     # 缺省：基础
+    L2: "详细"                     # 缺省：详细
+    L3: "完整"                     # 缺省：完整
   gate_status:                    # 门禁通过状态
     S1: pending                   # pending | passed | blocked
     S2: pending
@@ -105,6 +109,16 @@ spec_analyze_state:
 - 如果已有 design.md → 直接进入 Step 9.5F（交互式注释编辑）
 - 输出：带 Annotation Block 的 design.md + 可选 HTML 注释面板
 
+### 已有方案注释
+
+用户已有方案文档（proposal.md / design.md / PRD HTML），需要在此方案基础上添加或补充交互注释：
+
+- **不重新分析需求**，直接基于已有方案提取组件
+- 识别方案中已有的组件描述，映射到类型模板
+- 对无注释的组件添加注释，对已有注释的组件补充完善
+- 输出：补充了注释的 design.md + 可选 HTML 注释面板
+- 详见下方「Step A1-A5: 已有方案注释流程」章节
+
 ### 方案评审
 
 用户已有方案文档，需要评审：
@@ -133,6 +147,7 @@ spec_analyze_state:
 | 输入信号 | 分流目标 | 优先级 |
 |---------|---------|-------|
 | 含"原型""线稿""Figma""设计稿""注释" | 原型注释 | 最高 |
+| 含"已有方案""已有文档""补充注释""加注释""标注" | 已有方案注释 | 最高 |
 | 含"评审""review""检查一下这个方案" | 方案评审 | 高 |
 | 含"竞品""市场""调研""对比" | 竞品调研 | 高 |
 | 一句话问题、简单询问 | 快速问答 | 中 |
@@ -289,6 +304,7 @@ spec_analyze_state:
 | 9F | HTML 注释验证 | 按 `references/html-annotation-system.md` 验证注释正确内建 + back-propagation（仅当用户同意内建时） | S3c |
 | 9.5F | 交互式注释编辑 | 用户指定组件和字段目标，AI 按模板规则执行编辑 → 跨文档同步 → 输出 diff 摘要。详见下方「Step 9.5F: 交互式注释编辑」章节 | S3d |
 | 10F | 质量自检 | 运行质量自检清单（见 `references/quality-checklists.md`） | S4 |
+| 11F | 逐组件交互式注释编辑 | 用户选择组件 → AI 引导需求阐述 → 自动映射类型 → 逐字段填充注释 → 实时验证 → 同步到设计文档。详见下方「Step 11F: 逐组件交互式注释编辑」章节 | S3d |
 | — | 用户审阅 | 用户确认 → 结束；用户否决 → 回到 5F | — |
 
 ---
@@ -495,7 +511,177 @@ spec_analyze_state:
 
 ---
 
-## 升级门设计（Lightweight Step 3L）
+## Step 11F: 逐组件交互式注释编辑
+
+Step 11F 是 Full 路径的可选扩展步骤，在 Step 10F 质量自检完成后执行。允许用户**逐个选择组件**，由 AI 引导完成需求阐述、类型映射、注释填充和验证。与 Step 9.5F 的最大区别：9.5F 编辑已有注释，11F **从零开始创建注释**。
+
+### 11F-P1: 组件选择（用户选择目标组件）
+
+```
+用户话语 → 意图识别（Layer 1）
+  ├─ "给xx组件加注释" → 匹配组件名
+  ├─ "这个页面…"       → 列出页面所有组件供选择
+  └─ "我要加注释"      → 展示 Component Manifest 供选择
+```
+
+**输出：** 目标组件 ID + 当前组件状态（已有注释 / 空）
+
+### 11F-P2: 需求引导（AI 引导用户阐述）
+
+AI 按组件类型（若已识别）或通用问题引导用户阐述需求：
+
+| 场景 | 引导问题 |
+|------|---------|
+| 通用（未知类型） | "这个组件是做什么的？用户触发什么操作？" |
+| 展示类（T1/T2） | "展示什么数据？数据来源？更新时机？" |
+| 操作类（T3/T4/T5） | "触发后发生什么？需要什么条件？" |
+| 输入类（T6/T7/T8） | "用户输入什么字段？校验规则？提交后做什么？" |
+| 反馈类（T9/T10/T11） | "什么时机触发？展示什么内容？如何关闭？" |
+
+**输出：** 用户需求描述（自然语言段落）
+
+### 11F-P3: 类型映射与结构生成
+
+1. 使用自然语言 → 类型映射规则（见 `annotation-templates.md §2.3`）自动匹配 T1-T11
+2. 展示映射结果给用户确认
+3. 按类型模板生成空字段结构
+
+```javascript
+// 生成的空结构示例（T3 ActionButton）
+{
+  type: "T3",
+  level: "L2",
+  label: "用户提供的组件名",
+  blocks: [
+    { title: "触发条件", lines: [""] },
+    { title: "行为描述", lines: [""] }
+  ],
+  state: { normal: "", disabled: "" },
+  context: { view: "", operate: "" }
+}
+```
+
+### 11F-P4: 逐字段填充（AI + 用户协作）
+
+对于每个字段，AI 从用户需求描述中提取信息填充，不可提取的字段追问用户：
+
+| 字段状态 | AI 行为 |
+|---------|---------|
+| 从需求描述中可提取 | 自动填充，标注来源 |
+| 从需求描述中不可提取 | 追问用户（1 次追问，用户拒绝则标"待补充"）|
+| 从已有文档可推断 | 自动填充，标注引用来源 |
+| 无法推断且用户无法回答 | 标"待确认"，加入 _pending 列表 |
+
+**填充顺序：** trigger → behavior → state → context → api → background
+
+### 11F-P5: 实时验证
+
+每个字段填充后立即验证：
+
+- 必填字段是否已填充（error）
+- 内容规则是否满足（warning）
+- 状态覆盖是否达标（error）
+- 引用是否存在（warning）
+
+验证结果实时展示，用户可选择修复或忽略（标记为 exception）。
+
+### 11F-P6: 同步到设计文档
+
+注释填充完成后，同步到 design.md 的 Annotation Block：
+
+1. 更新 design.md 中对应组件的注释块
+2. 更新 Component Manifest（如果类型/等级变化）
+3. 生成变更摘要（diff 格式，同 Step 9.5F-P4）
+
+### 11F-Add: 批量添加子组件
+
+当用户需要对父组件中的多个子组件添加注释时：
+
+1. 用户选择父组件下的子组件列表
+2. 对每个子组件执行 11F-P2 → 11F-P5
+3. 子组件自动继承父组件的共享块（Block A / Block C）
+4. 在父组件的 `dependencies.contains` 中注册子组件
+
+### 11F 退出条件
+
+| 条件 | 行为 |
+|------|------|
+| 用户完成所有组件 | 正常退出，进入用户审阅 |
+| 用户选择中途退出 | 保存已完成的组件注释，未完成的标"待补充" |
+| 用户要求跳过 | 跳过当前组件，进入下一个
+
+---
+
+## Step A1-A5: 已有方案注释流程
+
+当用户已有方案文档（proposal.md / design.md / PRD HTML）并要求添加交互注释时，走此流程。核心原则：**不重新分析需求，不改变已有方案内容，只增加注释层**。
+
+### Step A1: 方案发现与解析
+
+| 输入类型 | 解析方式 |
+|---------|---------|
+| PRD HTML 文件 | 解析 HTML 结构，提取组件 DOM 树，识别交互元素 |
+| design.md | 解析 Markdown 章节，提取组件描述和已有注释块 |
+| proposal.md | 识别 F00X 功能需求列表，映射到组件 |
+
+**输出：** 组件候选列表（含组件名、已有描述、位置）
+
+### Step A2: 组件识别与类型映射
+
+1. 从方案文档中提取所有交互组件（按钮、弹窗、表单、列表、菜单等）
+2. 使用自然语言 → 类型映射规则（`annotation-templates.md §2.3`）匹配 T1-T11
+3. 识别组件间的父子/嵌套关系
+4. 与用户确认组件清单和类型映射
+
+```markdown
+## 组件识别结果
+
+| # | 组件名 | 识别类型 | 位置 | 已有注释 | 操作 |
+|---|--------|---------|------|---------|------|
+| 1 | @StatsCardRow | T1 (DisplayMetric) | §2.1 | 无 | 添加注释 |
+| 2 | @BatchAction | T4 (ActionMenu) | §2.2 | 无 | 添加注释 |
+| 3 | @PublisherTable | T2 (DataList) | §3.1 | 部分 | 补充注释 |
+```
+
+### Step A3: 注释提取/转换
+
+对于已有内容（文字描述、表格、列表），自动提取为 ANNOTATIONS 字段：
+
+| 已有内容形态 | 转换为 | 提取规则 |
+|------------|--------|---------|
+| 功能描述段落 | trigger / behavior | 提取触发条件和操作序列 |
+| 字段定义表 | columns / fields / data | 每行 → 一个字段定义 |
+| 状态描述 | state | 提取状态名和触发条件 |
+| 接口说明 | api | 提取 endpoint / params / response |
+| 权限说明 | context (Block C) | 提取 view / operate 角色 |
+| 流程图/决策图 | background.flowchartRef | 提取引用 ID |
+
+### Step A4: 注释补充（对已有注释的组件）
+
+对已有注释/描述的组件，按类型模板补充缺失字段：
+
+| 已有状态 | 补充内容 |
+|---------|---------|
+| 仅有 trigger | 补充 behavior + state + context |
+| 仅有字段描述 | 补充 state + api + background |
+| 仅有行为描述 | 补充 trigger + state + context |
+| 内容不满足内容规则 | 按 R001-R020 修正 |
+
+### Step A5: 输出
+
+1. 如果输入是 HTML → 在 HTML 中嵌入 ANNOTATIONS 数据 + 触发按钮
+2. 如果输入是 design.md → 在 design.md 中追加 Annotation Block
+3. 如果输入是 proposal.md → 生成 design.md（含注释）
+4. 生成 Component Manifest
+5. 运行 `validate-annotations.js` 验证
+
+### A5 退出条件
+
+| 条件 | 行为 |
+|------|------|
+| 所有组件注释完成 | 正常退出 |
+| 用户只要求部分组件 | 仅注释指定组件，其余标"跳过" |
+| 用户要求补充 | 回到 Step A4 继续补充
 
 ### 监控范围
 
@@ -1066,6 +1252,7 @@ spec-analyze 可以在不同项目间复用：
 | `references/output-templates.md` | 三条路径的输出模板 + 三层注释框架 + 全链路工作流 |
 | `references/html-annotation-system.md` | HTML 注释系统：何时使用、架构、数据格式、组件映射、集成步骤、完整 CSS/JS/HTML 模板 |
 | `references/annotation-templates.md` | **类型化注释模板系统：11 种组件类型 + 3 个共享块 + 内容规则 + 质量验证方法（Full 路径使用）** |
-| `references/quality-checklists.md` | 质量自检清单 + 跨文档一致性检查 + 各角色评审清单 + S3d 检查项 |
+| `references/quality-checklists.md` | 质量自检清单 + 跨文档一致性检查 + 各角色评审清单 + S3d 检查项 + 审核流程（Review → Approve → Lock） |
+| `references/test-cases.md` | 从 ANNOTATIONS 状态定义自动生成测试用例的模板和映射规则 |
 | `references/web-research-guide.md` | Web research 触发条件、搜索策略、信息整合框架 |
 | `SKILL.md §Step 9.5F` | 交互式注释编辑模式完整定义（P1-P4 + Add 子流程 + Standard 适配 + Component Manifest） |
