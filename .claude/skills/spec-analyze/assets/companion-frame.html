@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><!-- TITLE --></title>
+  <style>
+    :root{color-scheme:light dark;--bg:#f5f5f7;--panel:#fff;--text:#1d1d1f;--muted:#6e6e73;--line:#d2d2d7;--accent:#0071e3;--selected:#e8f4fd}
+    @media(prefers-color-scheme:dark){:root{--bg:#1d1d1f;--panel:#2c2c2e;--text:#f5f5f7;--muted:#aeaeb2;--line:#48484a;--accent:#0a84ff;--selected:#183b57}}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,sans-serif}
+    header{position:sticky;top:0;display:flex;justify-content:space-between;gap:16px;padding:10px 20px;background:var(--panel);border-bottom:1px solid var(--line);z-index:2}
+    header span{color:var(--muted);font-size:12px}.status{color:#34c759}main{max-width:1100px;margin:auto;padding:28px 20px 48px}
+    h1{font-size:28px;margin:0 0 8px}h2{font-size:17px;margin:0 0 10px}.description{color:var(--muted);margin:0 0 24px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.card,.node{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+    button.card{color:inherit;text-align:left;font:inherit;cursor:pointer}button.card:hover,button.card.selected{border:2px solid var(--accent);padding:15px;background:var(--selected)}
+    .card p{color:var(--muted);margin:6px 0 0}.id{display:inline-block;color:var(--accent);font-size:12px;margin-bottom:8px}
+    table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:12px;overflow:hidden}th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line)}th{font-size:12px;color:var(--muted)}
+    .flow{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.arrow{color:var(--muted);font-size:20px}.message{display:grid;place-items:center;min-height:50vh;text-align:center;color:var(--muted)}
+    #notice{position:fixed;right:18px;bottom:18px;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 12px;opacity:0;transition:.2s}#notice.show{opacity:1}
+  </style>
+</head>
+<body>
+  <header><span>Analyze Visual Companion</span><span class="status">Connected</span></header>
+  <main><!-- CONTENT --></main><div id="notice">Preference recorded in the companion</div>
+  <script>
+    let version='<!-- VERSION -->';
+    async function poll(){try{const r=await fetch('/api/version');if(r.ok){const d=await r.json();document.querySelector('.status').textContent='Connected';if(d.version!==version)location.reload();}else throw new Error();}catch(e){document.querySelector('.status').textContent='Reconnecting…';}setTimeout(poll,1200)}
+    document.addEventListener('click',async e=>{const b=e.target.closest('[data-choice]');if(!b)return;document.querySelectorAll('[data-choice]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');await fetch('/api/events',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'choice',choice:b.dataset.choice,label:b.dataset.label||b.textContent.trim(),screen:version})});const n=document.querySelector('#notice');n.classList.add('show');setTimeout(()=>n.classList.remove('show'),1600)});poll();
+  </script>
+</body>
+</html>

@@ -1,86 +1,118 @@
-# Web Research Guide
+# 网络研究指南（Web Research Guide）
 
-When and how to use web search during spec-analyze sessions. Tailored for product requirement analysis and competitive benchmarking.
+结论依赖外部事实时使用本文件。
 
-## Trigger Conditions
+## 默认规则
 
-Propose web research when the discussion touches on any of these:
+不要自动浏览。先区分：
 
-### 1. Competitive Benchmark
+- 本地/用户提供的信息。
+- 外部事实。
+- 外部易变事实。
 
-Need to understand how competitors solve the same problem, or industry best practices for a feature.
+易变或高利害外部事实重要时，建议验证并请求确认。
 
-**Probe:** "This relates to [feature] which competitors likely already handle. Should I check current industry approaches?"
+## 何时建议验证
 
-**Search patterns:**
-- `[competitor] [feature] implementation UX`
-- `[industry] best practices for [feature] [current year]`
-- `[product category] comparison [feature]`
-- `how does [competitor] handle [scenario]`
+为以下内容建议验证：
 
-### 2. Component & Interaction Patterns
+- 当前价格、市场数据、法规、产品规格、模型/API 行为、公司角色、排名、日程、法律/医疗/财务事实。
+- 任何有实质变化可能的事实。
+- 任何可能导致显著时间或金钱投入的建议。
 
-Need to validate interaction design decisions against established patterns.
+### 按触发类型的搜索模式
+
+用户确认后，使用定向搜索模式：
+
+| 触发 | 搜索模式 |
+|---|---|
+| 竞争基准 | `best practices for [feature] in [industry]` |
+| 竞争对比 | `[competitor A] vs [competitor B] [feature] comparison` |
+| 市场趋势 | `[industry] market size trends [year]` |
+| 用户行为 | `[behavior] statistics [demographic] [year]` |
+| 技术评估 | `[library A] vs [library B] performance comparison [year]` |
+| 技术风险 | `[technology] known issues limitations` |
+| 合规 | `[regulation] requirements for [product type] [year]` |
+| 标准 | `[standard] compliance checklist` |
+
+何时不搜索：业务逻辑、本地文件内容、概念/观点话题、用户提供的权威信息。
+
+## spec-analyze 场景补充（原型 / 交互研究）
+
+产品需求分析与原型标注场景中，以下触发也建议提出验证：
+
+### 组件与交互模式
+
+需要用既有行业模式验证交互设计决策时：
 
 **Probe:** "The [interaction] pattern being discussed has precedent in the industry. Want me to check common approaches and anti-patterns?"
 
-**Search patterns:**
+**搜索模式：**
 - `[component] UX pattern best practices [current year]`
 - `[interaction] UX anti-patterns`
 - `[UI pattern] accessibility considerations`
 - `[component library] [component] API reference`
 
-### 3. Technology Evaluation
+### 竞争基准（原型语境）
 
-Need to compare technical options for implementation.
+需要理解竞品如何解决同一问题时：
 
-**Probe:** "The technical choice here matters for implementation effort and maintability. I can check the current state of [technology] options."
+**Probe:** "This relates to [feature] which competitors likely already handle. Should I check current industry approaches?"
 
-**Search patterns:**
-- `[library] vs [library] comparison [current year]`
-- `[library] known issues limitations`
-- `[technology] API changes deprecation [version]`
-- `[npm package] downloads maintenance status`
+**搜索模式：**
+- `[competitor] [feature] implementation UX`
+- `[industry] best practices for [feature] [current year]`
+- `[product category] comparison [feature]`
+- `how does [competitor] handle [scenario]`
 
-### 4. Compliance & Data Standards
+## 用户确认验证
 
-Discussion involves data format standards, regulatory requirements, or industry conventions.
+使用可靠来源并在最终回答中引用。技术、法律、医疗、财务或公司事实优先一手来源。
 
-**Probe:** "This touches on [topic] which may have standard conventions or regulatory requirements. Should I verify?"
+## 用户拒绝验证
 
-**Search patterns:**
-- `[data format] standard specification`
-- `[regulation] requirements for [feature] [current year]`
-- `[industry] data format best practices`
+用此模式：
 
-## When NOT to Search
+```markdown
+## Preliminary Judgment
 
-Don't propose web research when:
-- The question is about the user's specific business logic, internal systems, or preferences
-- The information is available in local project files or docs
-- The discussion is purely conceptual or opinion-based
-- The user has already provided authoritative information
+**Conclusion:** ...
+**Confidence:** ...
+**Unconfirmed external facts:** ...
 
-## Information Integration
+### Conditional Analysis
+- If [external fact A] is true, then ...
+- If not, then ...
 
-Structure all research findings using the As-is → Gap → Edge framework:
+### Minimum Validation
+...
+```
 
-| Section | Content | Purpose |
-|---------|---------|---------|
-| **As-is** | Current industry standard, common approach, or competitor solution | Grounding — what's normal? |
-| **Gap** | Where our approach differs from or falls short of the standard | Risk awareness — what are we missing? |
-| **Edge** | Where we can differentiate or improve upon the standard | Opportunity — where can we do better? |
+## 信息整合
 
-### Inline vs. Appendix
+把研究结果组织为：
 
-- **Inline**: Brief findings (1-3 facts) that directly affect a specific design decision → present in the discussion
-- **Appendix**: Extensive research (competitive analysis, multi-source synthesis) → summarize key points inline, full details in output appendix
+| 章节 | 内容 | 目的 |
+|---|---|---|
+| **As-is** | 当前行业标准、基准或规范 | 接地 |
+| **Gap** | 我们方法落后标准之处 | 风险意识 |
+| **Edge** | 我们能差异化或优于标准之处 | 机会 |
 
-## Source Quality
+### 内联 vs 附录
 
-When evaluating search results for requirement analysis:
-- Prefer official documentation, established UX research, and primary sources
-- Be skeptical of marketing content and vendor comparisons
-- Note the publication date — UX patterns evolve slower than tech, but still evolve
-- Cross-reference important claims across multiple sources
-- Always cite sources so the reviewer can verify
+- **内联**：直接影响特定决策的简短发现（1-3 个事实）→ 在讨论中呈现。
+- **附录**：广泛研究（竞争分析、多来源综合）→ 内联总结要点，完整细节放附录。
+
+### 来源质量
+
+- 优先官方文档、成熟行业报告与一手来源。
+- 对营销内容、SEO 优化列表文与厂商对比保持怀疑。
+- 记录发布日期；快变话题优先近期来源。
+- 重要声明尽可能跨多来源交叉验证。
+- 总是引用来源，让用户可验证。
+
+## 不要
+
+- 不要编造引用。
+- 不要把过期外部事实当已确认。
+- 不要因为浏览可能改进，就阻塞低风险本地分析。

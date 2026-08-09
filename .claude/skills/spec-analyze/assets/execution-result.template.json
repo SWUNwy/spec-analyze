@@ -1,0 +1,19 @@
+{
+  "schema_version": "analyze-execution-result/1.0",
+  "status": "ready_for_verification",
+  "plan_sha256": "<sha256 of the bound implementation plan>",
+  "changes": [
+    {
+      "path": "src/example.ts",
+      "summary": "Describe the implemented change"
+    }
+  ],
+  "checks": [
+    {
+      "command": "replace with the exact command already run",
+      "exit_code": 0,
+      "evidence": "replace with concise output evidence"
+    }
+  ],
+  "unresolved_blockers": []
+}

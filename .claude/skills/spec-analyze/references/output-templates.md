@@ -1,402 +1,421 @@
-# Output Templates
+# 输出模板（Output Templates）
 
-Three output formats matching the three routing paths. Full path uses spec-analyze's exclusive annotation framework and triple-document output.
+## 目录
 
----
+- Output Selection（输出选择）
+- Stage Summary（阶段小结）
+- Brainstorming Outputs（头脑风暴输出）
+- Analysis Reports（分析报告）
+- Decision-grade Report（决策级报告）
+- Degraded Outputs（降级输出）
+- Short Answer Format（短答格式）
 
-## Lightweight Path → Insight Brief
+## 输出选择
 
-For quick discussions. Keep concise — half a page.
+| 用户需求 | 模式 | 输出 |
+|---|---|---|
+| 探索可能性 | Brainstorming | Idea Map |
+| 比较涌现方向 | Brainstorming | Direction Brief |
+| 做选择 | Analysis | Decision Analysis Report |
+| 澄清需求 | Analysis | Requirement Analysis Report |
+| 比较方案 | Analysis | Solution Analysis Report |
+| 决定战略 | Analysis | Strategy Analysis Report |
+| 高利害决策 | Analysis | Decision-grade Report |
+| Spec 请求过早 | Spec | Spec Readiness Check |
+| 事实不足 | Any | Preliminary Judgment / Assumption Map |
 
-```markdown
-## Insight Brief: [Topic]
+## 输出文件路径
 
-### Core Insights
-1. **[Insight]** — [Why it matters in one sentence]
-2. **[Insight]** — [Why it matters in one sentence]
-3. **[Insight]** — [Why it matters in one sentence]
+写输出文件时用这些默认路径。写非默认位置前先问用户。
 
-### Key Decisions
-| Decision | Status | Context |
-|----------|--------|---------|
-| [What was decided or needs deciding] | Decided / Open | [Brief context] |
+| 输出类型 | 默认路径 | 说明 |
+|---|---|---|
+| Idea Map / Direction Brief | `docs/analyze/explore/YYYY-MM-DD-<topic>-insight.md` | 头脑风暴输出 |
+| Analysis Report | `docs/analyze/explore/YYYY-MM-DD-<topic>-report.md` | Decision/Requirement/Solution/Strategy 报告 |
+| Decision-grade Report | `docs/analyze/explore/YYYY-MM-DD-<topic>-decision.md` | 高利害决策记录 |
+| Spec 工件 | `docs/analyze/specs/YYYY-MM-DD-<topic>/` | 含 proposal/design/tasks/test-cases 的目录 |
+| Stage Summary | 仅对话 | 除非用户要求，不写文件 |
+| 降级输出 | 仅对话 | 除非用户要求，不写文件 |
 
-### Next Steps
-- [ ] [Specific action]
-- [ ] [Specific action]
-```
+用户偏好覆盖这些默认。总是先问再写文件。
 
----
+### Constitution 路径覆盖
 
-## Standard Path → Analysis Report
+项目 constitution 存在并定义 `output_paths` 时，应用 constitution 的覆盖表：
 
-For multi-perspective analysis with approach comparison. Aim for 1-2 pages.
+| 输出类型 | 覆盖路径模式 |
+|---|---|
+| Idea Map / Direction Brief | `requirements/active/{CONVENTION}/YYYY-MM-DD-<topic>-insight.md` |
+| Analysis Report | `requirements/active/{CONVENTION}/YYYY-MM-DD-<topic>-report.md` |
+| Decision-grade Report | `requirements/active/{CONVENTION}/YYYY-MM-DD-<topic>-decision.md` |
+| Spec 工件 | `requirements/active/{CONVENTION}/` |
 
-```markdown
-## Analysis Report: [Topic]
+`{CONVENTION}` 是占位符。**写文件前提示用户提供 convention 值**（如 "R003-nav-and-layout"）。用提供的值替换所有路径中的 `{CONVENTION}`。
 
-**Date:** [YYYY-MM-DD]
-**Scope:** [What was analyzed]
-**Path:** Standard ([personas activated])
+精确覆盖路径在 constitution 的 Output Paths 章节定义。上表展示 Loop Engineering 模式作为示例。
 
-### Executive Summary
-[2-3 sentences capturing the core finding and recommendation]
-
-### Multi-Perspective Analysis
-
-#### [Persona 1] Perspective
-- **Finding:** [What was discovered]
-- **Concern:** [What to watch out for]
-- **Recommendation:** [What to do about it]
-
-#### [Persona 2] Perspective
-- **Finding:** [What was discovered]
-- **Concern:** [What to watch out for]
-- **Recommendation:** [What to do about it]
-
-#### [Persona 3] Perspective
-- **Finding:** [What was discovered]
-- **Concern:** [What to watch out for]
-- **Recommendation:** [What to do about it]
-
-### Approach Comparison
-
-| Dimension | Approach A | Approach B | Approach C (if applicable) |
-|-----------|------------|------------|----------------------------|
-| Pattern consistency | | | |
-| Responsibility separation | | | |
-| Patch resistance | | | |
-| Minimal change | | | |
-| Complexity | | | |
-| Risk level | | | |
-| **Fit score** | /10 | /10 | /10 |
-
-### Risks & Assumptions
-
-| Item | Type | Mitigation / Validation |
-|------|------|------------------------|
-
-### Recommendation
-**[Agent's recommendation]** — [Reasoning in 2-3 sentences]
-
-### Priority Actions
-| Priority | Action |
-|----------|--------|
-| P0 | [Must do first] |
-| P1 | [Should do next] |
-| P2 | [Nice to have] |
-```
-
----
-
-## Full Path → Triple-Document Output (+ Optional HTML Annotation)
-
-The core differentiator of spec-analyze. Produces three interconnected documents with spec-analyze's exclusive **annotation framework**, plus an optional **HTML Annotation Injection** when a prototype already exists.
-
-### Annotation Framework
-
-The framework has two orthogonal layers: **Type Templates** (determine field structure) and **Annotation Tiers** (determine field depth). Both must be applied together.
-
-#### Layer 1: Type Templates (see `references/annotation-templates.md`)
-
-Components are classified by interaction pattern into 11 types (T1-T11). Each type defines:
-
-- What fields must exist (e.g., FormFill requires `fields[]`, DataList requires `columns`)
-- What state coverage is mandatory (e.g., FormFill: normal, fieldError, submitting, success, apiError)
-- What content rules apply (product language, not code)
-- What shared blocks are needed (DialogContext / APICall / Permission)
-
-**Usage rule:** Always start by mapping each component to a type. If no type fits, the component may be a novel interaction pattern that needs a new type definition.
-
-#### Layer 2: Annotation Tiers
-
-| Tier | When to Use | Fields |
-|------|-------------|--------|
-| **L1 Core** | Simple interactions (hover tooltip, static display) | trigger / behavior / dismiss |
-| **L2 Standard** | Complex interactions (modal, dropdown, form validation) | L1 + placement / style / state / timing |
-| **L3 Complete** | High-precision / global components (DatePicker, Table, Modal) | L2 + accessibility / responsive / i18n |
-
-**Usage rules:**
-- **L1 default**: all annotations start at L1
-- **Upgrade on demand**: only upgrade to L2 when L1 is insufficient for implementation
-- **L3 reserved for global components**: only for components reused across multiple pages
-- **Don't restate the obvious**: Ant Design / MUI default behavior doesn't need annotation
-
-#### Applying Both Layers Together
-
-1. Identify component → map to type (T1-T11) → determine required fields
-2. Choose annotation tier (L1-L3) → determine field depth
-3. For each type-mandatory field, fill at the chosen tier's depth
-
-**Example:** A FormFill component at L2 gets:
-- Type-mandatory fields: trigger, fields[], api, behavior, context (permission), dismiss, state (mandatory: normal, fieldError, submitting, success, apiError), style
-- L2 depth adds: placement (DialogContext), timing (200ms), full state descriptions
-- Fields NOT in the type template (e.g., pagination) are omitted
-
-#### Field Definitions
-
-```
-L1 Common (applied per type template)
-──────────────────────────────────────
-trigger   Trigger condition     hover / click / focus / scroll / blur
-behavior  Behavior description  Describe user-perceptible outcomes, not implementation
-dismiss   Dismiss condition     mouse leave / click outside / Esc / auto-dismiss / confirm/cancel
-
-L2 Adds (applied per type template)
-──────────────────────────────────────
-placement Display position      center / topRight / dropdown / tooltip direction
-style     Visual details        color / spacing / font / z-index / border / shadow
-state     State behaviors       See type-specific minimum coverage in annotation-templates.md §4
-timing    Animation & delay     200ms fade in / 100ms fade out / 300ms debounce
-
-L3 Adds
-──────────────────────────────────────
-accessibility  Accessibility    Tab focus / Enter triggers / Esc closes / aria-label
-responsive    Responsive        Touch fallback / small screen adaptation / print
-i18n          Internationalization   Whether translation is needed
-```
-
-#### State Specification Rules
-
-State coverage is **type-mandatory**, not discretionary. Each type template in `annotation-templates.md` §4 defines the minimum states:
-
-| Type | Mandatory State Coverage |
-|------|-------------------------|
-| DisplayMetric | normal, loading, error |
-| DataList | normal, loading, empty, error |
-| ActionButton | normal, disabled, loading |
-| ActionMenu | normal, open, disabled |
-| ConfirmAction | normal, submitting, error |
-| FormFill | normal, fieldError, submitting, success, apiError |
-| ItemSelect | normal, loading, empty, searchEmpty, selected, confirming, error |
-| SearchSelect | idle, focus, searching, selected, empty, error |
-| Toast | show, hidden |
-| StatusPlaceholder | empty, loading, error |
-| PageInfo | hidden, visible |
-
-Each state must cover two perspectives:
-
-| Perspective | Requirement | Example |
-|-------------|-------------|---------|
-| **Dev perspective** | Describe component behavior in that state | `submitting: button loading + disabled, text "Logging in..."` |
-| **Tester perspective** | Describe full trigger-to-presentation path | `error: blur on invalid email → red border + "Invalid email format"` |
-
-#### Role ↔ Annotation Field Mapping
-
-| Role | Fields of Interest | Reason |
-|------|-------------------|--------|
-| PM / Product Reviewer | behavior, context(permission), data, preCheck | Business rules, scope, access control |
-| Dev | trigger, behavior, dismiss, state, api, fields.validation | Implement behavior, API integration, error handling |
-| Tester | state (all branches), trigger, dismiss | State transitions become test cases |
-| UI | style, placement, timing, responsive | Visual details, position, animation |
-
-### Template: proposal.md
+## Stage Summary
 
 ```markdown
-# Proposal — {R0XX-Requirement Name}
+## Stage Summary
 
-> **Requirement ID**: R0XX
-> **Date**: YYYY-MM-DD
+**Current mode:** Brainstorming / Analysis / Spec / Execution
+**User goal:** ...
+**Context Basis:** ...
 
-## 1. Overview
+### Confirmed
+- ...
 
-### 1.1 Background
-### 1.2 Objective
-### 1.3 Scope
-- **In scope**: [feature list]
-- **Out of scope**: [exclusion list]
+### Still Missing
+- ...
 
----
+### Branches / Options
+| Option | Meaning | Current status |
+|---|---|---|
+| A | ... | ... |
 
-## 2. Functional Requirements
+### Gate Status
+| Gate | Status | Missing |
+|---|---|---|
+| Brainstorming / Analysis / Spec / Execution | Satisfied / Partial / Missing | ... |
 
-| ID | Description | Priority | Acceptance Criteria | Data Annotation | Interaction Annotation | UI Text Annotation |
-|----|-------------|----------|--------------------|-----------------|----------------------|-------------------|
-| F001 | [description] | P0 | [conditions] | [field/format/boundary] | [L-level + behavior] | [copy/labels] |
-
-**Data Annotation** — Must include: API source + format rule + boundary values. Example:
-```
-❌ Bad: email: validate email format
-✅ Good: email: string, required, email format (with @ and domain, max 50 chars), empty → "Please enter email"
-❌ Bad: POST /api/auth/login
-✅ Good: POST /api/auth/login, body: {email: string, password: string}, returns: {token: string}
+### Recommended Next Step
+...
 ```
 
-**Interaction Annotation** — Must include: interaction grade + one-line behavior. Example:
-```
-✅ L2: input → blur individual validation → submit full validation → API → success redirect / failure Toast
-✅ L1: click Tab to switch forms, reset validation state
-```
+## 头脑风暴输出
 
-**UI Text Annotation** — Must include all visible copy. Example:
-```
-✅ placeholder: "Enter email"; submit: "Log in"; format error → "Invalid email format"
-```
+### Idea Map
 
----
-
-## 3. Non-Functional Requirements
-
-| Type | Requirement | Verification Method |
-|------|-------------|-------------------|
-
-## 4. Technical Dependencies
-
-| Dependency | Source | Status |
-|------------|--------|--------|
-```
-
-#### Filled Example (Login Page Email Field)
-
-```
-| F001 | Email-password login | P0 | Enter email+password → login success → redirect to home | email: string, required, email format (with @, max 50); password: string, required, min 6, max 32; POST /api/auth/login body: {email, password} returns {token} | L2: input→blur validation, click login→full validation→API→success store token redirect / failure Toast | placeholder: "Enter email", "Enter password"; format error: "Invalid email format","Password needs at least 6 characters"; submit: "Log in", loading: "Logging in..." |
-```
-
-### Template: design.md
+用户想要可能性、重新框架或早期探索时使用。
 
 ```markdown
-# Design Doc — {R0XX-Requirement Name}
+## Idea Map: [Topic]
 
-## 1. Design Overview
+**Context Basis:** ...
+**Main framework:** [e.g. First Principles]
 
-## 2. System Architecture
-
-## 3. Interface Design
-
-| Endpoint | Method | Parameters | Returns | Error Scenarios |
-|-----------|--------|------------|---------|-----------------|
-
-## 4. Data Model
-
-## 5. Component Design
-
-### 5.1 {Component Name}
-
-| Component | Responsibility | Props | State |
-|-----------|---------------|-------|-------|
-| {Name} | {responsibility} | {props} | {states} |
-
-#### Annotation Block @{ComponentName} {L-level}
-
-\```
-[Dev]   trigger:   ...
-[Dev·Tester] behavior: ...
-[UI]   style:     ...
-[Tester] state:    ...
-[Dev]   dismiss:   ...
-\```
-
-#### Example: Annotation Block @EmailPasswordForm L2
-
-\```
-[Dev]   trigger:   input → blur triggers field validation
-                  click "Log in" → triggers full validation + API call
-[Dev·Tester] behavior:  blur: validate single field, error→red border + red error text
-                  submit: full validation→pass→POST /api/auth/login
-                  → success: localStorage.setItem('token') → redirect to home
-                  → failure: Toast with backend m field
-[UI]   style:     border-radius 4px, height 40px; focus border highlight
-[Tester] state:    normal: empty form; focused: focus highlight;
-                  error: red border + error text; submitting: button loading + disabled "Logging in..."
-[Dev]   dismiss:   success→redirect; failure→restore normal
-\```
-
-## 6. Error Handling
-
-| Error Type | Scenario | Handling |
-|-----------|----------|----------|
-
-## 7. Appendix: Field Specification Table
-
-| Module | Field | UI Label | Format Constraint | Empty Strategy | Data Source |
-|--------|-------|----------|-------------------|---------------|-------------|
-```
-
-### Template: tasks.md
-
-```markdown
-# Task List — {R0XX-Requirement Name}
-
-## 1. Task List
-
-| Task ID | Description | Est. Effort | Priority |
-|---------|-------------|-------------|----------|
-| T001 | [description] | [hours] | P0 |
-
-## 2. Task Steps
-
-### T001: {Task Description}
-
-> **Annotation references:**
-> - Annotation block → design.md §{section} @{ComponentName}
-> - Field copy → design.md Appendix "Field Specification Table"
-> - Data source → design.md §{section}
-
-1. {step 1}
-2. {step 2}
+### Core Question
 ...
 
-## 3. Dependencies
+### First Principles / Key Variables
+- ...
+
+### Possible Directions
+| Direction | Value | Assumption | Risk |
+|---|---|---|---|
+| A | ... | ... | ... |
+
+### Hidden Assumptions
+- ...
+
+### Next Exploration Question
+...
 ```
 
----
+### Direction Brief
 
-## Full Workflow
+对话需要轻度收敛时使用。
 
+```markdown
+## Direction Brief: [Topic]
+
+**Context Basis:** ...
+
+### Candidate Directions
+| Direction | Upside | Cost | Possibility | Best Use Case |
+|---|---|---|---|---|
+| A | ... | ... | High/Med/Low | ... |
+| B | ... | ... | High/Med/Low | ... |
+| C | ... | ... | High/Med/Low | ... |
+
+### Recommendation
+...
+
+### Minimum Validation
+...
 ```
-Product requirements (natural language)
-   │
-   ├── 1. spec-analyze analysis
-   │       ├── Route assessment → path selection
-   │       ├── Context exploration (files/docs/code)
-   │       ├── Multi-role questioning (converge requirements)
-   │       ├── Stress testing (identify boundaries & risks)
-   │       └── Solution convergence + design presentation → G3
-   │
-   ├── 1b. Component enumeration & type mapping (see annotation-templates.md)
-   │       ├── List all interactive components on the page
-   │       ├── Map each to type (T1-T11)
-   │       └── Declare nesting relationships → G3a
-   │
-   ├── 2. Output generation (Full path)
-   │       ├── Fill type templates per component (see annotation-templates.md §4)
-   │       ├── proposal.md (functional requirements + 3-column annotations)
-   │       ├── design.md (component design + annotation blocks + field table)
-   │       └── tasks.md (task steps with annotation references)
-   │
-   ├── 2b. HTML Annotation Build-in (conditional — user agrees in Step 9)
-   │       ├── Decision point within Step 9: before generating HTML, ask user whether to include annotations
-   │       ├── If yes: generate HTML FROM SCRATCH with annotation system built in (not retrofitted)
-   │       ├──   ├── ANNOTATIONS JS data object from design.md Annotation Blocks
-   │       │   ├── CSS (.annot-trigger, .annot-panel, .annot-overlay, .annot-nav, .annot-body)
-   │       │   ├── HTML structure (overlay + panel + nav tabs + trigger buttons on each component)
-   │       │   └── JS (toggleAnnot, closeAnnot, renderAnnotBody, escapeHtml)
-   │       ├── Then Step 10: verify annotations are correctly embedded (not re-generate)
-   │       └── Run back-propagation: sync HTML annotation fixes back to design.md
-   │
-   │
-   ├── 3. Quality self-check → G4
-   │       ├── Content quality: product language, no code syntax, no placeholders
-   │       ├── State coverage: per type minimums (see annotation-templates.md §4)
-   │       ├── Permission & validation: declared for all relevant components
-   │       ├── Cross-component consistency: same type, same depth
-   │       ├── Trigger placement: every component has trigger ≤ 8px
-   │       └── Error scenarios: coverage against annotation-templates.md error table
-   │
-   ├── 4. Requirements review
-   │       ├── PM → F00X descriptions + acceptance criteria
-   │       ├── Dev → data annotation (format constraints) + annotation blocks + field table
-   │       ├── Tester → annotation state + error handling + boundary values
-   │       └── UI → style colors/spacing + responsive + copy
-   │
-   ├── 5. Agent development
-   │       ├── Read tasks → follow annotation references
-   │       ├── Jump to design.md annotation blocks
-   │       └── Implement behavior from annotations
-   │
-   └── 6. Code output
-           ├── Field copy → placeholder / label / error text
-           ├── Format constraints → regex / length / required
-           ├── Interaction behavior → matches design annotations
-           └── Boundary handling → matches annotation state
+
+## 分析报告
+
+### Decision Analysis Report
+
+```markdown
+## Decision Analysis Report: [Decision]
+
+**Context Basis:** ...
+**Decision question:** ...
+**Confidence:** High / Medium / Low
+
+### Options
+| Option | Description | Keep / Reject / Conditional |
+|---|---|---|
+
+### Criteria
+| Criterion | Why it matters | Weight |
+|---|---|---|
+
+### Trade-off Matrix
+| Option | Value | Cost | Risk | Reversibility | Fit |
+|---|---:|---:|---:|---:|---:|
+
+### Recommendation
+...
+
+### Minimum Validation Action
+...
+```
+
+### Requirement Analysis Report
+
+```markdown
+## Requirement Analysis Report: [Topic]
+
+**Context Basis:** ...
+**User / scenario:** ...
+
+### Goals
+- ...
+
+### Non-goals
+- ...
+
+### Scope
+| In Scope | Out of Scope |
+|---|---|
+
+### Requirements
+| Requirement | Priority | Acceptance Signal |
+|---|---|---|
+
+### Open Questions
+- ...
+
+### Spec Readiness
+Ready / Partial / Not ready, because ...
+```
+
+### Solution Analysis Report
+
+```markdown
+## Solution Analysis Report: [Topic]
+
+**Context Basis:** ...
+
+### Candidate Solutions
+| Solution | Strength | Weakness | Risk |
+|---|---|---|---|
+
+### Architecture / Flow
+...
+
+### Recommendation
+...
+
+### Implementation Caution
+...
+```
+
+### Strategy Analysis Report
+
+```markdown
+## Strategy Analysis Report: [Topic]
+
+**Context Basis:** ...
+
+### Strategic Question
+...
+
+### Current Position
+- Assets:
+- Constraints:
+- Unknowns:
+
+### Strategic Options
+| Option | Advantage | Constraint | Time Horizon |
+|---|---|---|---|
+
+### Recommended Path
+...
+
+### Reassessment Trigger
+...
+```
+
+## Decision-grade Report
+
+```markdown
+## Decision-grade Report: [Decision]
+
+**Context Basis:** ...
+**Reset or continue:** ...
+**Decision question:** ...
+**Confidence:** High / Medium / Low
+
+### Anti-anchor Check
+- Prior context that may bias this decision:
+- Options that remain if prior context is ignored:
+- Why the recommendation is not merely continuity:
+
+### Decision Criteria
+| Criterion | Weight | Reason |
+|---|---:|---|
+
+### Options
+| Option | Description | Preconditions |
+|---|---|---|
+
+### Trade-off Matrix
+| Option | Upside | Downside | Risk | Reversibility | Strategic Fit |
+|---|---|---|---|---|---|
+
+### Adversarial Stress Test
+- Strongest argument against the recommendation:
+- Failure mode:
+- Early warning signal:
+
+### Recommendation
+...
+
+### Minimum Validation Action
+...
+
+### Reassessment Triggers
+- ...
+```
+
+## 降级输出
+
+### Preliminary Judgment
+
+```markdown
+## Preliminary Judgment
+
+**Conclusion:** ...
+**Confidence:** Low / Medium
+**Why:** ...
+**Cannot confirm yet:** ...
+**If A is true:** ...
+**If A is false:** ...
+**Minimum next question/action:** ...
+```
+
+### Spec Readiness Check
+
+```markdown
+## Spec Readiness Check
+
+**Current status:** Ready / Partial / Not ready
+
+### Already Satisfied
+- ...
+
+### Missing
+| Missing Item | Why It Matters | Minimum Completion Path |
+|---|---|---|
+
+### Recommended Depth
+Light Spec / Standard Spec / Verified Spec
+
+### Next Step
+...
+```
+
+### Spec Readiness Check（子类型感知）
+
+Spec 将涉及表单、UI、事件或外部契约时用此变体。它把核心缺口与子类型触发的扩展缺口分开，让用户决定先修什么。
+
+```markdown
+## Spec Readiness Check (Subtype-Aware)
+
+**Current status:** Ready / Partial / Not ready
+**Detected subtypes:** [Form/Data Heavy / Product/Frontend / Event-Driven / Infrastructure/Algorithm]
+
+### Already Satisfied
+- ...
+
+### Missing — Core Layer (blocks any Spec depth)
+| Missing Item | Why It Matters | Minimum Completion Path |
+|---|---|---|
+| Module goal + success metric | Without metric, acceptance criteria cannot be testable | Add 1 measurable success signal |
+| Actors & permissions | Permission matrix drives both UI and API layers | List actors and their permissions |
+| Domain objects + state machines | State bugs originate here | Identify stateful objects and transitions |
+| Entry & preconditions | Unknown entry points block implementation | Name the triggers |
+| Main flow (step-by-step) | "Flow" prose hides ambiguity | Tabulate step / actor / action / postcondition |
+| Exception flow | Happy-path-only Specs fail at integration | List triggers, detection, recovery |
+| Boundary cases | Edge cases become prod incidents | Enumerate boundary inputs and expected behavior |
+| Acceptance criteria | Without AC, done is subjective | One observable criterion per scope item |
+| Open questions | Untracked unknowns become silent assumptions | Track with owner and status |
+
+### Missing — Extension A (Form/Data Heavy)
+| Missing Item | Why It Matters | Minimum Completion Path |
+|---|---|---|
+| Field list | Field semantics drift between teams | List Object.Field, type, source |
+| Display rules | UI churn in implementation | Per-field visibility and format |
+| Edit rules | Form logic ambiguity | Per-field editability and side effect |
+| Validation rules | Backend rework | Per-field rule, error code, message |
+
+### Missing — Extension B (Product/Frontend)
+| Missing Item | Why It Matters | Minimum Completion Path |
+|---|---|---|
+| Page inventory | Routes/pages multiply late | List pages with primary actor |
+| Key interactions | Interaction state leaks into bugs | Trigger / component / system / state change |
+
+### Missing — Extension C (Event-Driven)
+| Missing Item | Why It Matters | Minimum Completion Path |
+|---|---|---|
+| Events emitted | Subscribers integrate against unknowns | List event, payload, emitter, trigger |
+| Side effects | Hidden side effects break idempotency | Per-effect trigger and failure handling |
+| Subscribers | Orphan events cause data drift | Map event → subscriber → action |
+
+### Missing — Cross-Cutting
+| Missing Item | Why It Matters | Minimum Completion Path |
+|---|---|---|
+| API and data mapping | External contracts fail review | List endpoints with method/permission/side effect |
+
+### Recommended Depth
+Light Spec / Standard Spec / Verified Spec
+
+### Recommended Subtype Extensions
+- [ ] A: Form/Data Heavy
+- [ ] B: Product/Frontend
+- [ ] C: Event-Driven
+- [ ] None — Infrastructure/Algorithm only
+
+### Next Step
+...
+```
+
+### Open Questions Brief
+
+```markdown
+## Open Questions Brief
+
+### Critical
+1. ...
+
+### Useful But Not Blocking
+1. ...
+
+### My Recommended Minimum
+...
+```
+
+### Assumption Map
+
+```markdown
+## Assumption Map
+
+| Assumption | Confidence | Impact if Wrong | Validation |
+|---|---|---|---|
+```
+
+## 短答格式
+
+```markdown
+结论：...
+
+极短依据：...
+
+提醒：只有结论没有论点容易站不住脚，建议获取完整论点。
 ```

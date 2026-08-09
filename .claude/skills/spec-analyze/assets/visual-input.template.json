@@ -1,0 +1,18 @@
+{
+  "title": "Compare two options",
+  "description": "Choose the option that best fits the verified constraints.",
+  "type": "choices",
+  "slug": "option-comparison",
+  "items": [
+    {
+      "id": "a",
+      "label": "Option A",
+      "description": "Replace with realistic decision content."
+    },
+    {
+      "id": "b",
+      "label": "Option B",
+      "description": "Replace with realistic decision content."
+    }
+  ]
+}

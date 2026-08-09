@@ -1,137 +1,137 @@
-# Expert Persona Matrix
+# 专家角色矩阵（Expert Persona Matrix）
 
-Five core personas for multi-perspective requirement analysis. Personas are perspectives the agent incorporates into questions — not characters the agent plays. Spec-analyze's persona system is specialized for product requirement analysis: personas focus on requirement completeness, edge cases, and implementation readiness.
+五个核心角色，用于多视角需求分析。角色是代理融入提问的**视角**，不是代理扮演的角色。spec-analyze 的角色系统专为产品需求分析设计：聚焦需求完整性、边界情况与实施就绪度。
 
-## Activation Rules
+## 激活规则
 
-| Path | Personas Activated |
-|------|--------------------|
-| Lightweight | None (free-form questioning) |
-| Standard | 2-3 most relevant, selected by agent, confirmed with user |
-| Full | All 5; Risk Challenger participates throughout |
-
----
-
-## Product Strategist
-
-**Focus:** PMF, value proposition, user segmentation, requirement priority, differentiation
-
-**Core questions to ask:**
-- Who exactly is this feature for? What user type? (Be specific — not "everyone")
-- What problem does this solve that the user's current workaround doesn't?
-- What's the minimum version of this feature that still delivers value?
-- If we don't ship this, what's the actual impact? (Gauge real priority)
-- How does this feature fit into the user's existing workflow?
-- What's the success metric for this feature? (Outcome, not output)
-
-**Red flags to watch for:**
-- "All users need this" — usually means no specific user segment has a strong need
-- Feature requested without a concrete user scenario
-- No answer to "what happens if we don't do this"
-- Success measured by "having the feature" not "users behave differently"
-
-**Escalate to:**
-- Growth & Market Analyst when priority justification relies on competitive pressure
-- User Advocate when user persona feels generic or untested
+| 路径 | 激活角色 |
+|---|---|
+| Lightweight | 无（自由提问） |
+| Standard | 2-3 个最相关角色，由代理选择并与用户确认 |
+| Full | 全部 5 个；Risk Challenger 全程参与 |
 
 ---
 
-## Growth & Market Analyst
+## Product Strategist（产品战略）
 
-**Focus:** Competitive landscape, market alternatives, business impact, adoption strategy, success measurement
+**焦点：** PMF、价值主张、用户细分、需求优先级、差异化
 
-**Core questions to ask:**
-- Do competitors have this feature? How does theirs work? Is it well-received?
-- What would make users switch from their current solution to ours for this use case?
-- How do users solve this problem today (before this feature exists)?
-- What's the adoption threshold? (Do users need to change behavior? Install something?)
-- How do we measure this feature's success post-launch?
-- What's the cost of getting this wrong? (Revenue? Trust? Churn?)
+**核心提问：**
+- 这个功能到底给谁？什么用户类型？（要具体——不是"所有人"）
+- 它解决了用户当前变通方案解决不了的什么问题？
+- 这个功能仍能交付价值的最小版本是什么？
+- 如果不上这个功能，实际影响是什么？（判断真实优先级）
+- 这个功能如何融入用户既有工作流？
+- 这个功能的成功指标是什么？（结果，不是产出）
 
-**Red flags to watch for:**
-- "Competitors don't have this" — check if there's a reason (low demand, high complexity, proven to not work)
-- No defined success metric — feature will ship but no one knows if it worked
-- Adoption assumed without considering user behavior change cost
-- Feature justified by "competitor has it" without understanding why
+**关注红旗：**
+- "所有用户都需要"——通常意味着没有具体用户细分有强需求
+- 功能请求没有具体用户场景
+- 回答不了"不做会怎样"
+- 成功以"拥有功能"衡量，而不是"用户行为改变"
 
-**Escalate to:**
-- Product Strategist when competitive findings suggest a different feature direction
-- Risk Challenger when market assumptions seem untested
-
----
-
-## User Advocate
-
-**Focus:** User journey, pain points, usability, discoverability, error experience, learnability
-
-**Core questions to ask:**
-- Walk through the happy path — how many steps from start to completion?
-- What's the most confusing moment for a first-time user?
-- What happens when something goes wrong? (Loading state? Error? Empty state?)
-- How does a user discover this feature exists? (Is it buried in a menu?)
-- What emotional state is the user in when they encounter this UI?
-- Can the user complete the task in under 30 seconds? Under 10 seconds?
-
-**Red flags to watch for:**
-- More than 3 steps before user gets value
-- Error states, empty states, or loading states not designed
-- Feature is technically complete but users won't find it
-- Jargon or technical terminology in user-facing copy
-- Assumption that users will read documentation, instructions, or tooltips
-
-**Escalate to:**
-- System Architect when UX requirements (responsive, animation, offline) have cost implications
-- Product Strategist when usability issues suggest the feature scope should change
+**升级给：**
+- Growth & Market Analyst——优先级论证依赖竞争压力时
+- User Advocate——用户画像感觉泛化或未经验证时
 
 ---
 
-## System Architect
+## Growth & Market Analyst（增长与市场）
 
-**Focus:** Technical feasibility, data model, API contracts, state management, boundaries, reusability
+**焦点：** 竞争格局、市场替代方案、商业影响、采纳策略、成功度量
 
-**Core questions to ask:**
-- What's the data entity behind this feature? What are its fields and their types?
-- Where does this data come from? API? Local state? Cache? Third-party?
-- What if the API response format changes — how many places need updating?
-- Is this a new component or can an existing one be extended?
-- What are the integration points with existing systems?
-- What's the loading strategy? (Eager? Lazy? Skeleton? Placeholder?)
-- Is there a caching strategy? Stale-while-revalidate? Polling? WebSocket?
+**核心提问：**
+- 竞品有这个功能吗？他们怎么做？反馈如何？
+- 什么会让用户为此场景从现有方案切换到我们的方案？
+- 用户今天（在功能存在之前）怎么解决这个问题？
+- 采纳门槛是什么？（用户需要改变行为吗？需要安装什么吗？）
+- 上线后怎么度量这个功能的成功？
+- 做错的成本是什么？（收入？信任？流失？）
 
-**Red flags to watch for:**
-- Data model not defined before UI interaction is designed
-- Component reusability not considered ("this is just for this one page")
-- No loading/error/empty state handling defined
-- State management unclear — where does this state live?
-- "补丁叠补丁" — stacking patches on existing code instead of addressing root cause
-- Introducing a new pattern that conflicts with existing architecture
+**关注红旗：**
+- "竞品没有这个"——要检查是否有原因（需求低、复杂度高、已被证明不可行）
+- 没有定义成功指标——功能上线了但没人知道是否有效
+- 假设采纳而不考虑用户行为改变成本
+- 以"竞品有"论证功能，却不理解为什么
 
-**Escalate to:**
-- Risk Challenger when architectural decisions have reliability implications
-- User Advocate when technical constraints would degrade UX
+**升级给：**
+- Product Strategist——竞争发现指向不同功能方向时
+- Risk Challenger——市场假设感觉未经验证时
 
 ---
 
-## Risk Challenger
+## User Advocate（用户代言）
 
-**Focus:** Edge cases, failure modes, data integrity, security, assumption testing, blind spots
+**焦点：** 用户旅程、痛点、可用性、可发现性、错误体验、可学习性
 
-**Core questions to ask:**
-- What's the strongest reason this feature might fail in production?
-- What assumption, if wrong, would break the entire design?
-- What's the worst thing a user could intentionally or accidentally do?
-- What happens when: network is slow, API is down, data is corrupted?
-- What happens with concurrent operations? (Two tabs, two users, rapid clicks)
-- If this feature fails silently, how long before anyone notices?
-- What happens to existing data when we deploy this? Migration? Backfill?
+**核心提问：**
+- 走一遍快乐路径——从开始到完成要几步？
+- 新用户最容易困惑的时刻是什么？
+- 出问题时会发生什么？（加载态？错误态？空态？）
+- 用户怎么发现这个功能存在？（藏在菜单里吗？）
+- 用户遇到这个 UI 时处于什么情绪状态？
+- 用户能在 30 秒内完成任务吗？10 秒内呢？
 
-**Red flags to watch for:**
-- No identified assumptions (means they're probably hidden)
-- Happy-path-only thinking — no error states considered
-- No consideration of malicious input or accidental misuse
-- "Users won't do that" — users absolutely do unexpected things
-- Data integrity not discussed (concurrent edits, partial saves, stale data)
+**关注红旗：**
+- 用户获得价值前超过 3 步
+- 错误态、空态或加载态没有设计
+- 功能技术上完成但用户找不到
+- 面向用户的文案里有术语或技术词汇
+- 假设用户会读文档、说明或 tooltip
 
-**Escalate to:**
-- System Architect when risk findings require architectural changes
-- User Advocate when risk mitigations would affect user experience
+**升级给：**
+- System Architect——UX 需求（响应式、动画、离线）有成本影响时
+- Product Strategist——可用性问题暗示功能范围应改变时
+
+---
+
+## System Architect（系统架构）
+
+**焦点：** 技术可行性、数据模型、API 契约、状态管理、边界、可复用性
+
+**核心提问：**
+- 这个功能背后的数据实体是什么？字段和类型是什么？
+- 数据从哪来？API？本地状态？缓存？第三方？
+- 如果 API 响应格式变化——有多少处需要更新？
+- 这是新组件还是可以扩展既有组件？
+- 与既有系统的集成点是什么？
+- 加载策略是什么？（Eager？Lazy？Skeleton？Placeholder？）
+- 有缓存策略吗？Stale-while-revalidate？轮询？WebSocket？
+
+**关注红旗：**
+- UI 交互设计前未定义数据模型
+- 未考虑组件可复用性（"就这一页用"）
+- 未定义加载/错误/空态处理
+- 状态管理不清——状态存在哪？
+- "补丁叠补丁"——在既有代码上堆补丁而不是解决根因
+- 引入与既有架构冲突的新模式
+
+**升级给：**
+- Risk Challenger——架构决策有可靠性影响时
+- User Advocate——技术约束会降低 UX 时
+
+---
+
+## Risk Challenger（风险挑战）
+
+**焦点：** 边界情况、失效模式、数据完整性、安全、假设检验、盲点
+
+**核心提问：**
+- 这个功能在生产中失败的最强原因是什么？
+- 哪个假设若错误会破坏整个设计？
+- 用户有意或无意能做的最坏事情是什么？
+- 以下情况会发生什么：网络慢、API 宕机、数据损坏？
+- 并发操作怎么办？（两个标签页、两个用户、快速连点）
+- 如果这个功能静默失败，多久才会有人注意到？
+- 部署时既有数据怎么办？迁移？回填？
+
+**关注红旗：**
+- 未识别出假设（意味着很可能有隐藏假设）
+- 只思考快乐路径——未考虑错误态
+- 未考虑恶意输入或意外误用
+- "用户不会那样做"——用户绝对会做意想不到的事
+- 未讨论数据完整性（并发编辑、部分保存、过期数据）
+
+**升级给：**
+- System Architect——风险发现需要架构改动时
+- User Advocate——风险缓解会影响用户体验时

@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "target": {
+    "stage": "plan",
+    "recommended_skill": "writing-plans"
+  },
+  "spec_subtypes": [
+    "form_data_heavy"
+  ],
+  "spec_artifacts": [
+    {
+      "path": "specs/example.md",
+      "role": "primary_spec"
+    }
+  ],
+  "execution_plan": {
+    "objective": "Implement the verified Spec",
+    "steps": [
+      {
+        "id": "S1",
+        "action": "Replace with a bounded implementation action",
+        "outputs": [
+          "expected artifact"
+        ],
+        "depends_on": []
+      }
+    ],
+    "verification": [
+      "Map implementation evidence to every acceptance criterion"
+    ],
+    "constraints": [
+      "Follow the host agent's approval and repository policy"
+    ]
+  }
+}

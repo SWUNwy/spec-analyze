@@ -1,5 +1,36 @@
 # Changelog
 
+## 3.0.1 (2026-08-09)
+
+### Added
+- **LICENSE** — MIT License（Copyright (c) 2026 SWUNwy）
+- **README 中文化** — 全仓库说明文档改为中文（代码块/命令/图表保留英文）
+
+### Fixed（v3.0 审计）
+- README 门禁命名与 SKILL.md 统一（G1–G4 → S1–S4），消除与新闭环 G1/G2/G3 的撞名
+- `references/personas.md`、`references/annotation-output-templates.md` 从英文全文中文化
+- SKILL.md 新增「与标注流程的衔接」（闭环 ↔ 标注流程接线：init 时机、S1–S4 记录、产出交接、恢复规则）
+- README 坏链接修复（scenario-stress-test → divergence-frameworks）
+- `run-state.cjs` usage 标题品牌统一（spec-analyze run-state v3.0）
+- 删除陈旧嵌套文件 `.claude/skills/spec-analyze/references/scenario-stress-test.md`，嵌套副本重建为完整镜像
+
+## 3.0.0 (2026-08-09)
+
+### Added
+- **闭环引擎（由 analyze 能力迁移）** — `run-state.cjs` 状态机、证据台账（HMAC 签名链 + `--auto-detect` 矛盾检测）、checkpoint 随流转自动同步、G1/G2/G3 闭环门禁、中断恢复协议、实施交接包（handoff-packet + workflow 控制器）
+- **参考文档体系** — 新增 `references/`：router、closed-loop、gates、verification-rubric、failure-handling、output-templates（闭环轨道）、spec-templates、handoff-format、writing-plans、executing-plans、verification-before-completion、systematic-debugging、test-driven-development、requesting/receiving-code-review、role-matrix、frameworks-index、advanced-capabilities、glossary、evaluation-guide 等
+- **回归测试** — 88 项自动化测试（`test-automated.cjs` / `test-run-state.cjs` / `test-workflow.cjs` / `test-handoff.cjs` / `evaluate-tests.cjs`）
+- **输出语言契约** — 默认中文输出（机器契约保留英文）
+- `references/annotation-output-templates.md` — 原 output-templates.md（标注三文档模板）更名，避免与闭环输出模板混淆
+
+### Changed
+- SKILL.md 版本 2.3.0 → 3.0.0，新增「闭环协议」章节（操作契约 / 输出语言 / 路由 / 状态机 / 门禁 / 证据 / 检查点 / 交接 / 参考地图 / 最终响应契约）
+- `references/decision-log-format.md`、`references/web-research-guide.md` 合并闭环版本与标注场景内容
+- README 架构说明与文件索引同步 v3.0
+
+### Security
+- 迁移内容不含个人信息：无用户路径、凭据或本地配置（`.claude/settings.local.json` 保持 gitignore）
+
 ## 2.3.0 (2026-07-16)
 
 ### Added

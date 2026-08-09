@@ -1,0 +1,15 @@
+{
+  "mode_overrides": {},
+  "output_paths": {},
+  "spec_artifacts": [],
+  "additional_gates": [
+    {
+      "id": "G-ProjectRule",
+      "description": "Replace with a project-specific, evidence-backed gate",
+      "required_before": "verify"
+    }
+  ],
+  "additional_references": [],
+  "post_spec_flow": "handoff"
+}
+

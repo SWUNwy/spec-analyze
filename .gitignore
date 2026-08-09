@@ -1,6 +1,10 @@
 # Local Claude Code permissions config (user-specific paths)
 .claude/settings.local.json
 
+# Test byproducts (harness regression suite)
+.test-tmp/
+.analyze/
+
 # macOS
 .DS_Store
 

@@ -26,7 +26,14 @@ Spec-analyze's unique quality assurance system. Each output type has its own sel
 - [ ] **Field specification table includes: format constraint column (prevents proposal-design information gap)**
 - [ ] L3 components supplement with accessibility and responsive annotations
 - [ ] **如果存在 HTML 原型（含本次新生成的）且组件数 ≥ 3：HTML 注释系统已按 `html-annotation-system.md` 内建并验证**
-- [ ] **Full 路径：组件枚举已完成（annotation-templates.md §9 Step 8a），无遗漏无幽灵项**
+- [ ] **Full 路径：组件枚举已完成（annotation-templates.md §9），无遗漏无幽灵项**
+- [ ] **注释展示模式已确认（内联/侧边/双模式），在 Step 8F 中记录决策**
+- [ ] **内联注释渲染数据已准备（ANNOTATIONS 包含 type 字段，用于决定渲染顺序）**
+- [ ] **每个组件有对应的内联注释容器占位（在 HTML 结构中）**
+- [ ] **字段级注释已定义：统计卡片每个指标有 Definition + Permission**
+- [ ] **字段级注释已定义：表格每个列头有 Format + Source**
+- [ ] **字段级注释已定义：表单每个字段有 Validation + Options**
+- [ ] **字段级 ℹ️ 触发按钮已放置在对应的字段值/标签旁**
 
 ## Tasks Self-Check
 
@@ -43,9 +50,18 @@ Spec-analyze's unique quality assurance system. Each output type has its own sel
 - [ ] **Tasks annotation references ↘ design.md sections**: one-to-one existence verified
 - [ ] **如果生成了 HTML 注释：ANNOTATIONS keys ↔ design.md @ComponentName**: 一一对应，无遗漏
 - [ ] **如果生成了 HTML 注释：data-annot 属性值 ↔ ANNOTATIONS keys**: 完全一致
+- [ ] **Full 路径：Component Manifest ↔ design.md Annotation Block**: Manifest 中的每个条目在文档中有对应的 §5.x 和 Annotation Block（一一对应，无遗漏无多余）
+- [ ] **Full 路径：编辑操作 edit_history 已全部同步到文档**（如有未同步的记录 → 在 S3d 中补全）
 - [ ] **Full 路径：注释内容语言为产品语言（无代码语法，无模糊词，无占位符）← 对照 annotation-templates.md §6**
 - [ ] **Full 路径：HTML trigger 按钮位置验证 — 每个组件至少 1 个 trigger，在可视边界内（≤ 8px）**
 - [ ] **Full 路径：Back-propagation 验证 — 如果 HTML 注释验证中有修正，检查 design.md 是否同步更新**
+- [ ] **双模式数据同步验证：editAnnot() 修改后，内联和面板同时更新**
+- [ ] **内联注释渲染顺序验证：ANNOTATIONS.type 字段存在，且渲染顺序与 html-annotation-system.md §2.2 一致**
+- [ ] **内联注释折叠状态持久化：localStorage 在所有浏览器中正常工作**
+- [ ] **弹窗替换验证：所有 .annot-panel 引用已替换为 .annot-modal**
+- [ ] **弹窗功能验证：居中展示、缩放动画、遮罩层关闭、ESC 关闭**
+- [ ] **编辑模式验证：editAnnot() 函数调用后内联和弹窗同步更新**
+- [ ] **字段级注释验证：字段级 data-annot-field 值与 ANNOTATIONS.fields/columns key 一致**
 
 ---
 ## 新增：类型化模板专检（Full 路径）
@@ -84,6 +100,9 @@ Spec-analyze's unique quality assurance system. Each output type has its own sel
 - [ ] 并发/重复提交 - 按钮 loading 状态，防重复提交
 - [ ] 接口返回 409/其他业务冲突 - 具体错误提示（如"该人员已拥有账号「某名称」"）
 - [ ] 身份/权限异常 - Toast 提示"无法确认操作人身份"或操作按钮隐藏/禁用
+- [ ] 编辑模式下修改注释 → 保存后内联注释同步更新
+- [ ] 编辑模式下不保存直接关闭 → 内容不丢失（取消按钮恢复原始内容）
+- [ ] 字段级注释弹窗 → 关闭后再打开 → 内容保持正确
 
 ---
 
@@ -114,3 +133,91 @@ Used during requirements review. Each role checks items line by line.
 - [ ] Loading/empty/error visual states are described                                             ← from annotation @{Component} state
 - [ ] Responsive/mobile behavior is defined (if applicable)                                       ← from annotation @{Component} responsive
 - [ ] Animation timing is annotated (if applicable)                                               ← from annotation @{Component} timing
+
+### PM Perspective Review
+
+- [ ] 每个组件的业务背景（rationale）定义清晰，解释了"为什么"                        ← annotation background
+- [ ] 触发条件与用户实际使用场景一致                                                    ← annotation trigger
+- [ ] 行为描述符合功能需求（F00X 引用完整）                                            ← annotation behavior
+- [ ] 权限分级合理（view/operate 角色划分匹配业务场景）                                ← annotation context (Block C)
+- [ ] 状态覆盖完整：无遗漏的关键用户路径                                                ← annotation state
+- [ ] 跨组件一致性：同一术语在不同组件中表述一致                                        ← cross-component check
+- [ ] 注释语言使用产品语言，研发可直接理解实现                                          ← §6 内容规则
+- [ ] 决策记录（decisionRef）引用完整，可追溯设计变更原因                                ← annotation background
+
+---
+
+## 注释审核流程（Review → Approve → Lock）
+
+在 Full 路径或已有方案注释路径完成后，可按以下流程组织注释审核。
+
+### R1: 自检（Author Self-Check）
+
+注释填充者自行完成：
+
+- [ ] 运行 `validate-annotations.js`，无 Error（Warning 可接受）
+- [ ] 每个组件至少有 trigger + behavior + state 三个字段
+- [ ] 所有占位文本已替换
+- [ ] 组件依赖关系（dependencies）无循环引用
+
+### R2: 角色审核（Role-Based Review）
+
+按角色分配审核项，每位角色关注自己的审核维度：
+
+| 角色 | 审核重点 | 审核清单 |
+|------|---------|---------|
+| PM | 业务背景、触发条件、行为描述、权限分级 | PM Perspective Review |
+| Dev | 接口定义、字段约束、状态覆盖、错误处理 | Dev Perspective Review |
+| Tester | 状态可测试性、边界值、异常覆盖 | Tester Perspective Review |
+| UI | 视觉规范、文案、动效、响应式 | UI Perspective Review |
+
+**审核输出：** 每个角色输出 `approve / change-requested / not-applicable` 三选一。
+
+### R3: 变更执行（Change Implementation）
+
+1. 汇总所有 `change-requested` 项
+2. 按优先级排序（阻断性 > 建议性）
+3. 逐项执行修改
+4. 修改后重新运行 `validate-annotations.js`
+
+### R4: 锁定（Lock）
+
+当所有角色审核通过后：
+
+1. 注释标记为 `_locked: true`
+2. 锁定后的注释修改需要走变更申请流程（记录变更原因 + 重新审核）
+3. Component Manifest 中标记审核状态
+
+```javascript
+// 锁定标记示例
+window.ANNOTATIONS = {
+  "C00": {
+    type: "T4",
+    // ... 其他字段
+    _review: {
+      status: "approved",        // pending / in-review / changes-requested / approved
+      locked: true,              // 锁定后不可直接编辑
+      reviewers: {
+        pm: "approved",
+        dev: "approved",
+        tester: "approved",
+        ui: "approved"
+      },
+      reviewedAt: "2026-07-16",
+      changeHistory: [
+        { date: "2026-07-15", reason: "初始创建", reviewer: "author" },
+        { date: "2026-07-16", reason: "PM 审核修改 trigger 描述", reviewer: "pm" }
+      ]
+    }
+  }
+};
+```
+
+### 审核状态流转
+
+```text
+pending → in-review → changes-requested → in-review → approved → locked
+  │                        ↑                  │
+  └── 直接修改 ───────────┘                  │
+                                              └── 变更申请 → in-review
+```

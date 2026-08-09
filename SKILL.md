@@ -1,7 +1,7 @@
 ---
 name: spec-analyze
-version: 2.3.0
-description: "需求分析与产品交互注释输出。核心场景：你在原型/线稿/Figma 设计稿上，给每个交互组件加上 trigger/behavior/state/style 的结构化注释，让研发直接照着实现。也适用于需求分析、产品方案设计、功能拆解、竞品调研——但独特价值是输出带三层研发注释（L1 trigger-behavior-dismiss / L2 +placement-style-state-timing / L3 +accessibility-responsive-i18n）的 proposal / design / tasks 三文档。当用户提到「原型注释」「交互标注」「给设计稿加注释」「输出研发规范文档」「方案标注」「写开发文档」「补充交互细节」「产品交互说明」「标注组件行为状态」「annotate prototype」「interaction spec」「developer handoff」时 MUST 触发。区别于通用分析工具：spec-analyze 的分析结果直接输出为带研发注释的可交付文档。"
+version: 3.0.0
+description: "需求分析与产品交互注释输出。核心场景：你在原型/线稿/Figma 设计稿上，给每个交互组件加上 trigger/behavior/state/style 的结构化注释，让研发直接照着实现。也适用于需求分析、产品方案设计、功能拆解、竞品调研——但独特价值是输出带三层研发注释（L1 trigger-behavior-dismiss / L2 +placement-style-state-timing / L3 +accessibility-responsive-i18n）的 proposal / design / tasks 三文档。当用户提到「原型注释」「交互标注」「给设计稿加注释」「输出研发规范文档」「方案标注」「写开发文档」「补充交互细节」「产品交互说明」「标注组件行为状态」「annotate prototype」「interaction spec」「developer handoff」时 MUST 触发。区别于通用分析工具：spec-analyze 的分析结果直接输出为带研发注释的可交付文档。v3.0：可恢复、有证据、有门禁的闭环分析引擎——状态机、门禁 G1/G2/G3、证据台账、检查点恢复、实施交接包，输出语言默认中文。触发词新增：闭环分析、决策分析、方案对比、Spec 准备、交接包、恢复上次分析"
 ---
 
 # Spec Analyze — 需求分析与带注释方案输出
@@ -11,6 +11,95 @@ description: "需求分析与产品交互注释输出。核心场景：你在原
 <HARD-GATE>
 在获得用户设计确认之前，不得调用任何实现 skill、编写代码或搭建项目。
 </HARD-GATE>
+
+---
+
+## 闭环协议（v3.0 核心契约）
+
+v3.0 起，spec-analyze 升级为**可恢复、有证据、有门禁**的闭环分析引擎。原有标注流程（Step 0 → 11F / A1-A5）作为 **Specify 轨道的领域实现** 运行在闭环之内；S1–S4 阶段门禁管标注产物质量，G1/G2/G3 闭环门禁管流程与证据。
+
+### 操作契约
+
+1. 先给出当前最好的结论或下一个决策。
+2. 只问会实质改变路线或结果的信息；安全推进时给出标注假设（labeled assumptions）。
+3. 始终区分：用户事实 / 已查验本地证据 / 外部事实 / 推理。
+4. 完成门禁（G3）通过之前，绝不宣称完成。
+5. 重复失败后换策略；同一方法最多重试两次。
+6. 缺授权 / 来源矛盾 / 预算耗尽 / 不可消解不确定性 → 诚实停止，给出精确解除条件。
+7. 重大建议不得被先前讨论锚定；从当前目标重建标准与备选（反锚定检查）。
+8. 分析/Spec 批准不等于执行授权；实施或外部副作用属下游宿主流程。
+9. 检测并应用项目 Constitution（若有），离开 Intake 前完成评估。
+
+### 输出语言（强制）
+
+- 默认全部输出为**中文**；除非用户明确要求其他语言。
+- 机器契约保留英文：命令名、CLI 参数、JSON 键、状态名、Gate ID、文件名。
+
+### 路由
+
+- **Explore（探索）** / **Analyze（分析）** / **Specify（规格化）**——spec-analyze 的主路径是 Specify：输出带三层研发注释的 proposal / design / tasks 三文档。
+- 低杠杆任务（快速问答、简单澄清）直接回答，不强制初始化 run。
+- 复杂、高杠杆、多因素、需可恢复的任务：进入闭环状态机。
+
+### 闭环状态机（复杂/高杠杆任务）
+
+```bash
+node <skill-dir>/scripts/run-state.cjs init --root . --track specify --goal "<goal>"
+```
+
+状态：`intake → scoped → discovering → synthesizing → verifying → repairing → completed | stopped | blocked`
+
+核心命令：`transition` / `gate` / `evidence` / `checkpoint` / `validate` / `budget` / `recall`（完整协议见 `references/closed-loop.md`）。
+
+### 门禁
+
+- 闭环门禁：**G1 目标契约 / G2 证据-综合 / G3 完成**，及条件门禁 G-Decompose、G-Explore、G-Architecture、G-Spec、G-Section、G-Human（见 `references/gates.md`）。
+- 标注流程门禁：**S1–S4**（见下文「质量门禁与 Definition of Done」）。
+- G* 管流程与证据，S* 管产物质量；两者作用域不同，均需记录。
+
+### 证据协议
+
+- `evidence.jsonl` 追加式记录，每条含 kind / source / claim / confidence / status；入库前运行 `--auto-detect` 检查矛盾。
+
+### 检查点与恢复
+
+- `transition` 后自动同步 checkpoint；恢复从最近已验证检查点开始，**不重新 init**（见 `references/closed-loop.md`）。
+
+### 交接（Handoff）
+
+- Specify 完成后可导出版本绑定交接包（`export-handoff.cjs` / `verify-handoff.cjs`），包不构成执行授权；下游 Plan → Execute → Verify 由 workflow 控制器编排（`references/handoff-format.md`、`references/workflow-orchestration.md`）。
+
+### 与标注流程的衔接
+
+- **何时进入闭环**：Full 路径与复杂 Standard 任务在 Step 0 前执行 `run-state.cjs init`（`--track specify`）；Lightweight 快速问答直接回答，不强制。
+- **S1–S4 记录**：每个标注阶段门禁的通过/跳过情况，建议用 `evidence`（`--kind validation`）或 `check` 记录到 run 状态，便于恢复与追溯；不强制，但记录增强可审计性。
+- **产出与交接**：三文档（proposal/design/tasks）生成后，如用户要求实施交接，按「交接（Handoff）」小节导出版本绑定交接包。
+- **恢复**：会话中断后，先查 `.analyze/runs/` 与 checkpoint，从最近已验证检查点恢复，不要重新 init。
+
+### 参考地图（v3.0 新增）
+
+| 需求 | 阅读 |
+|---|---|
+| 路由、风险、反锚定 | `references/router.md` |
+| 状态机、恢复、停止 | `references/closed-loop.md` |
+| 门禁标准与降级输出 | `references/gates.md` |
+| 语义验证 | `references/verification-rubric.md` |
+| 结构化失败恢复 | `references/failure-handling.md` |
+| 输出模板（分析/决策/降级） | `references/output-templates.md` |
+| 标注输出模板（三文档） | `references/annotation-output-templates.md` |
+| Spec 模板 | `references/spec-templates.md`、`references/spec-document-reviewer-prompt.md` |
+| 下游实施交接 | `references/handoff-format.md` |
+| 编写/执行实施计划 | `references/writing-plans.md`、`references/executing-plans.md` |
+| 完成前验证 | `references/verification-before-completion.md` |
+| 系统化调试 | `references/systematic-debugging.md` |
+| 测试驱动开发 | `references/test-driven-development.md` |
+| 代码评审 | `references/requesting-code-review.md`、`references/receiving-code-review.md` |
+| 角色矩阵 | `references/role-matrix.md` |
+| 框架选择 | `references/frameworks-index.md` |
+| 外部事实 | `references/web-research-guide.md` |
+| 高级能力索引（实验性命令） | `references/advanced-capabilities.md` |
+| 术语对照表 | `references/glossary.md` |
+| 评估 | `references/evaluation-guide.md` |
 
 ---
 
@@ -300,7 +389,7 @@ spec_analyze_state:
 | 5F | 设计呈现 | 入口执行 Layer 1 意图分析 + Layer 2 成熟度评估 → 分节呈现，逐节获取批准 → **批准 → 继续；否决 → 回到 4F** | S3 |
 | 6F | 组件枚举 | 列出页面所有交互组件 → 映射 T1-T11 → 声明嵌套关系 → **标识字段级注释需求（统计字段定义/表格列格式/表单校验）** | S3a |
 | 7F | 类型模板填充 | 按类型模板逐组件填充注释 → **为每个字段补充字段级注释（统计字段: Definition + Permission / 表格列: Format + Source / 表单字段: Validation + Options）** | S3a |
-| 8F | 输出生成 | 入口执行展示模式决策（内联/侧边/双模式）；生成 proposal + design + tasks 三文档（见 `references/output-templates.md`）；design.md 末尾需包含 Component Manifest（§8）；组件≥3 时询问是否内建 HTML 注释 | S3b |
+| 8F | 输出生成 | 入口执行展示模式决策（内联/侧边/双模式）；生成 proposal + design + tasks 三文档（见 `references/annotation-output-templates.md`）；design.md 末尾需包含 Component Manifest（§8）；组件≥3 时询问是否内建 HTML 注释 | S3b |
 | 9F | HTML 注释验证 | 按 `references/html-annotation-system.md` 验证注释正确内建 + back-propagation（仅当用户同意内建时） | S3c |
 | 9.5F | 交互式注释编辑 | 用户指定组件和字段目标，AI 按模板规则执行编辑 → 跨文档同步 → 输出 diff 摘要。详见下方「Step 9.5F: 交互式注释编辑」章节 | S3d |
 | 10F | 质量自检 | 运行质量自检清单（见 `references/quality-checklists.md`） | S4 |
@@ -732,6 +821,8 @@ Step 3L → 统一评估：任一标记触发 → 提议升级
 > †S3c 仅当用户同意内建注释时执行。否则跳过。
 > ‡S3d 仅在用户发起注释编辑时执行。未发起则跳过，从 9F 直接到 10F。
 
+> 建议：S1–S4 的通过/跳过情况可在闭环 run 中用 `evidence --kind validation` 或 `check` 记录（见「闭环协议」）。
+
 ### S1: 上下文完备
 
 - [ ] 上下文边界清晰：scope 内/外已明确
@@ -1053,7 +1144,7 @@ digraph spec_analyze_flow {
 - 3 个共享块（DialogContext / APICall / Permission）减少重复定义
 - 三级嵌套引用规则（同层共享 / 向上覆盖 / 跨级禁止）
 
-**注释等级（`references/output-templates.md`）** — 按组件复杂度选择深度：
+**注释等级（`references/annotation-output-templates.md`）** — 按组件复杂度选择深度：
 | 等级 | 适用场景 | 字段 |
 |------|----------|------|
 | **L1 核心** | 简单交互（hover、静态展示） | trigger / behavior / dismiss |
@@ -1249,10 +1340,43 @@ spec-analyze 可以在不同项目间复用：
 | `references/personas.md` | 5 个专家角色的定义、核心问题、红旗信号、升级路径 |
 | `references/divergence-frameworks.md` | 发散框架库：18 个框架 + 场景压力测试 + 组合规则 |
 | `references/decision-log-format.md` | 决策记录的结构化格式与示例 |
-| `references/output-templates.md` | 三条路径的输出模板 + 三层注释框架 + 全链路工作流 |
+| `references/annotation-output-templates.md` | 三条路径的输出模板 + 三层注释框架 + 全链路工作流 |
 | `references/html-annotation-system.md` | HTML 注释系统：何时使用、架构、数据格式、组件映射、集成步骤、完整 CSS/JS/HTML 模板 |
 | `references/annotation-templates.md` | **类型化注释模板系统：11 种组件类型 + 3 个共享块 + 内容规则 + 质量验证方法（Full 路径使用）** |
 | `references/quality-checklists.md` | 质量自检清单 + 跨文档一致性检查 + 各角色评审清单 + S3d 检查项 + 审核流程（Review → Approve → Lock） |
 | `references/test-cases.md` | 从 ANNOTATIONS 状态定义自动生成测试用例的模板和映射规则 |
+| `references/router.md` | 路由、风险分级、反锚定协议 |
+| `references/closed-loop.md` | 闭环状态机、证据协议、检查点与恢复、停止规则 |
+| `references/gates.md` | 闭环门禁 G1/G2/G3 与条件门禁标准、降级输出 |
+| `references/verification-rubric.md` | 语义评分标准与硬失败清单 |
+| `references/failure-handling.md` | 结构化失败模式与修复规则 |
+| `references/output-templates.md` | 分析/决策/降级输出模板（闭环轨道） |
+| `references/spec-templates.md` | Spec 三文档模板（Light/Standard/Verified） |
+| `references/spec-document-reviewer-prompt.md` | Spec 文档评审提示 |
+| `references/handoff-format.md` | 交接包协议（版本绑定、哈希校验） |
+| `references/writing-plans.md` | 实施计划编写规范 |
+| `references/executing-plans.md` | 实施计划执行规范 |
+| `references/verification-before-completion.md` | 完成前验证铁律 |
+| `references/systematic-debugging.md` | 系统化调试四阶段 |
+| `references/test-driven-development.md` | TDD 契约与红绿循环 |
+| `references/requesting-code-review.md` / `references/receiving-code-review.md` | 代码评审派发与接收 |
+| `references/role-matrix.md` | 角色/语气/框架选择 |
+| `references/frameworks-index.md` | 分析框架索引 |
+| `references/advanced-capabilities.md` | 高级命令索引与已知缺陷登记 |
+| `references/glossary.md` | 中英术语对照与翻译边界 |
+| `references/evaluation-guide.md` | 评估分层与晋升规则 |
 | `references/web-research-guide.md` | Web research 触发条件、搜索策略、信息整合框架 |
 | `SKILL.md §Step 9.5F` | 交互式注释编辑模式完整定义（P1-P4 + Add 子流程 + Standard 适配 + Component Manifest） |
+
+## 最终响应契约
+
+返回：
+
+1. 直接结论或当前最好判断。
+2. 推理路径与决定性证据。
+3. 备选方案/反方论点及其落选原因。
+4. 置信度、假设与失效触发条件。
+5. 验证结果与任何未过关门禁。
+6. 一个可立即执行的下一步动作。
+
+中断或停止的任务：用恢复/停止摘要替代结论，并点名需要的下一个决策。默认中文输出。

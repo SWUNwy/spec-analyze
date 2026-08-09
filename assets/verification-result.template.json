@@ -1,0 +1,24 @@
+{
+  "schema_version": "analyze-verification-result/1.0",
+  "status": "pass",
+  "packet_sha256": "<sha256 of handoff-packet.json>",
+  "plan_sha256": "<sha256 of the bound implementation plan>",
+  "execution_result_sha256": "<sha256 of execution-result.json>",
+  "checks": [
+    {
+      "name": "unit tests",
+      "command": "replace with the exact fresh command",
+      "exit_code": 0,
+      "passed": true,
+      "evidence": "replace with concise output evidence"
+    }
+  ],
+  "acceptance": [
+    {
+      "criterion": "copy an acceptance criterion from the packet",
+      "passed": true,
+      "evidence": "test, file, or review evidence"
+    }
+  ],
+  "unresolved_blockers": []
+}
