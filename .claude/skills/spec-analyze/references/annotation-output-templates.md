@@ -133,6 +133,25 @@ spec-analyze 的核心差异化。产出三份相互关联的文档，使用 spe
 - **L3 保留给全局组件**：仅用于跨多页面复用的组件
 - **不重复显而易见的事**：Ant Design / MUI 默认行为不需要注释
 
+#### 显示模型：评审视图 / 实施视图（v3.2）
+
+注释默认用于**方案评审**，因此展示层区分两个视图，底层数据始终完整：
+
+| 视图 | 默认 | 展示 | 隐藏（按需展开） |
+|---|---|---|---|
+| **评审视图** | ✅ 默认 | 触发、行为、关闭、**用户可见状态**（用户语言）、视觉要点、UI 文案、字段摘要表 | state 全枚举、timing、API、Permission、i18n、accessibility |
+| **实施视图** | 按需展开 | 全部字段 + 共享块 + 字段级 ℹ️ 弹窗 | 无 |
+
+**默认语言：中文。** 注释正文与角色标签默认中文；仅当用户要求英文输出时才切换。
+
+角色标签映射：`[Dev]`→`【开发】`；`[Dev·Tester]`→`【开发·测试】`；`[UI]`→`【UI】`；`[Tester]`→`【测试】`。
+
+**字段级注释的展示：**
+- 评审视图：以**字段摘要表**展示（字段、必填、规则、空值/错误文案、来源），评审者可整表扫读。
+- 实施视图：保留 ℹ️ 逐字段弹窗（`componentKey.fieldKey`，写入 `ANNOTATIONS[componentKey].fields` 或 `.columns`）。
+
+评审视图的**用户可见状态**用产品语言描述（如「校验错误」「提交中」「成功」「失败」），不展示内部状态机枚举；实施视图再展开 state 全分支。
+
 #### 两层同时应用
 
 1. 识别组件 → 映射类型（T1-T11）→ 确定必需字段
@@ -315,17 +334,28 @@ i18n         国际化      是否需要翻译
 #### 示例：注释块 @EmailPasswordForm L2
 
 \```
-[Dev]   trigger:   input → blur triggers field validation
-                  click "Log in" → triggers full validation + API call
-[Dev·Tester] behavior:  blur: validate single field, error→red border + red error text
-                  submit: full validation→pass→POST /api/auth/login
-                  → success: localStorage.setItem('token') → redirect to home
-                  → failure: Toast with backend m field
-[UI]   style:     border-radius 4px, height 40px; focus border highlight
-[Tester] state:    normal: empty form; focused: focus highlight;
-                  error: red border + error text; submitting: button loading + disabled "Logging in..."
-[Dev]   dismiss:   success→redirect; failure→restore normal
+【开发】触发
+· 邮箱输入框失焦 → 校验该字段
+· 点击「登录」→ 校验全部字段并提交
+【开发·测试】行为
+· 邮箱格式错误 → 输入框红框 +「请输入有效邮箱」
+· 密码长度不足 → 输入框红框 +「密码至少 6 位」
+· 校验通过 → 提交登录请求
+· 登录成功 → 进入首页；登录失败 → 顶部提示错误原因，表单保留已填内容
+【UI】视觉要点
+· 输入框：圆角 4px、高 40px；聚焦时边框高亮
+· 登录按钮：主色；提交中置灰并显示「登录中…」
+【测试】用户可见状态
+· 空表单 ｜ 校验错误 ｜ 提交中 ｜ 成功（跳转）｜ 失败（错误提示，可重试）
+
+字段摘要
+| 字段 | 必填 | 规则 | 空值 / 错误文案 | 来源 |
+|---|---|---|---|---|
+| email | 是 | string，邮箱格式，≤50 字符 | 「请输入邮箱」/「请输入有效邮箱」 | 登录接口 |
+| password | 是 | string，6–32 位 | 「请输入密码」/「密码至少 6 位」 | 登录接口 |
 \```
+
+> 实施视图（按需展开）追加：state 全分支（normal/fieldError/submitting/success/apiError）、timing（200ms/100ms）、API 契约（POST /api/auth/login、request/response）、Permission、i18n、accessibility。
 
 ## 6. 错误处理
 
@@ -357,6 +387,8 @@ i18n         国际化      是否需要翻译
 | 内联模式 | 注释在组件下方折叠展示 | 默认推荐，评审者逐组件查看 |
 | 侧边面板 | 注释仅在右侧面板展示 | 组件数多（≥10），需要快速切换 |
 | 双模式 | 两者同时启用 | 需要同时查看当前组件和全局对比 |
+
+**视图级别（v3.2）：** 默认**评审视图**（中文、隐藏实施细节）；方案评审直接使用。实施交接时询问是否展开为**实施视图**（显示 state 全枚举、timing、API、Permission、i18n、accessibility）。
 ```
 
 ### 模板：tasks.md
