@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.3.0 (2026-08-09)
+
+### Added
+- **输出硬约束（默认强制）** — `references/chinese-writing-style.md` 新增「输出硬约束」章节：英文大小写（id→ID、api→API 等）、确定错词、直角引号、数量逻辑、术语一致、机器内容保护为**必须遵守**；语境词/上下文词/空泛词为**必须提示确认**
+- **自动校验器** — 新增 `scripts/lint-output-text.js`（零依赖）：三级结果（error/warning/style），自动跳过代码块/行内代码/URL/API 路径；支持 `--strict` 与 `--self-test`；S4 门禁要求 error 清零
+- **CI** — 新增 `.github/workflows/spec-lint.yml`：PR/push 时运行测试套件与校验器自测
+
+### Changed
+- SKILL.md 版本 3.2.0 → 3.3.0；8F 输出要求通过硬约束校验；S4 新增校验检查项
+- `test-automated.cjs` 新增校验器自测用例
+
 ## 3.2.0 (2026-08-09)
 
 ### Added

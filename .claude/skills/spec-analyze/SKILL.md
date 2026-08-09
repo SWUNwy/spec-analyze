@@ -1,6 +1,6 @@
 ---
 name: spec-analyze
-version: 3.2.0
+version: 3.3.0
 description: "需求分析与产品交互注释输出。核心场景：你在原型/线稿/Figma 设计稿上，给每个交互组件加上 trigger/behavior/state/style 的结构化注释，让研发直接照着实现。也适用于需求分析、产品方案设计、功能拆解、竞品调研——但独特价值是输出带三层研发注释（L1 trigger-behavior-dismiss / L2 +placement-style-state-timing / L3 +accessibility-responsive-i18n）的 proposal / design / tasks 三文档。当用户提到「原型注释」「交互标注」「给设计稿加注释」「输出研发规范文档」「方案标注」「写开发文档」「补充交互细节」「产品交互说明」「标注组件行为状态」「annotate prototype」「interaction spec」「developer handoff」时 MUST 触发。区别于通用分析工具：spec-analyze 的分析结果直接输出为带研发注释的可交付文档。v3.0：可恢复、有证据、有门禁的闭环分析引擎——状态机、门禁 G1/G2/G3、证据台账、检查点恢复、实施交接包，输出语言默认中文。触发词新增：闭环分析、决策分析、方案对比、Spec 准备、交接包、恢复上次分析"
 ---
 
@@ -393,7 +393,7 @@ spec_analyze_state:
 | 5F | 设计呈现 | 入口执行 Layer 1 意图分析 + Layer 2 成熟度评估 → 分节呈现，逐节获取批准 → **批准 → 继续；否决 → 回到 4F** | S3 |
 | 6F | 组件枚举 | 列出页面所有交互组件 → 映射 T1-T11 → 声明嵌套关系 → **标识字段级注释需求（统计字段定义/表格列格式/表单校验）** | S3a |
 | 7F | 类型模板填充 | 按类型模板逐组件填充注释 → **为每个字段补充字段级注释（统计字段: Definition + Permission / 表格列: Format + Source / 表单字段: Validation + Options）** | S3a |
-| 8F | 输出生成 | 入口执行展示模式决策（内联/侧边/双模式）；生成 proposal + design + tasks 三文档（见 `references/annotation-output-templates.md`）；注释默认**评审视图**（中文角色标签，隐藏实施细节，见 `references/annotation-example.md`）；中文文案遵循 `references/chinese-writing-style.md`（术语一致/直角引号/API 状态词语义准确/事实保真）；design.md 末尾需包含 Component Manifest（§8）；组件≥3 时询问是否内建 HTML 注释 | S3b |
+| 8F | 输出生成 | 入口执行展示模式决策（内联/侧边/双模式）；生成 proposal + design + tasks 三文档（见 `references/annotation-output-templates.md`）；注释默认**评审视图**（中文角色标签，隐藏实施细节，见 `references/annotation-example.md`）；输出必须通过 `references/chinese-writing-style.md` 硬约束与 `scripts/lint-output-text.js` 校验（英文大小写/错词/直角引号/数量逻辑 error 清零），否则修复后重新输出；中文文案遵循 `references/chinese-writing-style.md`（术语一致/API 状态词语义准确/事实保真）；design.md 末尾需包含 Component Manifest（§8）；组件≥3 时询问是否内建 HTML 注释 | S3b |
 | 9F | HTML 注释验证 | 按 `references/html-annotation-system.md` 验证注释正确内建 + back-propagation（仅当用户同意内建时） | S3c |
 | 9.5F | 交互式注释编辑 | 用户指定组件和字段目标，AI 按模板规则执行编辑 → 跨文档同步 → 输出 diff 摘要。详见下方「Step 9.5F: 交互式注释编辑」章节 | S3d |
 | 10F | 质量自检 | 运行质量自检清单（见 `references/quality-checklists.md`） | S4 |
@@ -904,6 +904,7 @@ Step 3L → 统一评估：任一标记触发 → 提议升级
 - [ ] 没有 scope creep
 - [ ] Full 路径：注释符合质量自检清单全部标准
 - [ ] 注释默认评审视图且为中文（角色标签【开发】等；state 全枚举/timing/API/Permission/i18n/accessibility 按需展开为实施视图）
+- [ ] 输出已通过 `scripts/lint-output-text.js` 校验（error 为 0：英文大小写/错词/直角引号/数量逻辑）
 - [ ] 中文文案符合写作规范（术语一致、直角引号「」、API 状态词语义准确、事实保真；见 `references/chinese-writing-style.md`）
 - [ ] Full 路径：proposal / design / tasks 引用链一致
 - [ ] Full 路径：注释内容符合 `annotation-templates.md` §6 内容规则（使用产品语言、无模糊词、无"N/A"）
@@ -1375,6 +1376,7 @@ spec-analyze 可以在不同项目间复用：
 | `references/chinese-writing-style.md` | 中文技术写作规范（语义/术语/标点/状态词/界面文案/数字逻辑） |
 | `references/controlled-operations-writing.md` | 操作文档与故障排查的受控写作 |
 | `references/annotation-example.md` | 注释约束示例（评审视图默认 / 实施视图展开） |
+| `scripts/lint-output-text.js` | 输出文档规范校验（大小写/错词/引号/数量逻辑，error 清零） |
 | `SKILL.md §Step 9.5F` | 交互式注释编辑模式完整定义（P1-P4 + Add 子流程 + Standard 适配 + Component Manifest） |
 
 ## 最终响应契约

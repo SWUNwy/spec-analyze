@@ -2456,6 +2456,46 @@ register("phase7-083-predict-auto-on-transition", {
   }
 });
 
+// ─── Phase 8: 输出规范校验器回归 ──────────────────────────────────────────
+
+register("phase8-090-output-lint-self-test", {
+  group: "phase8",
+  description: "lint-output-text.js should pass its built-in self-test",
+  run: () => {
+    const result = spawnSync(process.execPath, [path.join(SKILL_DIR, "scripts", "lint-output-text.js"), "--self-test"], {
+      encoding: "utf8",
+      cwd: SKILL_DIR,
+      timeout: 15000
+    });
+    assertEq(result.status, 0, "self-test exit code");
+    assert(String(result.stdout).includes("自测通过"), "self-test reports pass");
+    return { passed: true };
+  }
+});
+
+register("phase8-091-output-lint-detects-errors", {
+  group: "phase8",
+  description: "lint-output-text.js should flag hard-constraint violations",
+  run: () => {
+    const runId = `test-lint-${Date.now()}`;
+    const dir = path.join(TMP_ROOT, runId);
+    fs.mkdirSync(dir, { recursive: true });
+    const sample = path.join(dir, "sample.md");
+    fs.writeFileSync(sample, "调用 openai api 并调整阀值。使用“弯引号”。缩小了 3 倍。\n`openai api` 与 /api 不受影响。\n", "utf8");
+    const result = spawnSync(process.execPath, [path.join(SKILL_DIR, "scripts", "lint-output-text.js"), sample], {
+      encoding: "utf8",
+      cwd: SKILL_DIR,
+      timeout: 15000
+    });
+    assertEq(result.status, 1, "lint exits 1 on errors");
+    assert(String(result.stdout).includes("OpenAI API"), "detects openai api");
+    assert(String(result.stdout).includes("阈值"), "detects 阀值");
+    assert(String(result.stdout).includes("直角引号"), "detects curly quotes");
+    assert(String(result.stdout).includes("1/N"), "detects 缩小了 3 倍");
+    return { passed: true };
+  }
+});
+
 function parseArgs(argv) {
   const out = { _: [] };
   for (let i = 0; i < argv.length; i++) {

@@ -1,5 +1,5 @@
 {
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "Regression and harness tests for spec-analyze (v3.0: closed-loop engine, Chinese documentation, checkpoint auto-sync).",
   "required_groups": {
     "router": 4,

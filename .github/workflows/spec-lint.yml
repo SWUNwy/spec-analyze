@@ -1,0 +1,28 @@
+name: Spec Lint
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  spec-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+
+      - name: Run harness tests
+        run: node scripts/test-automated.cjs
+
+      - name: Run output lint self-test
+        run: node scripts/lint-output-text.js --self-test
+
+      - name: Run evaluation suite
+        run: node scripts/evaluate-tests.cjs
