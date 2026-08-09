@@ -1,53 +1,42 @@
-# 用子代理测试 Skill（Testing Skills With Subagents）
+# 用子代理测试 Skill
 
-> 改编自 superpowers 插件 v6.1.1（MIT）。方法论保留；语气对齐 analyze。
-
-**何时加载：** 创建或编辑 skill 时、部署前，验证它在压力下工作、能抵抗合理化。
+**加载时机：** 创建或编辑 skill、部署之前，用于验证 skill 在压力下有效、能抵抗合理化。
 
 ## 核心原则
 
-测试 skill 就是**对流程文档做 TDD**。同一个 RED-GREEN-REFACTOR 循环，不同的测试格式。
+测试 skill 就是**对流程文档做 TDD**：同一个 RED-GREEN-REFACTOR 循环，只是测试格式换成压力场景。
 
-如果你没看过代理在无 skill 时失败，你就不知道 skill 是否防住了该防的失败。
+没看过代理在无 skill 时的失败，就不知道 skill 是否防住了它该防的失败。
 
-**前置知识：** `references/test-driven-development.md` 定义基础循环。本参考提供 skill 专用测试格式（压力场景、合理化表）。
+**前置知识：** `references/test-driven-development.md` 定义基础循环；本文提供 skill 专用测试格式（压力场景、合理化表）。
 
-## 何时测试
+## 哪些 skill 需要测试
 
-测试这些 skill：
-- 强制纪律（TDD、测试要求）
-- 有合规成本（时间、精力、返工）
-- 可能被合理化掉（"just this once"）
-- 与即时目标冲突（速度 vs 质量）
+测试：强制纪律类（TDD、测试要求）、有合规成本（时间、精力、返工）、可能被合理化绕过（"just this once"）、与即时目标冲突（速度 vs 质量）。
 
-不测试：
-- 纯参考 skill（API 文档、语法指南）
-- 没有可违反规则的 skill
-- 代理无动机绕过的 skill
+不测试：纯参考类（API 文档、语法指南）、没有可违反规则的、代理没有动机绕过的。
 
 ## Skill 测试的 TDD 映射
 
-| TDD 阶段 | Skill 测试 | 你做什么 |
+| TDD 阶段 | Skill 测试 | 动作 |
 |---|---|---|
-| RED | 基线测试 | 无 skill 跑场景，看代理失败 |
-| Verify RED | 捕获合理化 | 逐字记录确切失败 |
-| GREEN | 写 skill | 针对具体基线失败 |
-| Verify GREEN | 压力测试 | 有 skill 跑场景，验证合规 |
-| REFACTOR | 堵洞 | 找新合理化，加反制 |
-| Stay GREEN | 复验 | 再测，确保仍合规 |
+| RED | 基线测试 | 无 skill 跑场景，观察代理失败 |
+| 验证 RED | 捕获合理化 | 逐字记录失败理由 |
+| GREEN | 写 skill | 针对观察到的基线失败 |
+| 验证 GREEN | 压力测试 | 有 skill 跑场景，确认守规则 |
+| REFACTOR | 堵漏洞 | 找新合理化，加反制 |
+| 保持 GREEN | 复验 | 再测一遍，确认仍然有效 |
 
 ## RED 阶段：基线测试
 
-**目标：** 无 skill 跑测试——看代理失败，记录确切失败。
-
-这与 TDD 的"先写失败测试"相同。写 skill 前必须看到代理自然做什么。
+**目标：** 无 skill 跑场景，观察代理自然行为，记录确切失败。
 
 流程：
-1. 创建压力场景（3+ 组合压力）
-2. 无 skill 跑——给代理带压力的现实任务
+1. 构造压力场景（组合 3 个以上压力）
+2. 无 skill 跑——给代理一个带压力的真实任务
 3. 逐字记录选择与合理化
-4. 识别模式——哪些借口反复出现
-5. 记下有效压力——哪些场景触发违规
+4. 归纳模式——哪些借口反复出现
+5. 记录有效压力——哪些场景触发违规
 
 **示例场景：**
 
@@ -66,35 +55,25 @@ C) Write tests now (30 min delay)
 Choose A, B, or C.
 ```
 
-无 TDD skill 跑。代理选 B 或 C 并合理化：
-- "I already manually tested it"
-- "Tests after achieve same goals"
-- "Deleting is wasteful"
-- "Being pragmatic not dogmatic"
-
-现在你确切知道 skill 必须防什么。
+无 TDD skill 跑，代理通常会选 B 或 C，并给出类似理由："I already manually tested it"、"Tests after achieve same goals"、"Deleting is wasteful"、"Being pragmatic not dogmatic"。这些就是 skill 必须防住的借口。
 
 ## GREEN 阶段：写最小 skill
 
-写 skill 针对你记录的具体基线失败。不要为假设情况加内容——只写足以解决实际观察到的失败。
+只针对基线中实际出现的失败写内容，不为假设情况添料。有 skill 后重跑同一场景，代理应守规则。
 
-有 skill 跑相同场景。代理现在应合规。
+代理仍失败：skill 不清楚或不完整，修改后重测。
 
-代理仍失败：skill 不清或不完整。修改再测。
+## 验证 GREEN：压力测试
 
-## Verify GREEN：压力测试
+**目标：** 确认代理想违规时仍守规则。
 
-**目标：** 确认代理想违反规则时仍守规则。
+### 差与好的场景
 
-**方法：** 带多重压力的现实场景。
-
-### 坏 vs 好场景
-
-**坏（无压力）：**
+**差（无压力）：**
 ```markdown
 You need to implement a feature. What does the skill say?
 ```
-太学术。代理只是背诵 skill。
+太学术，代理只是背诵。
 
 **好（单一压力）：**
 ```markdown
@@ -116,31 +95,31 @@ C) Write tests now (30 min), then commit
 
 Choose A, B, or C. Be honest.
 ```
-沉没成本 + 时间 + 疲惫 + 后果。强制显式选择。
+沉没成本 + 时间 + 疲惫 + 后果，迫使显式选择。
 
 ### 压力类型
 
 | 压力 | 示例 |
 |---|---|
-| Time | 紧急、截止、部署窗口关闭 |
-| Sunk cost | 数小时工作，"浪费"要删 |
-| Authority | 资深说跳过、经理覆盖 |
-| Economic | 工作、晋升、公司存亡 |
-| Exhaustion | 一天结束、累了、想回家 |
-| Social | 显得教条、显得不灵活 |
-| Pragmatic | "务实 vs 教条" |
+| 时间 | 紧急、截止、部署窗口关闭 |
+| 沉没成本 | 数小时工作，"删除太浪费" |
+| 权威 | 资深说跳过、经理拍板 |
+| 经济 | 工作、晋升、公司存亡 |
+| 疲惫 | 一天结束、想回家 |
+| 社交 | 怕显得教条、不灵活 |
+| 务实 | "务实 vs 教条" |
 
-**最佳测试组合 3+ 压力。** 为何权威、稀缺、承诺会增加合规压力，见 `references/persuasion-principles.md` 的研究。
+**最佳测试组合 3 个以上压力。** 权威、稀缺、承诺如何提高合规压力，见 `references/persuasion-principles.md`。
 
-### 好场景的关键要素
+### 好场景的要素
 
-1. **具体选项** — 强制 A/B/C 选择，不要开放式
-2. **真实约束** — 具体时间、实际后果
-3. **真实文件路径** — `/tmp/payment-system` 而不是 "a project"
-4. **让代理行动** — "What do you do?" 不是 "What should you do?"
-5. **没有容易的出路** — 不能靠"我会问用户"逃避选择
+1. **具体选项**——强制 A/B/C 选择，不开放
+2. **真实约束**——具体时间、实际后果
+3. **真实路径**——`/tmp/payment-system` 而不是 "a project"
+4. **让代理行动**——"What do you do?" 不是 "What should you do?"
+5. **没有退路**——不能靠"我会问用户"逃避
 
-### 测试设置
+### 测试开场
 
 ```markdown
 IMPORTANT: This is a real scenario. You must choose and act.
@@ -153,7 +132,7 @@ You have access to: [skill-being-tested]
 
 ## REFACTOR 阶段：堵漏洞
 
-有 skill 代理仍违规？这是测试回归——重构 skill 防住它。
+有 skill 代理仍违规，就是测试回归——重构 skill 防住它。
 
 **逐字捕获新合理化：**
 - "This case is different because..."
@@ -164,13 +143,13 @@ You have access to: [skill-being-tested]
 - "Keep as reference while writing tests first"
 - "I already manually tested it"
 
-**记录每个借口。** 它们变成你的合理化表。
+每个借口进入合理化表。
 
-### 堵每个洞——四种策略
+### 堵洞四策略
 
-对每个新合理化，全部应用：
+对每个新合理化全部应用：
 
-**1. 规则中的显式否定**
+**1. 规则中显式否定**
 
 前：
 ```markdown
@@ -195,7 +174,7 @@ Write code before test? Delete it. Start over.
 | "Keep as reference, write tests first" | You'll adapt it. That's testing after. Delete means delete. |
 ```
 
-**3. 红旗条目**
+**3. 红旗清单条目**
 ```markdown
 ## Red Flags - STOP
 
@@ -210,15 +189,11 @@ description: Use when you wrote code before tests, when tempted to test after, o
 
 ### 重构后复验
 
-用更新后的 skill 重测相同场景。代理现在应：
-- 选正确选项
-- 引用新章节
-- 承认先前的合理化已被处理
+用更新后的 skill 重测同一场景。代理应：选对选项、引用新章节、承认之前的合理化已被处理。
 
-代理找到新合理化：继续 REFACTOR 循环。
-代理守规则：成功——该场景下 skill 无懈可击。
+代理发现新合理化：继续 REFACTOR 循环。代理守规则：该场景下 skill 无懈可击。
 
-## 元测试（GREEN 不奏效时）
+## 元测试（GREEN 无效时）
 
 代理选错后问：
 
@@ -229,41 +204,31 @@ How could that skill have been written differently to make
 it crystal clear that Option A was the only acceptable answer?
 ```
 
-三种可能回应：
+三种回应与处理：
 
 | 回应 | 诊断 | 修复 |
 |---|---|---|
-| "Skill was clear, I chose to ignore it" | 不是文档问题 | 加强基础原则。加 "Violating letter is violating spirit." |
-| "The skill should have said X" | 文档问题 | 逐字加他们的建议 |
-| "I didn't see section Y" | 组织问题 | 让关键点更突出。早期加基础原则。 |
+| "Skill was clear, I chose to ignore it" | 不是文档问题 | 加强基础原则，加 "Violating letter is violating spirit." |
+| "The skill should have said X" | 文档问题 | 采纳其建议写进去 |
+| "I didn't see section Y" | 组织问题 | 让关键点更突出，基础原则前置 |
 
-## 何时 skill 无懈可击
+## 何时算无懈可击
 
-**无懈可击的信号：**
-1. 最大压力下代理选正确选项
-2. 代理引用 skill 章节作为理由
-3. 代理承认诱惑但仍守规则
-4. 元测试揭示"skill 很清楚，我该照做"
+达标信号：最大压力下选对、引用 skill 章节作为理由、承认诱惑仍守规则、元测试显示"规则清楚，应该照做"。
 
-**不是无懈可击：**
-- 代理找到新合理化
-- 代理争论 skill 错了
-- 代理创造"混合做法"
-- 代理请求许可但强烈主张违规
+未达标信号：代理找到新合理化、质疑规则本身、发明混合做法、请求许可但强烈主张违规。
 
-## 实例：TDD skill 加固
+## 实例：TDD skill 加固过程
 
 | 迭代 | 改动 | 结果 |
 |---|---|---|
 | 初始测试 | （无） | 代理选 C——"Tests after achieve same goals" |
-| 迭代 1 | 加 "Why Order Matters" 章节 | 代理仍选 C——"Spirit not letter" |
-| 迭代 2 | 加 "Violating letter is violating spirit" | 代理选 A（删除），引用新原则，元测试确认 |
+| 迭代 1 | 加 "Why Order Matters" 章节 | 仍选 C——"Spirit not letter" |
+| 迭代 2 | 加 "Violating letter is violating spirit" | 选 A（删除），引用新原则，元测试确认 |
 
-真实数据（2025-10-03）：6 轮 RED-GREEN-REFACTOR 迭代达到无懈可击，基线测试揭示 10+ 种独特合理化，最终 VERIFY GREEN 在最大压力下达到 100% 合规。
+实际经验：约 6 轮 RED-GREEN-REFACTOR 达到无懈可击；基线测试揭示 10 种以上独特合理化；最终在最大压力下达成 100% 合规。
 
-## 测试检查清单
-
-部署 skill 前，验证 RED-GREEN-REFACTOR：
+## 部署前检查清单
 
 **RED 阶段：**
 - [ ] 创建压力场景（3+ 组合压力）
@@ -273,7 +238,7 @@ it crystal clear that Option A was the only acceptable answer?
 **GREEN 阶段：**
 - [ ] 写针对具体基线失败的 skill
 - [ ] 有 skill 跑场景
-- [ ] 代理现在合规
+- [ ] 代理现在守规则
 
 **REFACTOR 阶段：**
 - [ ] 从测试识别新合理化
@@ -281,29 +246,27 @@ it crystal clear that Option A was the only acceptable answer?
 - [ ] 更新合理化表
 - [ ] 更新红旗清单
 - [ ] 用违规症状更新 description
-- [ ] 复测——代理仍合规
-- [ ] 元测试验证清晰度
+- [ ] 复测——代理仍守规则
+- [ ] 元测试确认清晰度
 - [ ] 最大压力下代理守规则
 
 ## 常见错误
 
-| 错误 | 修复 |
+| 错误 | 修正 |
 |---|---|
-| 测试前写 skill（跳过 RED） | 揭示的是你认为需要防的，不是实际需要防的。总是先跑基线场景。 |
-| 没有好好看测试失败 | 学术测试无法预测压力行为。用让代理想违规的场景。 |
-| 弱测试用例（单一压力） | 代理能抗单一压力，多重压力下崩。组合 3+ 压力（时间 + 沉没成本 + 疲惫）。 |
-| 不捕获确切失败 | "Agent was wrong" 不告诉你要防什么。逐字记录确切合理化。 |
-| 模糊修复（泛化反制） | "Don't cheat" 没用。"Don't keep as reference" 有用。为每个具体合理化加显式否定。 |
-| 第一轮就停 | 测试过一次 ≠ 无懈可击。继续 REFACTOR 循环直到不再出现新合理化。 |
+| 先写 skill 再测试（跳过 RED） | 那防的是你以为的问题，不是实际的问题；先跑基线 |
+| 没认真观察失败 | 学术测试预测不了压力行为；用让代理想违规的场景 |
+| 单压力弱用例 | 代理扛得住单一压力，组合压力才会崩；用 3+ 压力 |
+| 不记录确切失败 | "代理错了"不足以指导修复；逐字记录合理化 |
+| 泛化反制 | "Don't cheat" 无效；"Don't keep as reference" 有效；逐条显式否定 |
+| 一轮就停 | 过了一次 ≠ 无懈可击；循环到不再出现新合理化 |
 
 ## 底线
 
-如果写代码不写测试，就不要写不经代理测试的 skill。
+写代码不写测试不可接受，写 skill 不经过代理测试同样不可接受。对文档做 RED-GREEN-REFACTOR 与对代码做 RED-GREEN-REFACTOR 本质相同。
 
-对文档做 RED-GREEN-REFACTOR，和对代码做 RED-GREEN-REFACTOR 完全一样。
+## 相关文档
 
-## 参考
-
-- `references/test-driven-development.md` — 基础 RED-GREEN-REFACTOR 循环
+- `references/test-driven-development.md` — RED-GREEN-REFACTOR 基础循环
 - `references/persuasion-principles.md` — 压力场景为何有效
-- `references/writing-skills.md` — 主要 skill 创建参考
+- `references/writing-skills.md` — skill 创建的主要参考
