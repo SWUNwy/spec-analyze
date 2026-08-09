@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.4.0 (2026-08-09)
+
+### Added
+- **营销/增长领域术语覆盖** — 品牌名（tiktok→TikTok、google ads→Google Ads、appsflyer→AppsFlyer 等）与常用缩写（cpa/cpm/ctr/roi/roas/ltv/cac/kol/koc/saas/b2c 等）纳入大小写硬约束；营销错词（affliate/campain/converion 等）纳入错词表
+- **误报修复** — 大小写规则改为只匹配非规范小写变体，已正确形式（GitHub/JavaScript/gRPC 等）不再被误报；新增 phase8-092 回归用例
+
+### Changed
+- SKILL.md 版本 3.3.0 → 3.4.0
+- `lint-output-text.js` 规则表扩展；`chinese-writing-style.md` 术语表新增营销领域章节；自测增至 12 项
+
 ## 3.3.0 (2026-08-09)
 
 ### Added

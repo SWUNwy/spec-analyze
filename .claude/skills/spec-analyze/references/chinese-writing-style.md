@@ -116,6 +116,29 @@ node scripts/lint-output-text.js docs/spec-analyze/specs
 - `postgresql` → `PostgreSQL`；`grpc` → `gRPC`；`graphql` → `GraphQL`
 - `websocket` → `WebSocket`；`yaml` → `YAML`；`xml` → `XML`；`jwt` → `JWT`
 
+### 营销与增长领域（Affiliate / Social Marketing）
+
+品牌名（仅匹配小写变体，正确形式不误报）：
+
+- `tiktok` → `TikTok`；`instagram` → `Instagram`；`facebook` → `Facebook`；`youtube` → `YouTube`
+- `linkedin` → `LinkedIn`；`pinterest` → `Pinterest`；`snapchat` → `Snapchat`；`telegram` → `Telegram`；`whatsapp` → `WhatsApp`
+- `shopify` → `Shopify`；`amazon` → `Amazon`；`paypal` → `PayPal`；`stripe` → `Stripe`
+- `appsflyer` → `AppsFlyer`；`kochava` → `Kochava`；`ironsource` → `ironSource`；`admob` → `AdMob`；`pangle` → `Pangle`；`mintegral` → `Mintegral`
+- `awin` → `Awin`；`sharesale` → `ShareASale`；`rakuten` → `Rakuten`；`aliexpress` → `AliExpress`；`ebay` → `eBay`；`applovin` → `AppLovin`
+- `google ads` → `Google Ads`；`meta ads` → `Meta Ads`；`unity ads` → `Unity Ads`；`commission junction` → `Commission Junction`；`skadnetwork` → `SKAdNetwork`
+
+常用缩写（仅匹配小写变体）：
+
+- 投放/计费：`cpa`、`cpc`、`cpm`、`cpi`、`cps`、`cpe`、`ppc`、`ppl`、`pps`
+- 效果指标：`ctr`、`cvr`、`roi`、`roas`、`epc`、`ltv`、`cac`、`arpu`、`arppu`、`gmv`
+- 用户/内容：`dau`、`mau`、`wau`、`ugc`、`pgc`、`kol`、`koc`
+- 渠道/工具：`utm`、`sdk`、`s2s`、`mmp`、`skan`、`idfa`、`ga4`、`gtm`
+- 模式/优化：`seo`、`sem`、`aso`、`saas`、`b2b`、`b2c`、`d2c`
+
+营销常见错词：`affliate`→`affiliate`；`campain`→`campaign`；`converion`→`conversion`；`imprssion`→`impression`；`advertisng`→`advertising`；`markting`→`marketing`；`retargetting`→`retargeting`。
+
+语境词（不可自动替换，仅提示）：`adjust`、`branch`、`impact`、`singular`、`lp`、`att`、`cj` 等可能同时是普通英文词或缩写，需按上下文判断。
+
 依赖语境的写法只提示人工确认：`JS`（简短界面可用，正式正文写 JavaScript）、`H5`（不等同 HTML5）、`Postgres`（可能是正式简称）、`OAuth`（协议家族，不自动补成 OAuth 2.0）、`k8s`（正式文档写 Kubernetes，命令与社区语境可保留）。
 
 ## 高频错词

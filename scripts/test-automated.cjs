@@ -2496,6 +2496,25 @@ register("phase8-091-output-lint-detects-errors", {
   }
 });
 
+register("phase8-092-output-lint-no-false-positive", {
+  group: "phase8",
+  description: "lint-output-text.js should not flag already-correct capitalization",
+  run: () => {
+    const runId = `test-lintfp-${Date.now()}`;
+    const dir = path.join(TMP_ROOT, runId);
+    fs.mkdirSync(dir, { recursive: true });
+    const sample = path.join(dir, "correct.md");
+    fs.writeFileSync(sample, "使用 GitHub 与 JavaScript 的正确写法。OpenAI API 与 gRPC 均正确。\n", "utf8");
+    const result = spawnSync(process.execPath, [path.join(SKILL_DIR, "scripts", "lint-output-text.js"), sample], {
+      encoding: "utf8",
+      cwd: SKILL_DIR,
+      timeout: 15000
+    });
+    assertEq(result.status, 0, "correct text exits 0");
+    return { passed: true };
+  }
+});
+
 function parseArgs(argv) {
   const out = { _: [] };
   for (let i = 0; i < argv.length; i++) {

@@ -42,6 +42,7 @@ function maskContent(text) {
 const wb = "(?<![A-Za-z0-9_])";   // word boundary before
 const wa = "(?![A-Za-z0-9_])";   // word boundary after
 
+// 只匹配"非规范小写变体"，已正确的大小写形式不会被误报（v3.4 修复）
 const CASE_RULES = [
   [new RegExp(wb + "(?:id|Id)" + wa, "g"), "ID"],
   [new RegExp(wb + "(?:http|Http)" + wa, "g"), "HTTP"],
@@ -49,27 +50,59 @@ const CASE_RULES = [
   [new RegExp(wb + "(?:json|Json)" + wa, "g"), "JSON"],
   [new RegExp(wb + "(?:api|Api)" + wa, "g"), "API"],
   [new RegExp(wb + "(?:ai|Ai)" + wa, "g"), "AI"],
-  [new RegExp(wb + "javascript" + wa, "gi"), "JavaScript"],
-  [new RegExp(wb + "typescript" + wa, "gi"), "TypeScript"],
+  [new RegExp(wb + "javascript" + wa, "g"), "JavaScript"],
+  [new RegExp(wb + "typescript" + wa, "g"), "TypeScript"],
   [new RegExp(wb + "(?:llm|Llm)" + wa, "g"), "LLM"],
   [new RegExp(wb + "(?:aigc|Aigc)" + wa, "g"), "AIGC"],
   [new RegExp(wb + "(?:rag|Rag)" + wa, "g"), "RAG"],
   [new RegExp(wb + "(?:chatgpt|Chatgpt)" + wa, "g"), "ChatGPT"],
   [new RegExp(wb + "(?:openai|OpenAI)\\s+(?:api|Api)" + wa, "g"), "OpenAI API"],
-  [new RegExp(wb + "python" + wa, "gi"), "Python"],
-  [new RegExp(wb + "nodejs" + wa, "gi"), "Node.js"],
-  [new RegExp(wb + "github" + wa, "gi"), "GitHub"],
-  [new RegExp(wb + "gitlab" + wa, "gi"), "GitLab"],
-  [new RegExp(wb + "postgresql" + wa, "gi"), "PostgreSQL"],
-  [new RegExp(wb + "grpc" + wa, "gi"), "gRPC"],
-  [new RegExp(wb + "graphql" + wa, "gi"), "GraphQL"],
-  [new RegExp(wb + "websocket" + wa, "gi"), "WebSocket"],
-  [new RegExp(wb + "yaml" + wa, "gi"), "YAML"],
-  [new RegExp(wb + "xml" + wa, "gi"), "XML"],
-  [new RegExp(wb + "jwt" + wa, "gi"), "JWT"],
-  [new RegExp(wb + "embeding" + wa, "gi"), "embedding"],
+  [new RegExp(wb + "python" + wa, "g"), "Python"],
+  [new RegExp(wb + "nodejs" + wa, "g"), "Node.js"],
+  [new RegExp(wb + "github" + wa, "g"), "GitHub"],
+  [new RegExp(wb + "gitlab" + wa, "g"), "GitLab"],
+  [new RegExp(wb + "postgresql" + wa, "g"), "PostgreSQL"],
+  [new RegExp(wb + "grpc" + wa, "g"), "gRPC"],
+  [new RegExp(wb + "graphql" + wa, "g"), "GraphQL"],
+  [new RegExp(wb + "websocket" + wa, "g"), "WebSocket"],
+  [new RegExp(wb + "yaml" + wa, "g"), "YAML"],
+  [new RegExp(wb + "xml" + wa, "g"), "XML"],
+  [new RegExp(wb + "jwt" + wa, "g"), "JWT"],
+  [new RegExp(wb + "embeding" + wa, "g"), "embedding"],
   [new RegExp("提示工程学", "g"), "提示工程"],
 ];
+
+// 营销/增长领域（Affiliate Marketing / Social Marketing）品牌名——仅匹配小写变体
+const BRAND_RULES = [
+  ["tiktok", "TikTok"], ["instagram", "Instagram"], ["facebook", "Facebook"],
+  ["youtube", "YouTube"], ["linkedin", "LinkedIn"], ["pinterest", "Pinterest"],
+  ["snapchat", "Snapchat"], ["telegram", "Telegram"], ["whatsapp", "WhatsApp"],
+  ["shopify", "Shopify"], ["amazon", "Amazon"], ["paypal", "PayPal"],
+  ["stripe", "Stripe"], ["appsflyer", "AppsFlyer"], ["kochava", "Kochava"],
+  ["ironsource", "ironSource"], ["admob", "AdMob"], ["pangle", "Pangle"],
+  ["mintegral", "Mintegral"], ["awin", "Awin"], ["sharesale", "ShareASale"],
+  ["rakuten", "Rakuten"], ["aliexpress", "AliExpress"], ["ebay", "eBay"],
+  ["google ads", "Google Ads"], ["meta ads", "Meta Ads"],
+  ["unity ads", "Unity Ads"], ["commission junction", "Commission Junction"],
+  ["skadnetwork", "SKAdNetwork"], ["applovin", "AppLovin"],
+];
+
+// 营销/增长领域常用缩写——仅匹配小写变体，大写形式不误报
+const ACRONYM_RULES = [
+  "cpa", "cpc", "cpm", "cpi", "cps", "cpe", "ctr", "cvr", "roi", "roas",
+  "epc", "ltv", "cac", "arpu", "arppu", "gmv", "sku", "kpi", "dau", "mau",
+  "wau", "ugc", "pgc", "kol", "koc", "utm", "sdk", "s2s", "seo", "sem",
+  "aso", "saas", "b2b", "b2c", "d2c", "ppc", "ppl", "pps", "mmp", "skan",
+  "idfa", "ga4", "gtm",
+];
+
+for (const [word, canonical] of BRAND_RULES) {
+  CASE_RULES.push([new RegExp(wb + word.replace(/ /g, "\\s+") + wa, "g"), canonical]);
+}
+for (const word of ACRONYM_RULES) {
+  const canonical = word === "saas" ? "SaaS" : word.toUpperCase();
+  CASE_RULES.push([new RegExp(wb + word + wa, "g"), canonical]);
+}
 
 const TYPO_RULES = [
   ["阀值", "阈值"],
@@ -79,6 +112,13 @@ const TYPO_RULES = [
   ["做为", "作为"],
   ["embeding", "embedding"],
   ["提示工程学", "提示工程"],
+  ["affliate", "affiliate"],
+  ["campain", "campaign"],
+  ["converion", "conversion"],
+  ["imprssion", "impression"],
+  ["advertisng", "advertising"],
+  ["markting", "marketing"],
+  ["retargetting", "retargeting"],
 ];
 
 const NUMBER_RULES = [
@@ -212,6 +252,10 @@ function selfTest() {
     ["赋能团队协同。", "warning", "空泛词"],
     ["场景分析是常态。", "style", "语境词"],
     ["id 与 json 需要规范。", "error", "ID"],
+    ["tiktok 与 cpm 投放。", "error", "TikTok"],
+    ["google ads 与 roi 优化。", "error", "Google Ads"],
+    ["affliate 计划与 saas 平台。", "error", "affiliate"],
+    ["使用 GitHub 与 JavaScript 的正确写法。", null, null],
   ];
   let failed = 0;
   for (const [text, expectSeverity, expectMessage] of cases) {
