@@ -127,6 +127,14 @@ node scripts/lint-output-text.js docs/spec-analyze/specs
 - `awin` → `Awin`；`sharesale` → `ShareASale`；`rakuten` → `Rakuten`；`aliexpress` → `AliExpress`；`ebay` → `eBay`；`applovin` → `AppLovin`
 - `google ads` → `Google Ads`；`meta ads` → `Meta Ads`；`unity ads` → `Unity Ads`；`commission junction` → `Commission Junction`；`skadnetwork` → `SKAdNetwork`
 
+补充品牌（社交/内容平台与联盟平台/追踪器）：
+
+- `wechat` → `WeChat`（`wechat pay` → `WeChat Pay`）；`reddit` → `Reddit`；`discord` → `Discord`；`twitch` → `Twitch`
+- `bilibili` → `Bilibili`；`douyin` → `Douyin`；`kuaishou` → `Kuaishou`；`xiaohongshu` → `小红书`；`substack` → `Substack`
+- `dribbble` → `Dribbble`；`behance` → `Behance`
+- 联盟平台：`tradedoubler` → `Tradedoubler`；`webgains` → `Webgains`；`admitad` → `Admitad`；`cityads` → `Cityads`；`affise` → `Affise`；`everflow` → `Everflow`；`partnerize` → `Partnerize`；`tapfiliate` → `Tapfiliate`
+- 追踪/归因工具：`voluum` → `Voluum`；`redtrack` → `RedTrack`；`binom` → `Binom`；`keitaro` → `Keitaro`
+
 常用缩写（仅匹配小写变体）：
 
 - 投放/计费：`cpa`、`cpc`、`cpm`、`cpi`、`cps`、`cpe`、`ppc`、`ppl`、`pps`
@@ -134,8 +142,14 @@ node scripts/lint-output-text.js docs/spec-analyze/specs
 - 用户/内容：`dau`、`mau`、`wau`、`ugc`、`pgc`、`kol`、`koc`
 - 渠道/工具：`utm`、`sdk`、`s2s`、`mmp`、`skan`、`idfa`、`ga4`、`gtm`
 - 模式/优化：`seo`、`sem`、`aso`、`saas`、`b2b`、`b2c`、`d2c`
+- 达人/社交：`mcn` → `MCN`；`cpv` → `CPV`；`ecpm` → `eCPM`；`ecpi` → `eCPI`
+- 程序化/数据：`rtb` → `RTB`；`dsp` → `DSP`；`ssp` → `SSP`；`pmp` → `PMP`；`dmp` → `DMP`；`cdp` → `CDP`；`crm` → `CRM`；`erp` → `ERP`；`okr` → `OKR`；`serp` → `SERP`；`nps` → `NPS`
+- 移动变现/合规：`iaa` → `IAA`；`iap` → `IAP`；`gdpr` → `GDPR`；`ccpa` → `CCPA`；`coppa` → `COPPA`；`ftc` → `FTC`；`ivt` → `IVT`；`sivt` → `SIVT`；`givt` → `GIVT`
+- 分层表达：`tier 1` → `Tier 1`（Tier 1/2/3 市场分层）
 
 营销常见错词：`affliate`→`affiliate`；`campain`→`campaign`；`converion`→`conversion`；`imprssion`→`impression`；`advertisng`→`advertising`；`markting`→`marketing`；`retargetting`→`retargeting`。
+
+达人营销（influencer）补充：`influenzer`→`influencer`；`microinfluencer`→`micro-influencer`；`nanoinfluencer`→`nano-influencer`；`macroinfluencer`→`macro-influencer`；`megainfluencer`→`mega-influencer`；`affilite`→`affiliate`；`converison`→`conversion`；`impresion`→`impression`。
 
 语境词（不可自动替换，仅提示）：`adjust`、`branch`、`impact`、`singular`、`lp`、`att`、`cj` 等可能同时是普通英文词或缩写，需按上下文判断。
 

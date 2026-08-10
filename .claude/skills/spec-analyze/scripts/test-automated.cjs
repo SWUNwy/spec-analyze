@@ -2515,6 +2515,29 @@ register("phase8-092-output-lint-no-false-positive", {
   }
 });
 
+register("phase8-093-output-lint-marketing-coverage", {
+  group: "phase8",
+  description: "lint-output-text.js should cover marketing-domain terms",
+  run: () => {
+    const runId = `test-lintmkt-${Date.now()}`;
+    const dir = path.join(TMP_ROOT, runId);
+    fs.mkdirSync(dir, { recursive: true });
+    const sample = path.join(dir, "marketing.md");
+    fs.writeFileSync(sample, "wechat 与 mcn 投放，gdpr 与 ccpa 合规。ecpm 与 cpv 指标，tier 1 市场。influenzer 与 microinfluencer。\n", "utf8");
+    const result = spawnSync(process.execPath, [path.join(SKILL_DIR, "scripts", "lint-output-text.js"), sample], {
+      encoding: "utf8",
+      cwd: SKILL_DIR,
+      timeout: 15000
+    });
+    assertEq(result.status, 1, "lint exits 1 on marketing violations");
+    const out = String(result.stdout);
+    for (const expect of ["WeChat", "MCN", "GDPR", "CCPA", "eCPM", "CPV", "Tier 1", "influencer", "micro-influencer"]) {
+      assert(out.includes(expect), `detects ${expect}`);
+    }
+    return { passed: true };
+  }
+});
+
 function parseArgs(argv) {
   const out = { _: [] };
   for (let i = 0; i < argv.length; i++) {

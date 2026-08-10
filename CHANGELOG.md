@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.5.0 (2026-08-10)
+
+### Added
+- **营销术语覆盖扩充（第二轮）** — Affiliate / Social / Influencer Marketing 常用名词补全：
+  - 品牌：WeChat/Reddit/Discord/Twitch/Bilibili/Douyin/Kuaishou/小红书/Substack/Dribbble/Behance + 联盟平台（Tradedoubler/Webgains/Admitad/Cityads/Affise/Everflow/Partnerize/Tapfiliate）+ 追踪工具（Voluum/RedTrack/Binom/Keitaro）
+  - 缩写：MCN/CPV/eCPM/eCPI/GDPR/CCPA/COPPA/FTC/IVT/SIVT/GIVT/RTB/DSP/SSP/PMP/DMP/CDP/CRM/ERP/OKR/SERP/NPS/IAA/IAP + Tier 1/2/3 分层
+  - 达人营销错词：influenzer/microinfluencer/nanoinfluencer/macroinfluencer/megainfluencer/affilite/converison/impresion
+- 新增 phase8-093 营销覆盖回归用例；lint 自测增至 18 项
+
+### Changed
+- SKILL.md 版本 3.4.0 → 3.5.0
+- `chinese-writing-style.md` 营销章节按领域分节（社交/联盟/达人/程序化/合规）
+
 ## 3.4.0 (2026-08-09)
 
 ### Added

@@ -85,6 +85,16 @@ const BRAND_RULES = [
   ["google ads", "Google Ads"], ["meta ads", "Meta Ads"],
   ["unity ads", "Unity Ads"], ["commission junction", "Commission Junction"],
   ["skadnetwork", "SKAdNetwork"], ["applovin", "AppLovin"],
+  ["wechat", "WeChat"], ["wechat pay", "WeChat Pay"],
+  ["reddit", "Reddit"], ["discord", "Discord"], ["twitch", "Twitch"],
+  ["bilibili", "Bilibili"], ["douyin", "Douyin"], ["kuaishou", "Kuaishou"],
+  ["xiaohongshu", "小红书"], ["substack", "Substack"],
+  ["dribbble", "Dribbble"], ["behance", "Behance"],
+  ["tradedoubler", "Tradedoubler"], ["webgains", "Webgains"],
+  ["admitad", "Admitad"], ["cityads", "Cityads"], ["affise", "Affise"],
+  ["everflow", "Everflow"], ["partnerize", "Partnerize"],
+  ["voluum", "Voluum"], ["redtrack", "RedTrack"], ["binom", "Binom"],
+  ["keitaro", "Keitaro"], ["tapfiliate", "Tapfiliate"],
 ];
 
 // 营销/增长领域常用缩写——仅匹配小写变体，大写形式不误报
@@ -93,16 +103,19 @@ const ACRONYM_RULES = [
   "epc", "ltv", "cac", "arpu", "arppu", "gmv", "sku", "kpi", "dau", "mau",
   "wau", "ugc", "pgc", "kol", "koc", "utm", "sdk", "s2s", "seo", "sem",
   "aso", "saas", "b2b", "b2c", "d2c", "ppc", "ppl", "pps", "mmp", "skan",
-  "idfa", "ga4", "gtm",
+  "idfa", "ga4", "gtm", "mcn", "cpv", "ecpm", "ecpi", "gdpr", "ccpa",
+  "coppa", "ftc", "ivt", "sivt", "givt", "rtb", "dsp", "ssp", "pmp",
+  "dmp", "cdp", "crm", "erp", "okr", "serp", "nps", "iaa", "iap",
 ];
 
 for (const [word, canonical] of BRAND_RULES) {
   CASE_RULES.push([new RegExp(wb + word.replace(/ /g, "\\s+") + wa, "g"), canonical]);
 }
 for (const word of ACRONYM_RULES) {
-  const canonical = word === "saas" ? "SaaS" : word.toUpperCase();
+  const canonical = word === "saas" ? "SaaS" : word === "ecpm" ? "eCPM" : word === "ecpi" ? "eCPI" : word.toUpperCase();
   CASE_RULES.push([new RegExp(wb + word + wa, "g"), canonical]);
 }
+CASE_RULES.push([new RegExp(wb + "tier\\s+[1-3]" + wa, "g"), "Tier 1/2/3"]);
 
 const TYPO_RULES = [
   ["阀值", "阈值"],
@@ -119,6 +132,14 @@ const TYPO_RULES = [
   ["advertisng", "advertising"],
   ["markting", "marketing"],
   ["retargetting", "retargeting"],
+  ["affilite", "affiliate"],
+  ["converison", "conversion"],
+  ["impresion", "impression"],
+  ["influenzer", "influencer"],
+  ["microinfluencer", "micro-influencer"],
+  ["nanoinfluencer", "nano-influencer"],
+  ["macroinfluencer", "macro-influencer"],
+  ["megainfluencer", "mega-influencer"],
 ];
 
 const NUMBER_RULES = [
@@ -256,6 +277,12 @@ function selfTest() {
     ["google ads 与 roi 优化。", "error", "Google Ads"],
     ["affliate 计划与 saas 平台。", "error", "affiliate"],
     ["使用 GitHub 与 JavaScript 的正确写法。", null, null],
+    ["wechat 与 mcn 投放。", "error", "WeChat"],
+    ["gdpr 与 ccpa 合规。", "error", "GDPR"],
+    ["ecpm 与 cpv 指标。", "error", "eCPM"],
+    ["tier 1 市场。", "error", "Tier 1"],
+    ["influenzer 与 microinfluencer。", "error", "influencer"],
+    ["使用 WeChat 与 MCN 的正确写法。", null, null],
   ];
   let failed = 0;
   for (const [text, expectSeverity, expectMessage] of cases) {
