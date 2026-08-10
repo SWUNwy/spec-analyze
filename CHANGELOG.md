@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.5.1 (2026-08-10)
+
+### Changed
+- **小红书海外官方名称** — `xiaohongshu`（拼音）→ `rednote`（官方英文名，全小写；2025-01 起 App Store / Google Play 统一，`RedNote`/`REDnote` 为媒体俗写）；原映射「小红书」仅适合中文语境，海外语境统一改用官方英文名
+- SKILL.md 版本 3.5.0 → 3.5.1
+
+### Added
+- lint 自测新增 2 项（`xiaohongshu`→`rednote` 正向 + 官方拼写无误报），自测增至 20 项
+- 新增 phase8-094 回归用例（`xiaohongshu` → `rednote` 品牌规则）
+
 ## 3.5.0 (2026-08-10)
 
 ### Added

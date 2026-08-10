@@ -130,7 +130,7 @@ node scripts/lint-output-text.js docs/spec-analyze/specs
 补充品牌（社交/内容平台与联盟平台/追踪器）：
 
 - `wechat` → `WeChat`（`wechat pay` → `WeChat Pay`）；`reddit` → `Reddit`；`discord` → `Discord`；`twitch` → `Twitch`
-- `bilibili` → `Bilibili`；`douyin` → `Douyin`；`kuaishou` → `Kuaishou`；`xiaohongshu` → `小红书`；`substack` → `Substack`
+- `bilibili` → `Bilibili`；`douyin` → `Douyin`；`kuaishou` → `Kuaishou`；`xiaohongshu` → `rednote`（小红书海外官方英文名，全小写；`RedNote`/`REDnote` 为媒体俗写）；`substack` → `Substack`
 - `dribbble` → `Dribbble`；`behance` → `Behance`
 - 联盟平台：`tradedoubler` → `Tradedoubler`；`webgains` → `Webgains`；`admitad` → `Admitad`；`cityads` → `Cityads`；`affise` → `Affise`；`everflow` → `Everflow`；`partnerize` → `Partnerize`；`tapfiliate` → `Tapfiliate`
 - 追踪/归因工具：`voluum` → `Voluum`；`redtrack` → `RedTrack`；`binom` → `Binom`；`keitaro` → `Keitaro`

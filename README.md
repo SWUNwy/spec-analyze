@@ -74,7 +74,7 @@ v3.0 起，spec-analyze 升级为**可恢复、有证据、有门禁**的闭环�
 - **证据台账** — 追加式 `evidence.jsonl`，HMAC 签名链，入库前 `--auto-detect` 矛盾检测。
 - **检查点与恢复** — checkpoint 随状态流转自动同步，中断后从最近已验证检查点恢复，不重复初始化。
 - **实施交接** — 版本绑定交接包（哈希校验）+ 下游 Plan → Execute → Verify 工作流控制器。
-- **回归测试** — 88 项自动化测试（状态机 / 门禁 / 交接 / 工作流 / 混沌），`node scripts/test-automated.cjs`。
+- **回归测试** — 93 项自动化测试（状态机 / 门禁 / 交接 / 工作流 / 混沌），`node scripts/test-automated.cjs`。
 - **输出语言** — 默认中文。
 
 完整协议见 [SKILL.md §闭环协议](SKILL.md) 与 `references/`（router、closed-loop、gates、verification-rubric、handoff-format 等）。

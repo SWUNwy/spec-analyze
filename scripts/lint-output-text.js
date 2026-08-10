@@ -88,7 +88,7 @@ const BRAND_RULES = [
   ["wechat", "WeChat"], ["wechat pay", "WeChat Pay"],
   ["reddit", "Reddit"], ["discord", "Discord"], ["twitch", "Twitch"],
   ["bilibili", "Bilibili"], ["douyin", "Douyin"], ["kuaishou", "Kuaishou"],
-  ["xiaohongshu", "小红书"], ["substack", "Substack"],
+  ["xiaohongshu", "rednote"], ["substack", "Substack"],
   ["dribbble", "Dribbble"], ["behance", "Behance"],
   ["tradedoubler", "Tradedoubler"], ["webgains", "Webgains"],
   ["admitad", "Admitad"], ["cityads", "Cityads"], ["affise", "Affise"],
@@ -282,7 +282,9 @@ function selfTest() {
     ["ecpm 与 cpv 指标。", "error", "eCPM"],
     ["tier 1 市场。", "error", "Tier 1"],
     ["influenzer 与 microinfluencer。", "error", "influencer"],
+    ["xiaohongshu 海外版投放。", "error", "rednote"],
     ["使用 WeChat 与 MCN 的正确写法。", null, null],
+    ["使用 rednote 与 WeChat 的正确拼写。", null, null],
   ];
   let failed = 0;
   for (const [text, expectSeverity, expectMessage] of cases) {

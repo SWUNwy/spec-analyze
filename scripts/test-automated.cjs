@@ -2538,6 +2538,26 @@ register("phase8-093-output-lint-marketing-coverage", {
   }
 });
 
+register("phase8-094-output-lint-rednote-brand", {
+  group: "phase8",
+  description: "lint-output-text.js should map xiaohongshu pinyin to the official rednote name",
+  run: () => {
+    const runId = `test-lintred-${Date.now()}`;
+    const dir = path.join(TMP_ROOT, runId);
+    fs.mkdirSync(dir, { recursive: true });
+    const sample = path.join(dir, "rednote.md");
+    fs.writeFileSync(sample, "xiaohongshu 海外版投放。使用 rednote 官方拼写不受影响。\n", "utf8");
+    const result = spawnSync(process.execPath, [path.join(SKILL_DIR, "scripts", "lint-output-text.js"), sample], {
+      encoding: "utf8",
+      cwd: SKILL_DIR,
+      timeout: 15000
+    });
+    assertEq(result.status, 1, "lint exits 1 on xiaohongshu pinyin");
+    assert(String(result.stdout).includes("rednote"), "suggests official rednote spelling");
+    return { passed: true };
+  }
+});
+
 function parseArgs(argv) {
   const out = { _: [] };
   for (let i = 0; i < argv.length; i++) {
