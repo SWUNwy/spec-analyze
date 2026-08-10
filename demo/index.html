@@ -270,6 +270,28 @@
 .annot-line { font-size: 13px; line-height: 1.7; color: #374151; margin-bottom: 2px; }
 .annot-label { color: #9ca3af; font-weight: 600; min-width: 80px; display: inline-block; }
 .annot-block { margin-bottom: 16px; }
+.annot-header-left { display: flex; flex-direction: column; gap: 6px; }
+.annot-view-switch { display: flex; gap: 4px; }
+.view-switch-btn {
+  font-size: 11px; padding: 3px 10px; border-radius: 10px;
+  border: 1px solid #d1d5db; background: #fff; color: #6b7280;
+  cursor: pointer; transition: all .2s ease;
+}
+.view-switch-btn:hover { border-color: #2563eb; color: #2563eb; }
+.view-switch-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+.annot-role {
+  display: inline-block; font-size: 11px; font-weight: 600; color: #1d4ed8;
+  background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px;
+  padding: 1px 6px; margin-bottom: 6px;
+}
+.annot-field-table {
+  width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px;
+}
+.annot-field-table th, .annot-field-table td {
+  border: 1px solid #e5e7eb; padding: 6px 8px; text-align: left; vertical-align: top;
+}
+.annot-field-table th { background: #f9fafb; font-weight: 600; color: #374151; }
+.annot-field-table td { color: #374151; line-height: 1.5; }
 
 @media (max-width: 480px) {
   .annot-panel { width: 100%; right: -100%; }
@@ -291,7 +313,7 @@
      Toast Container
      ============================================ -->
 <div class="toast-container" id="toastContainer">
-  <div class="toast info" id="demoToast">spec-analyze demo loaded. Click any 📋 button to view annotations.</div>
+  <div class="toast info" id="demoToast">spec-analyze demo 已加载。点击任意 📋 按钮查看注释。</div>
 </div>
 
 <!-- ============================================
@@ -302,7 +324,7 @@
   <!-- Demo Banner -->
   <div class="demo-banner">
     <span>🔍</span>
-    <span><strong>spec-analyze Demo</strong> — This page demonstrates the PRD annotation system. Click the <strong>📋</strong> buttons on each component, or the 📋 button in the header, to see structured interaction annotations.</span>
+    <span><strong>spec-analyze Demo</strong> — 演示评审/实施双视图注释系统。点击组件或页头的 <strong>📋</strong> 按钮查看结构化交互注释；默认评审视图（中文），可切换至实施视图查看完整细节。</span>
   </div>
 
   <!-- Page Header -->
@@ -416,10 +438,16 @@
 <!-- Panel -->
 <div class="annot-panel" id="annotPanel">
   <div class="annot-header">
-    <h3 id="annotTitle">PRD Annotations</h3>
+    <div class="annot-header-left">
+      <h3 id="annotTitle">PRD Annotations</h3>
+      <div class="annot-view-switch" id="annotViewSwitch">
+        <button class="view-switch-btn active" id="btnViewReview" onclick="setView('review')">评审视图</button>
+        <button class="view-switch-btn" id="btnViewImpl" onclick="setView('implementation')">实施视图</button>
+      </div>
+    </div>
     <div>
-      <button class="btn-annot-edit" id="btnEditMode" onclick="toggleEditMode()" style="font-size:12px;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;margin-right:6px;">✏️ Edit Annotations</button>
-      <button class="btn-annot-verify" onclick="runVerification()" style="font-size:12px;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;margin-right:6px;">✅ Verify</button>
+      <button class="btn-annot-edit" id="btnEditMode" onclick="toggleEditMode()" style="font-size:12px;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;margin-right:6px;">✏️ 编辑注释</button>
+      <button class="btn-annot-verify" onclick="runVerification()" style="font-size:12px;padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer;margin-right:6px;">✅ 验证</button>
       <button class="annot-close" onclick="closeAnnot()">✕</button>
     </div>
   </div>
@@ -438,157 +466,170 @@
 const ANNOTATIONS = {
   stats: {
     id: 'C01',
-    name: '@StatsRow',
+    name: '@统计卡片',
     level: 'L1',
-    label: '📊 Stats',
-    desc: 'Dashboard summary cards displaying key user metrics.',
-    states: 'normal / empty / loading / error',
-    blocks: [
-      { title: 'Trigger', lines: [
-        'Page load → fetchStats()',
-        'Data mutation (create/delete user) → refresh'
+    type: 'T1',
+    label: '📊 统计卡片',
+    desc: '仪表盘顶部汇总卡片，展示用户核心指标。',
+    states: 'normal/loading/empty/error',
+    reviewBlocks: [
+      { role: '【开发】', title: '触发', lines: [
+        '页面加载 → fetchStats()',
+        '数据变更（新建/删除用户）→ 自动刷新'
       ]},
-      { title: 'Behavior', lines: [
-        'Card 1: Total Users — count of all registered users',
-        'Card 2: Active Users — count of users active in last 30 days',
-        'Card 3: New Today — count of users registered in last 24 hours',
-        'All values update automatically on data change'
+      { role: '【开发·测试】', title: '行为', lines: [
+        '卡片 1：总用户数',
+        '卡片 2：近 30 天活跃用户',
+        '卡片 3：近 24 小时新增用户',
+        '数据变更后所有数值自动刷新'
       ]},
-      { title: 'UI State', lines: [
-        'normal: values displayed in 28px bold text',
-        'loading: skeleton placeholder (gray shimmer)',
-        'empty: all cards show "0"',
-        'error: all cards show "—" with retry button'
+      { role: '【UI】', title: '视觉要点', lines: [
+        '数值：28px 加粗展示',
+        '加载态：灰色骨架屏',
+        '空态：全部显示 0',
+        '错误态：显示「—」与重试按钮'
       ]},
-      { title: 'Dismiss', lines: ['Data refresh → recalculate and update display'] }
+      { role: '【测试】', title: '用户可见状态', lines: [
+        '有数据 ｜ 加载中 ｜ 空数据 ｜ 加载失败（可重试）'
+      ]}
+    ],
+    implBlocks: [
+      { role: '【开发·测试】', title: 'state（全分支）', lines: [
+        'normal：显示数值',
+        'loading：骨架屏占位',
+        'empty：全部显示 0',
+        'error：显示「—」+ 重试按钮'
+      ]},
+      { role: '【API】', title: 'GET /api/stats', lines: [
+        '→ 200：{ total, active, newToday }',
+        '→ 5xx：Toast「加载失败」+ 重试'
+      ]},
+      { role: '【Permission】', title: '', lines: [
+        '登录用户可读（Admin / Operator / Viewer）'
+      ]}
     ],
     fields: {
-      total: { label: 'Total Users', desc: 'Total registered user count across all statuses', blocks: [
-        { title: 'Definition', lines: ['Count of all registered users (non-deleted)'] },
-        { title: 'Permission', lines: ['Admin, Operator, Viewer'] }
-      ]},
-      active: { label: 'Active Users', desc: 'Users with activity in the last 30 days', blocks: [
-        { title: 'Definition', lines: ['Users active in last 30 days'] },
-        { title: 'Permission', lines: ['Admin, Operator'] }
-      ]},
-      newToday: { label: 'New Today', desc: 'Users who registered in the last 24 hours', blocks: [
-        { title: 'Definition', lines: ['Users registered in last 24 hours'] },
-        { title: 'Permission', lines: ['Admin only'] }
-      ]}
+      total: { label: 'Total Users', summary: ['是', 'integer，≥ 0', '「—」', 'GET /api/stats'], impl: ['来源：user 表实时计数（不含已删除）', '刷新：数据变更后自动重算'] },
+      active: { label: 'Active Users', summary: ['是', 'integer，≥ 0', '「—」', 'GET /api/stats'], impl: ['来源：近 30 天有活跃记录的用户', '刷新：数据变更后自动重算'] },
+      newToday: { label: 'New Today', summary: ['是', 'integer，≥ 0', '「—」', 'GET /api/stats'], impl: ['来源：近 24 小时注册用户', '刷新：事件驱动或定时轮询'] }
     }
   },
   table: {
     id: 'C02',
-    name: '@DataTable',
+    name: '@数据表格',
     level: 'L2',
-    label: '📋 Data Table',
-    desc: 'Filterable, searchable user list with pagination.',
-    states: 'normal / loading / empty / error',
-    blocks: [
-      { title: 'Trigger', lines: [
-        'Page load → getFilteredData() → render current page',
-        'Search input → real-time filter (300ms debounce)',
-        'Role filter dropdown → re-filter by role',
-        'Pagination click → switch page'
+    type: 'T2',
+    label: '📋 数据表格',
+    desc: '支持筛选、搜索与分页的用户列表。',
+    states: 'normal/loading/empty/error',
+    reviewBlocks: [
+      { role: '【开发】', title: '触发', lines: [
+        '页面加载 → getFilteredData() 渲染当前页',
+        '搜索输入 → 300ms 防抖实时过滤',
+        '角色筛选下拉 → 按角色重新过滤',
+        '分页点击 → 切换页码'
       ]},
-      { title: 'Behavior', lines: [
-        'Search: match name or email (case-insensitive, partial match)',
-        'Role filter: All / Admin / Editor / Viewer — filter role field',
-        'Pagination: 8 rows per page, centered page numbers'
+      { role: '【开发·测试】', title: '行为', lines: [
+        '搜索：匹配姓名或邮箱（不区分大小写、部分匹配）',
+        '角色筛选：全部 / Admin / Editor / Viewer',
+        '分页：每页 8 条，居中页码'
       ]},
-      { title: 'API', lines: [
-        'GET /api/users?page={n}&size=8&search={q}&role={filter}',
-        '  → 200: { list: [...], total: N }',
-        '  → 4xx/5xx: Toast error "Failed to load users"'
+      { role: '【UI】', title: '视觉要点', lines: [
+        '行高 44px；筛选与搜索态即时反馈',
+        '空态：「未找到用户」+「创建用户」按钮',
+        '错误态：「数据加载失败」+ 重试按钮'
       ]},
-      { title: 'UI State', lines: [
-        'normal: data displayed, pagination visible',
-        'loading: 8-row skeleton placeholder',
-        'empty: "No users found" + "Create User" button',
-        'error: "Failed to load data" + retry button'
+      { role: '【测试】', title: '用户可见状态', lines: [
+        '有数据 ｜ 加载中 ｜ 空结果 ｜ 加载失败（可重试）'
+      ]}
+    ],
+    implBlocks: [
+      { role: '【开发·测试】', title: 'state（全分支）', lines: [
+        'normal：数据与分页可见',
+        'loading：8 行骨架屏占位',
+        'empty：「未找到用户」+ 创建入口',
+        'error：「数据加载失败」+ 重试按钮'
       ]},
-      { title: 'Dismiss', lines: [
-        'No results → empty state with create action',
-        'Search clears → restore full list'
+      { role: '【API】', title: 'GET /api/users?page={n}&size=8&search={q}&role={filter}', lines: [
+        '→ 200：{ list: [...], total: N }',
+        '→ 4xx/5xx：Toast「用户列表加载失败」'
+      ]},
+      { role: '【开发】', title: 'timing', lines: [
+        '搜索防抖 300ms；分页切换 ≤ 200ms 反馈'
+      ]},
+      { role: '【开发】', title: 'accessibility', lines: [
+        '表格保留 th 语义；搜索框与 label 关联',
+        '状态徽标颜色与文本双重标识'
       ]}
     ],
     columns: {
-      name: { label: 'Name', desc: 'Unique display name of the user', blocks: [
-        { title: 'Format', lines: ['string, max 50, unique'] },
-        { title: 'Source', lines: ['user.name'] }
-      ]},
-      email: { label: 'Email', desc: 'Email address used for login and notifications', blocks: [
-        { title: 'Format', lines: ['string, email format, max 100'] },
-        { title: 'Source', lines: ['user.email'] }
-      ]},
-      role: { label: 'Role', desc: 'Access control role determining user permissions', blocks: [
-        { title: 'Format', lines: ['enum: Admin / Editor / Viewer'] },
-        { title: 'Source', lines: ['user.role'] }
-      ]},
-      status: { label: 'Status', desc: 'Current account state', blocks: [
-        { title: 'Format', lines: ['enum: active / inactive, color-coded badge'] },
-        { title: 'Color', lines: ['active: green(#10b981), inactive: gray(#6b7280)'] }
-      ]},
-      joined: { label: 'Joined', desc: 'Date when the user first registered', blocks: [
-        { title: 'Format', lines: ['Date string, display as YYYY-MM-DD'] },
-        { title: 'Source', lines: ['user.created_at'] }
-      ]}
+      name: { label: 'Name', summary: ['是', 'string，≤ 50，唯一', '—', 'user.name'], impl: ['排序：默认按创建时间', '搜索字段：姓名（部分匹配）'] },
+      email: { label: 'Email', summary: ['是', 'string，邮箱格式，≤ 100', '—', 'user.email'], impl: ['搜索字段：邮箱（不区分大小写）'] },
+      role: { label: 'Role', summary: ['是', 'enum：Admin / Editor / Viewer', '—', 'user.role'], impl: ['筛选维度：全部 / Admin / Editor / Viewer'] },
+      status: { label: 'Status', summary: ['否', 'enum：active / inactive', '—', 'user.status'], impl: ['徽标色：active 绿（#10b981），inactive 灰（#6b7280）'] },
+      joined: { label: 'Joined', summary: ['否', 'Date，展示 YYYY-MM-DD', '—', 'user.created_at'], impl: ['时区：统一按本地时间展示'] }
     }
   },
   form: {
     id: 'C03',
-    name: '@CreateUserForm',
+    name: '@创建用户表单',
     level: 'L2',
-    label: '✏️ Create Form',
-    desc: 'User creation form with validation.',
-    states: 'normal / fieldError / submitting / success / apiError',
-    blocks: [
-      { title: 'Trigger', lines: [
-        'Field blur → single field validation',
-        'Click "Create" → full validation + API call'
+    type: 'T6',
+    label: '✏️ 创建用户表单',
+    desc: '带校验的用户创建表单。',
+    states: 'normal/fieldError/submitting/success/apiError',
+    reviewBlocks: [
+      { role: '【开发】', title: '触发', lines: [
+        '字段失焦 → 校验该字段',
+        '点击「创建」→ 校验全部字段并提交'
       ]},
-      { title: 'Behavior', lines: [
-        'Name: blur → required check → empty shows "Name is required"',
-        'Email: blur → format check → invalid shows "Invalid email format"',
-        'Role: required → not selected shows "Please select a role"',
-        'Submit: all valid → POST /api/users → success: toast + reset',
-        '  ├── 201: "User created successfully" → reset form',
-        '  └── 409: "Email already exists" → email field error'
+      { role: '【开发·测试】', title: '行为', lines: [
+        '姓名：失焦必填校验 → 为空显示「请输入姓名」',
+        '邮箱：失焦格式校验 → 非法显示「邮箱格式不正确」',
+        '角色：未选择显示「请选择角色」',
+        '校验通过 → POST /api/users → 成功：Toast + 重置表单',
+        '→ 409：邮箱已存在 → 邮箱字段错误提示'
       ]},
-      { title: 'API', lines: [
-        'POST /api/users',
-        '  Body: { name: string(required), email: string(required, email), role: string(required, enum: Admin/Editor/Viewer) }',
-        '  → 201: { id, name, email, role }',
-        '  → 409: { error: "email_exists" } → field error',
-        '  → 503: Toast "Service temporarily unavailable"'
+      { role: '【UI】', title: '视觉要点', lines: [
+        '输入框：高 36px、圆角 6px、聚焦蓝色边框 + 阴影',
+        '标签：13px 加粗；必填项红色 *',
+        '提交中：按钮 loading + 禁用「创建中…」'
       ]},
-      { title: 'UI Style', lines: [
-        'Card: white bg, 1px #e5e7eb border, 8px radius, 20px padding',
-        'Inputs: 36px height, 6px radius, focus: blue border + shadow',
-        'Labels: 13px, #374151, bold; required fields marked red *'
+      { role: '【测试】', title: '用户可见状态', lines: [
+        '空表单 ｜ 字段校验错误 ｜ 提交中 ｜ 成功（提示并重置）｜ 失败（提示，表单保留已填内容）'
+      ]}
+    ],
+    implBlocks: [
+      { role: '【开发·测试】', title: 'state（全分支）', lines: [
+        'normal：空表单，「创建」可点击',
+        'fieldError：红框 + 字段下错误文案',
+        'submitting：按钮 loading + 禁用「创建中…」',
+        'success：Toast「用户创建成功」+ 表单重置',
+        'apiError：Toast 错误提示，表单保留已填内容'
       ]},
-      { title: 'UI State', lines: [
-        'normal: empty form, "Create" button enabled',
-        'fieldError: red border + error text below field',
-        'submitting: button loading + disabled, text "Creating..."',
-        'success: toast + form reset to normal',
-        'apiError: toast error, form stays editable'
+      { role: '【API】', title: 'POST /api/users', lines: [
+        'request：{ name, email, role }',
+        '→ 201：{ id, name, email, role }',
+        '→ 409：{ error: "email_exists" } → 邮箱字段错误',
+        '→ 503：Toast「服务暂不可用」'
       ]},
-      { title: 'Dismiss', lines: [
-        'Cancel → reset form to pristine state',
-        'Success → auto-reset after 2s'
+      { role: '【Permission】', title: '', lines: [
+        '需要 Admin / Operator 权限'
+      ]},
+      { role: '【开发】', title: 'timing', lines: [
+        '失焦校验立即执行；错误提示淡入 100ms'
+      ]},
+      { role: '【开发】', title: 'accessibility', lines: [
+        '错误以 aria-live 播报；Enter 可触发提交'
+      ]},
+      { role: '【UI】', title: 'responsive', lines: [
+        '窄屏：输入框占满宽度；错误文案不换行截断'
       ]}
     ],
     fields: {
-      name: { label: 'Full Name', desc: 'Real name of the user for display purposes', blocks: [
-        { title: 'Validation', lines: ['required, string, max 50, unique'] }
-      ]},
-      email: { label: 'Email', desc: 'Email address used for login and notifications', blocks: [
-        { title: 'Validation', lines: ['required, email format, max 100'] }
-      ]},
-      role: { label: 'Role', desc: 'Access control role assigned to the user', blocks: [
-        { title: 'Options', lines: ['Admin: full access', 'Editor: content management', 'Viewer: read-only'] }
-      ]}
+      name: { label: 'Full Name', summary: ['是', 'string，≤ 50，唯一', '「请输入姓名」', '表单输入'], impl: ['失焦校验；提交前全量校验'] },
+      email: { label: 'Email', summary: ['是', 'string，邮箱格式，≤ 100', '「请输入邮箱」/「邮箱格式不正确」', '表单输入'], impl: ['失焦校验；与现有用户去重'] },
+      role: { label: 'Role', summary: ['是', 'enum：Admin / Editor / Viewer', '「请选择角色」', '表单选择'], impl: ['未选择时提交被阻止'] }
     }
   }
 };
@@ -597,6 +638,7 @@ var state = {
   panelOpen: false,
   panelKey: null,
   panelField: null,
+  view: 'review',
   editMode: false,
   editHistory: []
 };
@@ -623,13 +665,13 @@ function toggleAnnot(key) {
   var toast = document.getElementById('demoToast');
   if (toast) toast.style.display = 'none';
 
-  document.getElementById('annotTitle').textContent = data.id + ' ' + data.name + ' ' + data.level;
+  document.getElementById('annotTitle').textContent = data.id + ' ' + data.name + '（' + data.level + ' / T' + data.type + '）';
   document.getElementById('annotOverlay').classList.add('open');
   document.getElementById('annotPanel').classList.add('open');
   state.panelOpen = true;
 
   renderNav(key);
-  renderAnnotBody(data, false);
+  renderAnnotBody(data);
 }
 
 function renderNav(key, activeField) {
@@ -671,15 +713,23 @@ function closeAnnot() {
 function renderAnnotBody(data, editable) {
   var body = document.getElementById('annotBody');
   var html = '';
-  html += '<div class="annot-block"><div class="annot-section-title">DESCRIPTION</div>';
+  html += '<div class="annot-block"><div class="annot-section-title">组件说明</div>';
   if (editable) {
     html += '<textarea class="annot-edit-textarea" data-field="desc" rows="2">' + escapeHtml(data.desc) + '</textarea>';
   } else {
     html += '<div class="annot-line">' + escapeHtml(data.desc) + '</div>';
   }
-  html += '<div class="annot-line"><span class="annot-label">States:</span> ' + escapeHtml(data.states) + '</div></div>';
-  data.blocks.forEach(function(b, bi) {
-    html += '<div class="annot-block"><div class="annot-section-title">' + escapeHtml(b.title.toUpperCase()) + '</div>';
+  html += '<div class="annot-line"><span class="annot-label">类型 / 等级：</span> T' + escapeHtml(data.type) + ' / ' + escapeHtml(data.level) + '</div>';
+  html += '<div class="annot-line"><span class="annot-label">状态机：</span> ' + escapeHtml(data.states) + '</div></div>';
+  var blocks = editable
+    ? (data.reviewBlocks || [])
+    : (state.view === 'implementation'
+        ? (data.reviewBlocks || []).concat(data.implBlocks || [])
+        : (data.reviewBlocks || []));
+  blocks.forEach(function(b, bi) {
+    html += '<div class="annot-block">';
+    if (b.role) html += '<span class="annot-role">' + escapeHtml(b.role) + '</span>';
+    if (b.title) html += '<div class="annot-section-title">' + escapeHtml(b.title) + '</div>';
     if (editable) {
       html += '<textarea class="annot-edit-textarea" data-block="' + bi + '" rows="' + Math.max(b.lines.length + 1, 3) + '">' + b.lines.map(function(l) { return escapeHtml(l); }).join('\n') + '</textarea>';
       html += '<div style="margin-top:4px;font-size:12px;"><a href="#" onclick="event.preventDefault();appendLine(this)" style="color:#2563eb;text-decoration:none;">+ Append</a></div>';
@@ -691,14 +741,43 @@ function renderAnnotBody(data, editable) {
     }
     html += '</div>';
   });
+  // 字段摘要表（评审视图：整表扫读）
+  var fields = data.fields || data.columns;
+  if (fields && !editable && state.view === 'review') {
+    html += '<div class="annot-block"><div class="annot-section-title">字段摘要</div>';
+    html += '<table class="annot-field-table"><thead><tr><th>字段</th><th>必填</th><th>规则</th><th>空值 / 错误文案</th><th>来源</th></tr></thead><tbody>';
+    Object.keys(fields).forEach(function(fk) {
+      var f = fields[fk];
+      html += '<tr><td>' + escapeHtml(f.label) + '</td>';
+      (f.summary || []).forEach(function(c) { html += '<td>' + escapeHtml(c) + '</td>'; });
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+  }
   if (editable) {
     html += '<div class="annot-edit-actions" style="display:flex;gap:8px;margin-top:16px;padding-top:12px;border-top:1px solid #e5e7eb;align-items:center;">';
-    html += '<button class="btn btn-primary" onclick="saveEdit()">💾 Save Changes</button>';
-    html += '<button class="btn btn-cancel" onclick="undoEdit()" style="margin-right:auto;" title="Undo last change">↩ Undo</button>';
-    html += '<button class="btn" onclick="toggleEditMode()">Cancel</button>';
+    html += '<button class="btn btn-primary" onclick="saveEdit()">💾 保存修改</button>';
+    html += '<button class="btn btn-cancel" onclick="undoEdit()" style="margin-right:auto;" title="撤销上次修改">↩ 撤销</button>';
+    html += '<button class="btn" onclick="toggleEditMode()">取消</button>';
     html += '</div>';
   }
   body.innerHTML = html;
+}
+
+function setView(view) {
+  if (view !== 'review' && view !== 'implementation') return;
+  state.view = view;
+  var btnR = document.getElementById('btnViewReview');
+  var btnI = document.getElementById('btnViewImpl');
+  if (btnR) btnR.classList.toggle('active', view === 'review');
+  if (btnI) btnI.classList.toggle('active', view === 'implementation');
+  if (state.panelKey && state.panelOpen) {
+    if (state.panelField) {
+      toggleFieldAnnot(state.panelKey, state.panelField);
+    } else {
+      renderAnnotBody(ANNOTATIONS[state.panelKey]);
+    }
+  }
 }
 
 // ============================================
@@ -728,17 +807,16 @@ function toggleFieldAnnot(componentKey, fieldKey) {
 function renderFieldBody(entry) {
   var body = document.getElementById('annotBody');
   var html = '';
-  if (entry.desc) {
-    html += '<div class="annot-block"><div class="annot-section-title">DESCRIPTION</div>';
-    html += '<div class="annot-line">' + escapeHtml(entry.desc) + '</div></div>';
-  }
-  entry.blocks.forEach(function(b) {
-    html += '<div class="annot-block"><div class="annot-section-title">' + escapeHtml(b.title.toUpperCase()) + '</div>';
-    b.lines.forEach(function(l) {
-      html += '<div class="annot-line">' + escapeHtml(l) + '</div>';
-    });
-    html += '</div>';
+  html += '<div class="annot-block"><div class="annot-section-title">字段摘要</div>';
+  html += '<table class="annot-field-table"><thead><tr><th>字段</th><th>必填</th><th>规则</th><th>空值 / 错误文案</th><th>来源</th></tr></thead><tbody>';
+  html += '<tr><td>' + escapeHtml(entry.label) + '</td>';
+  (entry.summary || []).forEach(function(c) { html += '<td>' + escapeHtml(c) + '</td>'; });
+  html += '</tr></tbody></table></div>';
+  html += '<div class="annot-block"><div class="annot-section-title">实施细节</div>';
+  (entry.impl || []).forEach(function(l) {
+    html += '<div class="annot-line">' + escapeHtml(l) + '</div>';
   });
+  html += '</div>';
   body.innerHTML = html;
 }
 
@@ -757,7 +835,7 @@ function toggleEditMode() {
   }
   var btn = document.getElementById('btnEditMode');
   if (btn) {
-    btn.textContent = state.editMode ? '✅ Done Editing' : '✏️ Edit Annotations';
+    btn.textContent = state.editMode ? '✅ 完成编辑' : '✏️ 编辑注释';
     btn.classList.toggle('active', state.editMode);
   }
 }
@@ -772,7 +850,7 @@ function saveEdit() {
     data.desc = descField.value;
   }
 
-  data.blocks.forEach(function(b, bi) {
+  (data.reviewBlocks || []).forEach(function(b, bi) {
     var textarea = document.querySelector('[data-block="' + bi + '"]');
     if (textarea) {
       var newLines = textarea.value.split('\n').filter(function(l) { return l.trim() !== ''; });
@@ -783,7 +861,7 @@ function saveEdit() {
   state.editHistory.push({ key: state.panelKey, before: oldData, after: JSON.parse(JSON.stringify(data)) });
   state.editMode = false;
   var btn = document.getElementById('btnEditMode');
-  if (btn) { btn.textContent = '✏️ Edit Annotations'; btn.classList.remove('active'); }
+  if (btn) { btn.textContent = '✏️ 编辑注释'; btn.classList.remove('active'); }
   renderAnnotBody(data, false);
   showDiffSummary(oldData, data);
 }
@@ -799,13 +877,13 @@ function appendLine(link) {
 
 function undoEdit() {
   var last = state.editHistory.pop();
-  if (!last) { showToast('info', 'Nothing to undo'); return; }
+  if (!last) { showToast('info', '没有可撤销的修改'); return; }
   ANNOTATIONS[last.key] = JSON.parse(JSON.stringify(last.before));
   state.editMode = false;
   var btn = document.getElementById('btnEditMode');
-  if (btn) { btn.textContent = '✏️ Edit Annotations'; btn.classList.remove('active'); }
+  if (btn) { btn.textContent = '✏️ 编辑注释'; btn.classList.remove('active'); }
   renderAnnotBody(ANNOTATIONS[last.key], false);
-  showToast('success', 'Undone: ' + last.key);
+  showToast('success', '已撤销：' + last.key);
 }
 
 function showDiffSummary(oldData, newData) {
@@ -813,14 +891,14 @@ function showDiffSummary(oldData, newData) {
   if (!header) return;
   var diffHtml = '<div id="diffSummary" style="padding:8px 20px;background:#f0fdf4;border-bottom:1px solid #bbf7d0;font-size:12px;color:#166534;">';
   var changes = [];
-  if (oldData.desc !== newData.desc) changes.push('description updated');
-  newData.blocks.forEach(function(b, bi) {
-    var oldLines = oldData.blocks[bi] ? oldData.blocks[bi].lines : [];
+  if (oldData.desc !== newData.desc) changes.push('组件说明已更新');
+  (newData.reviewBlocks || []).forEach(function(b, bi) {
+    var oldLines = (oldData.reviewBlocks || [])[bi] ? (oldData.reviewBlocks || [])[bi].lines : [];
     if (JSON.stringify(oldLines) !== JSON.stringify(b.lines)) {
-      changes.push(b.title.toLowerCase() + ' (' + oldLines.length + '→' + b.lines.length + ' lines)');
+      changes.push(b.title + ' (' + oldLines.length + '→' + b.lines.length + ' 行)');
     }
   });
-  diffHtml += '<strong>Changes saved:</strong> ' + changes.join(', ');
+  diffHtml += '<strong>已保存修改：</strong> ' + changes.join(', ');
   diffHtml += '</div>';
   var existing = document.getElementById('diffSummary');
   if (existing) existing.remove();
@@ -856,7 +934,7 @@ function runVerification() {
       allCovered = false;
     }
   });
-  if (allCovered) results.push({ type: 'pass', msg: 'All components have trigger buttons' });
+  if (allCovered) results.push({ type: 'pass', msg: '全部组件均有触发按钮' });
 
   // Check 2: State coverage
   var stateMinimums = { T1: ['normal','loading','error'], T2: ['normal','loading','empty','error'], T6: ['normal','fieldError','submitting','success','apiError'] };
@@ -875,32 +953,30 @@ function runVerification() {
   // Check 3: Empty blocks
   keys.forEach(function(k) {
     var data = ANNOTATIONS[k];
-    if (data.blocks) {
-      data.blocks.forEach(function(b) {
-        if (!b.lines || b.lines.length === 0) {
-          results.push({ type: 'warn', msg: k + '.' + b.title + ': empty block' });
-        }
-      });
-    }
+    var allBlocks = (data.reviewBlocks || []).concat(data.implBlocks || []);
+    allBlocks.forEach(function(b) {
+      if (!b.lines || b.lines.length === 0) {
+        results.push({ type: 'warn', msg: k + '.' + b.title + ': 空注释块' });
+      }
+    });
   });
 
   // Check 4: Code patterns in content
   var codePatterns = [/count\(/i, /SELECT /i, /WHERE /i, /=>/, /===/, /\.map\(/, /\.filter\(/];
   keys.forEach(function(k) {
     var data = ANNOTATIONS[k];
-    if (data.blocks) {
-      data.blocks.forEach(function(b) {
-        if (b.lines) {
-          b.lines.forEach(function(l) {
-            codePatterns.forEach(function(p) {
-              if (p.test(l)) {
-                results.push({ type: 'warn', msg: k + '.' + b.title + ': may contain code syntax "' + l.trim().substring(0, 40) + '"' });
-              }
-            });
+    var allBlocks = (data.reviewBlocks || []).concat(data.implBlocks || []);
+    allBlocks.forEach(function(b) {
+      if (b.lines) {
+        b.lines.forEach(function(l) {
+          codePatterns.forEach(function(p) {
+            if (p.test(l)) {
+              results.push({ type: 'warn', msg: k + '.' + b.title + ': 疑似含代码语法 "' + l.trim().substring(0, 40) + '"' });
+            }
           });
-        }
-      });
-    }
+        });
+      }
+    });
   });
 
   renderVerificationResults(results);
@@ -913,11 +989,11 @@ function renderVerificationResults(results) {
   var err = results.filter(function(r) { return r.type === 'error'; }).length;
   var total = results.length;
   var html = '';
-  html += '<div class="annot-block"><div class="annot-section-title">VERIFICATION RESULTS</div>';
+  html += '<div class="annot-block"><div class="annot-section-title">验证结果</div>';
   html += '<div style="font-size:24px;font-weight:700;margin-bottom:12px;">';
-  if (err === 0) html += '✅ ' + pass + '/' + total + ' passed';
-  else html += '⚠️ ' + pass + '/' + total + ' passed';
-  html += ' <span style="font-size:13px;font-weight:400;color:#6b7280;">(' + warn + ' warnings, ' + err + ' errors)</span>';
+  if (err === 0) html += '✅ ' + pass + '/' + total + ' 通过';
+  else html += '⚠️ ' + pass + '/' + total + ' 通过';
+  html += ' <span style="font-size:13px;font-weight:400;color:#6b7280;">（' + warn + ' 警告，' + err + ' 错误）</span>';
   html += '</div></div>';
   results.forEach(function(r) {
     var icon = r.type === 'pass' ? '✅' : r.type === 'warn' ? '⚠️' : '❌';
@@ -934,6 +1010,24 @@ function renderVerificationResults(results) {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape' && state.panelKey) closeAnnot();
 });
+
+// ============================================
+// Deep-link Init（?panel=stats&view=review / implementation）
+// ============================================
+function initFromQuery() {
+  var params = new URLSearchParams(window.location.search);
+  var panel = params.get('panel');
+  var view = params.get('view');
+  if (view === 'implementation' || view === 'impl') setView('implementation');
+  if (panel && ANNOTATIONS[panel]) {
+    setTimeout(function() { toggleAnnot(panel); }, 350);
+  }
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initFromQuery);
+} else {
+  initFromQuery();
+}
 </script>
 </body>
 </html>

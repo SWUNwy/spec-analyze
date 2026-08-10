@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.5.2 (2026-08-10)
+
+### Added
+- **Demo 升级为评审/实施双视图模型** — `demo/index.html` 注释面板对齐 v3.2 显示规范：默认中文评审视图（【开发】【开发·测试】【UI】【测试】角色标签 + 触发/行为/视觉要点/用户可见状态 + 字段摘要表），可切换实施视图（state 全分支、API、Permission、timing、accessibility、responsive）；支持深度链接 `?panel=<key>&view=<review|implementation>`
+- **README 全面更新至 v3.5.1 全貌** — 补齐双视图显示模型、输出硬约束（lint + CI）、营销术语覆盖、版本历史表；架构树测试数修正为 93 项
+- **Demo 截图重拍** — 新增 `demo/screenshot-review.png`、`demo/screenshot-implementation.png`，重拍 `demo/screenshot-full.png`（2x 高清）
+
+### Changed
+- SKILL.md 版本 3.5.1 → 3.5.2
+- `demo/README.md` 同步更新（移除不存在的 screenshot-panel.png 引用，补充深度链接用法）
+
 ## 3.5.1 (2026-08-10)
 
 ### Changed
