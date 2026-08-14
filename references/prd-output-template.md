@@ -4,6 +4,7 @@
 > 内容规范：遵循 `references/chinese-writing-style.md` 硬约束（输出须通过 `scripts/lint-output-text.js`，error 清零）。
 > 完整性校验：产出后必须运行 `scripts/validate-prd.js <path>`，阻断缺失（error）清零；判定规则见 `references/review-readiness-checklist.md`。
 > **HTML 原型首屏规则**：当生成 HTML 原型交付物时，评审就绪 PRD 作为原型**第一个视图（首屏）**，默认展示；其余功能页按原型结构排列。注释注入见 `references/html-annotation-system.md`。
+> **注释规范**：注释全部使用中文展示；注释体系不含 API（API 仅存于 §7 接口需求），减少评审时的误导与信息摩擦。
 
 ---
 

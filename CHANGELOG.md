@@ -1,5 +1,22 @@
 # Changelog
 
+## 3.6.2 (2026-08-14)
+
+### Changed
+- **注释规范落地（全中文 + 注释不含 API）** — 目标：展示完整的产品原型评审，尽可能减少不必要信息的误导与摩擦
+  - validate-annotations.js 新增中文块名归一化（CHINESE_BLOCK_MAP + normalizeBlockTitle）：中文标题（触发条件/行为描述/列定义/分页 等）可正确匹配必填块，不再误报「缺少必填块」
+  - API 从 T2/T6/T7/T8 的必填块与共享块中移除：注释体系不再要求 api 块，API 仅存于评审就绪 PRD §7 接口需求
+  - VIEW_DESCS 卡片覆盖行移除 API（接口行不再作为覆盖项）
+- prd-output-template.md 头部补充「注释规范」说明（全中文展示；注释不含 API）
+
+### Added
+- tests/annotations/chinese-titles.html — 中文块标题回归（全中文标题验证通过）
+- tests/annotations/no-api.html — 无 API 块回归（api 不再必填）
+- scripts/test-annotations.cjs 扩展至 4 项断言
+
+### Fixed
+- SKILL.md 版本 3.6.1 → 3.6.2
+
 ## 3.6.1 (2026-08-14)
 
 ### Added

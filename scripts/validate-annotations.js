@@ -31,10 +31,10 @@ const TYPE_SCHEMAS = {
   },
   T2: {
     name: 'DataList',
-    requiredBlocks: ['trigger', 'columns', 'pagination', 'api'],
+    requiredBlocks: ['trigger', 'columns', 'pagination'],
     optionalBlocks: ['selection', 'rowActions', 'style'],
     stateRequired: ['normal', 'loading', 'empty', 'error'],
-    sharedBlocks: { api: 'B', context: 'A', permission: 'C' },
+    sharedBlocks: { context: 'A', permission: 'C' },
     minLevel: 'L2'
   },
   T3: {
@@ -64,10 +64,10 @@ const TYPE_SCHEMAS = {
   },
   T6: {
     name: 'FormFill',
-    requiredBlocks: ['trigger', 'fields', 'api', 'behavior', 'dismiss'],
+    requiredBlocks: ['trigger', 'fields', 'behavior', 'dismiss'],
     optionalBlocks: ['style'],
     stateRequired: ['normal', 'fieldError', 'submitting', 'success', 'apiError'],
-    sharedBlocks: { api: 'B', context: 'C', dialog: 'A' },
+    sharedBlocks: { context: 'C', dialog: 'A' },
     minLevel: 'L2',
     // T6 字段级字段支持
     fieldSchemas: {
@@ -79,18 +79,18 @@ const TYPE_SCHEMAS = {
   },
   T7: {
     name: 'ItemSelect',
-    requiredBlocks: ['trigger', 'search', 'selection', 'confirm', 'api', 'dismiss'],
+    requiredBlocks: ['trigger', 'search', 'selection', 'confirm', 'dismiss'],
     optionalBlocks: ['filter', 'preCheck', 'style'],
     stateRequired: ['normal', 'loading', 'empty', 'searchEmpty', 'selected', 'confirming', 'error'],
-    sharedBlocks: { api: 'B', context: 'C', dialog: 'A' },
+    sharedBlocks: { context: 'C', dialog: 'A' },
     minLevel: 'L2'
   },
   T8: {
     name: 'SearchSelect',
-    requiredBlocks: ['trigger', 'api', 'match', 'display', 'callback', 'dismiss'],
+    requiredBlocks: ['trigger', 'match', 'display', 'callback', 'dismiss'],
     optionalBlocks: ['style'],
     stateRequired: ['idle', 'focus', 'searching', 'selected', 'empty', 'error'],
-    sharedBlocks: { api: 'B' },
+    sharedBlocks: {},
     minLevel: 'L2'
   },
   T9: {
@@ -323,7 +323,7 @@ function parseViewDescs(filePath) {
 function validateViewDescs(cards) {
   return cards.map(card => {
     const missing = VIEW_DESC_REQUIRED.filter(req => !card.labels.includes(req));
-    const covered = card.labels.filter(l => ['style', 'api', 'context', 'acceptance', 'reuse', 'fields'].includes(l));
+    const covered = card.labels.filter(l => ['style', 'context', 'acceptance', 'reuse', 'fields'].includes(l));
     return { card, missing, covered, pass: missing.length === 0 };
   });
 }
@@ -358,6 +358,58 @@ function generateViewDescsReport(results) {
 }
 
 // ============================================================
+// 中文块名 → 英文块名归一化（注释规范 v3.6.2：注释全中文展示）
+// ============================================================
+const CHINESE_BLOCK_MAP = {
+  '触发条件': 'trigger',
+  '业务背景': 'background',
+  '行为描述': 'behavior',
+  '接口定义': 'api',
+  '上下文': 'context',
+  '权限': 'permission',
+  '关闭/消除': 'dismiss',
+  '样式': 'style',
+  '数据': 'data',
+  '交互': 'interaction',
+  '选项': 'items',
+  '确认内容': 'content',
+  '弹窗上下文': 'dialogcontext',
+  '依赖关系': 'dependency',
+  '列定义': 'columns',
+  '分页': 'pagination',
+  '选择': 'selection',
+  '行操作': 'rowactions',
+  '字段定义': 'fields',
+  '默认值': 'default',
+  '条件': 'condition',
+  '校验规则': 'validation',
+  '格式': 'format',
+  '动态列': 'dynamiccolumns',
+  '自动生成': 'autogeneration',
+  '自动生成规则': 'autogeneration',
+  '手动输入': 'manualinput',
+  '手动输入规则': 'manualinput',
+  '数据流': 'dataflow',
+  '搜索': 'search',
+  '匹配': 'match',
+  '展示': 'display',
+  '回调': 'callback',
+  '确认': 'confirm',
+  '类型': 'types',
+  '时序': 'timing',
+  '位置': 'placement',
+};
+
+/** 将块标题归一化为英文标识符（用于匹配 requiredBlocks） */
+function normalizeBlockTitle(title) {
+  const t = (title || '').toLowerCase().trim();
+  for (const [cn, en] of Object.entries(CHINESE_BLOCK_MAP)) {
+    if (t.includes(cn)) return en;
+  }
+  return t;
+}
+
+// ============================================================
 // 验证器
 // ============================================================
 
@@ -384,7 +436,7 @@ function validateAnnotation(key, annotation, levelLabels) {
 
   // 1. 检查必填 blocks
   if (annotation.blocks && Array.isArray(annotation.blocks)) {
-    const blockTitles = annotation.blocks.map(b => (b.title || '').toLowerCase());
+    const blockTitles = annotation.blocks.map(b => normalizeBlockTitle(b.title));
     for (const req of schema.requiredBlocks) {
       const found = blockTitles.some(t => t.includes(req));
       if (!found) {
@@ -470,7 +522,7 @@ function validateAnnotation(key, annotation, levelLabels) {
           warnings.push({ key, field: `blocks.${block.title}`, msg: `R007: 含 "N/A" 或"不适用"` });
         }
         // behavior 块检查 R009
-        if ((block.title || '').includes('behavior') && CONTENT_RULES.R009.test && !CONTENT_RULES.R009.test(line)) {
+        if (normalizeBlockTitle(block.title).includes('behavior') && CONTENT_RULES.R009.test && !CONTENT_RULES.R009.test(line)) {
           warnings.push({ key, field: `blocks.${block.title}`, msg: 'R009: behavior 建议标注 F00X 引用' });
         }
       }

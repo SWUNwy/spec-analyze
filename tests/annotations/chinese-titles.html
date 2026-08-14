@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><title>ANNOTATIONS 中文标题夹具</title></head>
+<body>
+<script>
+const ANNOTATIONS = {
+  stats: {
+    type: 'T1',
+    level: 'L1',
+    context: { view: '所有人', operate: '管理员' },
+    state: {
+      normal: '三张卡片正常展示数值',
+      loading: '骨架屏占位',
+      error: '接口失败显示错误占位'
+    },
+    blocks: [
+      { title: '触发条件', lines: ['页面加载后请求数据并渲染。'] },
+      { title: '数据', lines: ['展示三个统计指标。'] },
+      { title: '行为描述', lines: ['数据变更后自动刷新（F001）。'] },
+      { title: '关闭条件', lines: ['静态展示，无需关闭。'] }
+    ]
+  }
+};
+</script>
+</body>
+</html>

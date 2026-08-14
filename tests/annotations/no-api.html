@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><title>ANNOTATIONS 无 API 夹具</title></head>
+<body>
+<script>
+const ANNOTATIONS = {
+  table: {
+    type: 'T2',
+    level: 'L2',
+    context: { view: '管理员、运营', operate: '管理员' },
+    state: {
+      normal: '列表正常展示',
+      loading: '加载中',
+      empty: '空状态占位',
+      error: '错误占位可重试'
+    },
+    blocks: [
+      { title: '触发条件', lines: ['进入页面时加载列表。'] },
+      { title: '列定义', lines: ['姓名 / 类型 / 状态。'] },
+      { title: '分页', lines: ['每页 10 条。'] },
+      { title: '行为描述', lines: ['勾选行启用批量操作（F002）。'] }
+    ]
+  }
+};
+</script>
+</body>
+</html>
