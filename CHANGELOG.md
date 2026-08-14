@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.6.1 (2026-08-14)
+
+### Added
+- **validate-annotations.js VIEW_DESCS 兼容模式** — 支持解析右侧研发注释面板卡片格式（const VIEW_DESCS = {...}）：检查每张卡片必填行（触发/行为/状态）与覆盖行（样式/接口/权限/验收/复用/字段），统计 AC/REUSE 引用；ANNOTATIONS 模式行为不变
+- **scripts/test-annotations.cjs + tests/annotations/** — VIEW_DESCS 兼容模式回归测试（完整卡片通过 + 缺状态卡片命中缺失）
+
+### Changed
+- SKILL.md 版本 3.6.0 → 3.6.1
+
 ## 3.6.0 (2026-08-14)
 
 ### Added

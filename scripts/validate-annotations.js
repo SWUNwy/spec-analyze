@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 /**
  * validate-annotations.js
- * spec-analyze 注释质量验证脚本 v2.3
+ * spec-analyze 注释质量验证脚本 v3.6
  *
  * 用法:
  *   node scripts/validate-annotations.js <path/to/annotations.html>          # 验证 HTML 中的 ANNOTATIONS
+ *   node scripts/validate-annotations.js <path/to/view-descs.html>           # 验证 HTML 中的 VIEW_DESCS（右侧研发注释面板卡片）
  *   node scripts/validate-annotations.js <path> --migrate                    # 迁移 + 验证
  *   node scripts/validate-annotations.js <path> --json                       # 输出 JSON 格式结果
  *   node scripts/validate-annotations.js <path> --testcases                  # 生成测试用例
@@ -223,6 +224,137 @@ function parseHTMLAnnotations(filePath) {
       return null;
     }
   }
+}
+
+// ============================================================
+// VIEW_DESCS 兼容解析（右侧研发注释面板卡片格式）
+// ============================================================
+
+const VIEW_DESC_LABEL_MAP = {
+  '触发': 'trigger',
+  '行为': 'behavior',
+  '状态': 'state',
+  '样式': 'style',
+  '接口': 'api',
+  '权限': 'context',
+  '验收': 'acceptance',
+  '复用': 'reuse',
+  '字段': 'fields',
+  '说明': 'desc',
+  '四段': 'flow',
+  '状态机': 'state',
+  '数据模型': 'data',
+  '循环': 'loop',
+  '产出': 'output'
+};
+
+const VIEW_DESC_REQUIRED = ['trigger', 'behavior', 'state'];
+
+function extractViewDescsObject(content) {
+  const patterns = ['const VIEW_DESCS =', 'const VIEW_DESCS=', 'let VIEW_DESCS =', 'let VIEW_DESCS=', 'var VIEW_DESCS =', 'var VIEW_DESCS=', 'window.VIEW_DESCS ='];
+  let startIdx = -1;
+  for (const pattern of patterns) {
+    startIdx = content.indexOf(pattern);
+    if (startIdx !== -1) {
+      startIdx += pattern.length;
+      break;
+    }
+  }
+  if (startIdx === -1) return null;
+  while (startIdx < content.length && content[startIdx] === ' ') startIdx++;
+  if (content[startIdx] !== '{') return null;
+
+  let braceCount = 0;
+  let inSingleQuote = false;
+  let inDoubleQuote = false;
+  let inTemplate = false;
+  let endIdx = startIdx;
+  for (let i = startIdx; i < content.length; i++) {
+    const ch = content[i];
+    const prev = i > 0 ? content[i - 1] : '';
+    if (!inDoubleQuote && !inTemplate && ch === "'" && prev !== '\\') inSingleQuote = !inSingleQuote;
+    else if (!inSingleQuote && !inTemplate && ch === '"' && prev !== '\\') inDoubleQuote = !inDoubleQuote;
+    else if (!inSingleQuote && !inDoubleQuote && ch === '`' && prev !== '\\') inTemplate = !inTemplate;
+    if (!inSingleQuote && !inDoubleQuote && !inTemplate) {
+      if (ch === '{') braceCount++;
+      else if (ch === '}') {
+        braceCount--;
+        if (braceCount === 0) { endIdx = i + 1; break; }
+      }
+    }
+  }
+  if (braceCount !== 0) return null;
+  return content.substring(startIdx, endIdx);
+}
+
+function parseViewDescs(filePath) {
+  const content = fs.readFileSync(filePath, 'utf-8');
+  const objStr = extractViewDescsObject(content);
+  if (!objStr) return null;
+
+  const cards = [];
+  const cardPattern = /\{\s*id:\s*'([^']+)'[\s\S]*?title:\s*'([^']+)'[\s\S]*?badge:\s*'([^']*)'[\s\S]*?rows:\s*\[([\s\S]*?)\]\s*\}/g;
+  let m;
+  while ((m = cardPattern.exec(objStr)) !== null) {
+    const rowsText = m[4];
+    const labels = [];
+    let rowPattern;
+    const labelRe = /ROW\(\s*'([^']+)'/g;
+    while ((rowPattern = labelRe.exec(rowsText)) !== null) {
+      const cn = rowPattern[1];
+      labels.push(VIEW_DESC_LABEL_MAP[cn] || cn);
+    }
+    const liCount = (rowsText.match(/\bLI\(/g) || []).length;
+    const acRefs = (rowsText.match(/AC-\d+/gi) || []).length;
+    const reuseRefs = (rowsText.match(/REUSE-[A-Z0-9_-]+/gi) || []).length;
+    cards.push({
+      id: m[1],
+      title: m[2],
+      badge: m[3],
+      labels: Array.from(new Set(labels)),
+      liCount,
+      acRefs,
+      reuseRefs
+    });
+  }
+  return cards.length ? cards : null;
+}
+
+function validateViewDescs(cards) {
+  return cards.map(card => {
+    const missing = VIEW_DESC_REQUIRED.filter(req => !card.labels.includes(req));
+    const covered = card.labels.filter(l => ['style', 'api', 'context', 'acceptance', 'reuse', 'fields'].includes(l));
+    return { card, missing, covered, pass: missing.length === 0 };
+  });
+}
+
+function generateViewDescsReport(results) {
+  const total = results.length;
+  const passed = results.filter(r => r.pass).length;
+  const failed = total - passed;
+  const missingCount = results.reduce((s, r) => s + r.missing.length, 0);
+
+  let output = '\n';
+  output += 'spec-analyze 注释卡片覆盖验证 v3.6（VIEW_DESCS 兼容模式）\n';
+  output += '========================================================\n\n';
+  for (const r of results) {
+    const status = r.pass ? '✓' : '✗';
+    output += `[${status}] ${r.card.id} ${r.card.title}（${r.card.badge}）\n`;
+    output += `    必填行: ${VIEW_DESC_REQUIRED.map(k => r.card.labels.includes(k) ? `${k}✓` : `${k}✗`).join(' ')}\n`;
+    output += `    覆盖行: ${r.covered.length ? r.covered.join(' ') : '（无）'}\n`;
+    if (r.card.acRefs > 0 || r.card.reuseRefs > 0 || r.card.liCount > 0) {
+      output += `    引用: AC×${r.card.acRefs} REUSE×${r.card.reuseRefs} LI×${r.card.liCount}\n`;
+    }
+    if (!r.pass) {
+      output += `    缺失: ${r.missing.join(' / ')}\n`;
+    }
+    output += '\n';
+  }
+  output += '---\n';
+  output += `总计: ${total} 卡片  通过: ${passed}  失败: ${failed}  必填行缺失: ${missingCount}\n`;
+  const grade = failed === 0 ? 'A' : missingCount > total ? 'C' : 'B';
+  output += `质量评级: ${grade}\n`;
+  return { text: output, json: { total, passed, failed, missing: missingCount, grade, cards: results } };
 }
 
 // ============================================================
@@ -663,10 +795,22 @@ function main() {
     migrateAnnotations(targetPath);
   }
 
-  const annotations = parseHTMLAnnotations(targetPath);
+  let annotations = parseHTMLAnnotations(targetPath);
   if (!annotations) {
-    console.error('无法解析 ANNOTATIONS 数据');
-    console.error('确保 HTML 文件包含 window.ANNOTATIONS = {...}');
+    const cards = parseViewDescs(targetPath);
+    if (cards && cards.length) {
+      const results = validateViewDescs(cards);
+      const report = generateViewDescsReport(results);
+      if (isJson) {
+        console.log(JSON.stringify(report.json, null, 2));
+      } else {
+        console.log(report.text);
+      }
+      if (report.json.failed > 0) process.exit(1);
+      return;
+    }
+    console.error('无法解析 ANNOTATIONS 或 VIEW_DESCS 数据');
+    console.error('确保 HTML 文件包含 window.ANNOTATIONS = {...} 或 const VIEW_DESCS = {...}');
     process.exit(1);
   }
 

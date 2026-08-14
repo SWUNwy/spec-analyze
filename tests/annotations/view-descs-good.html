@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><title>VIEW_DESCS 夹具（完整卡片）</title></head>
+<body>
+<script>
+function ROW(l, h) { return '<div class="annot-row"><span class="annot-label">' + l + '</span> ' + h + '</div>'; }
+function LI(t) { return '<div class="annot-li">' + t + '</div>'; }
+
+const VIEW_DESCS={
+  demo:[
+    { id:'1', title:'筛选栏', badge:'C01 · L2',
+      rows:[
+        ROW('触发','文本输入 300ms 防抖；下拉 onchange 即时'),
+        ROW('行为','多条件 AND 叠加 → 前端过滤 → 重置第 1 页 → 重渲染'),
+        ROW('状态','normal / filter-active / empty'),
+        ROW('样式','输入框 120px/30px，聚焦蓝边'),
+        ROW('接口','GET /api/list'),
+        ROW('验收','AC-02：多条件同时设置时结果满足全部条件')
+      ]}
+  ]
+};
+</script>
+</body>
+</html>
