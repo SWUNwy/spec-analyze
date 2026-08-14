@@ -79,3 +79,13 @@ State whether the Spec accidentally implies execution permission.
 - 发现问题时，先修 Spec 再请求 Execution 确认。
 - 评审者批准不等于用户批准。
 - 用户批准 Spec 仍不等于 Execution 批准。
+
+## 评审就绪 PRD 完整性检查面（RC 清单）
+
+当被评审对象是「评审就绪 PRD」（references/prd-output-template.md 产出）时，除上述分类外执行：
+
+1. 运行 `scripts/validate-prd.js <path>`，获得 RC-01~52 完整性结果；
+2. 阻断缺失（error）必须修复后才能判定通过；
+3. 建议缺失（warning）超过 2 项时，在评审结论中列明豁免原因或修复计划。
+
+RC 清单：references/review-readiness-checklist.md

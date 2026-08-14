@@ -1,6 +1,6 @@
 ---
 name: spec-analyze
-version: 3.5.2
+version: 3.6.0
 description: "需求分析与产品交互注释输出。核心场景：你在原型/线稿/Figma 设计稿上，给每个交互组件加上 trigger/behavior/state/style 的结构化注释，让研发直接照着实现。也适用于需求分析、产品方案设计、功能拆解、竞品调研——但独特价值是输出带三层研发注释（L1 trigger-behavior-dismiss / L2 +placement-style-state-timing / L3 +accessibility-responsive-i18n）的 proposal / design / tasks 三文档。当用户提到「原型注释」「交互标注」「给设计稿加注释」「输出研发规范文档」「方案标注」「写开发文档」「补充交互细节」「产品交互说明」「标注组件行为状态」「annotate prototype」「interaction spec」「developer handoff」时 MUST 触发。区别于通用分析工具：spec-analyze 的分析结果直接输出为带研发注释的可交付文档。v3.0：可恢复、有证据、有门禁的闭环分析引擎——状态机、门禁 G1/G2/G3、证据台账、检查点恢复、实施交接包，输出语言默认中文。触发词新增：闭环分析、决策分析、方案对比、Spec 准备、交接包、恢复上次分析"
 ---
 
@@ -393,7 +393,7 @@ spec_analyze_state:
 | 5F | 设计呈现 | 入口执行 Layer 1 意图分析 + Layer 2 成熟度评估 → 分节呈现，逐节获取批准 → **批准 → 继续；否决 → 回到 4F** | S3 |
 | 6F | 组件枚举 | 列出页面所有交互组件 → 映射 T1-T11 → 声明嵌套关系 → **标识字段级注释需求（统计字段定义/表格列格式/表单校验）** | S3a |
 | 7F | 类型模板填充 | 按类型模板逐组件填充注释 → **为每个字段补充字段级注释（统计字段: Definition + Permission / 表格列: Format + Source / 表单字段: Validation + Options）** | S3a |
-| 8F | 输出生成 | 入口执行展示模式决策（内联/侧边/双模式）；生成 proposal + design + tasks 三文档（见 `references/annotation-output-templates.md`）；注释默认**评审视图**（中文角色标签，隐藏实施细节，见 `references/annotation-example.md`）；输出必须通过 `references/chinese-writing-style.md` 硬约束与 `scripts/lint-output-text.js` 校验（英文大小写/错词/直角引号/数量逻辑 error 清零），否则修复后重新输出；中文文案遵循 `references/chinese-writing-style.md`（术语一致/API 状态词语义准确/事实保真）；design.md 末尾需包含 Component Manifest（§8）；组件≥3 时询问是否内建 HTML 注释 | S3b |
+| 8F | 输出生成 | 入口执行展示模式决策（内联/侧边/双模式）；生成 proposal + design + tasks 三文档（见 `references/annotation-output-templates.md`）；注释默认**评审视图**（中文角色标签，隐藏实施细节，见 `references/annotation-example.md`）；输出必须通过 `references/chinese-writing-style.md` 硬约束与 `scripts/lint-output-text.js` 校验（英文大小写/错词/直角引号/数量逻辑 error 清零），否则修复后重新输出；中文文案遵循 `references/chinese-writing-style.md`（术语一致/API 状态词语义准确/事实保真）；design.md 末尾需包含 Component Manifest（§8）；默认同时生成评审就绪 PRD（见 references/prd-output-template.md，研发评审以该文档为准；生成 HTML 原型时 PRD 为第一个视图/首屏）；组件≥3 时询问是否内建 HTML 注释 | S3b |
 | 9F | HTML 注释验证 | 按 `references/html-annotation-system.md` 验证注释正确内建 + back-propagation（仅当用户同意内建时） | S3c |
 | 9.5F | 交互式注释编辑 | 用户指定组件和字段目标，AI 按模板规则执行编辑 → 跨文档同步 → 输出 diff 摘要。详见下方「Step 9.5F: 交互式注释编辑」章节 | S3d |
 | 10F | 质量自检 | 运行质量自检清单（见 `references/quality-checklists.md`） | S4 |
@@ -1168,7 +1168,8 @@ digraph spec_analyze_flow {
 |------|--------|-------------|
 | Lightweight | Insight Brief | Conversation only（不写文件） |
 | Standard | Analysis Report + proposal.md | `docs/spec-analyze/reports/YYYY-MM-DD-<topic>-report.md` |
-| Full | proposal.md + design.md + tasks.md (+ HTML 原型) | `docs/spec-analyze/specs/R0XX-<topic>/` |
+| Full | proposal.md + design.md + tasks.md (+ HTML 原型) | `docs/spec-analyze/specs/R0XX-<topic>/` | 
+| Full（评审交付） | 评审就绪 PRD（评审主产物，可选生成；HTML 原型时为首屏） | `docs/spec-analyze/specs/R0XX-<topic>/prd-review.md` |
 
 用户偏好覆盖默认路径。生成前展示路径并确认。生成时自动创建目标目录。
 
@@ -1249,7 +1250,7 @@ digraph spec_analyze_flow {
 
 ## 版本规范
 
-当前版本：`2.0.0`（见文件 frontmatter）。完整变更历史见 `CHANGELOG.md`。
+当前版本：`3.6.0`（见文件 frontmatter）。完整变更历史见 `CHANGELOG.md`。
 
 | 类型 | 变更内容 | 示例 |
 |------|---------|------|
@@ -1360,6 +1361,9 @@ spec-analyze 可以在不同项目间复用：
 | `references/output-templates.md` | 分析/决策/降级输出模板（闭环轨道） |
 | `references/spec-templates.md` | Spec 三文档模板（Light/Standard/Verified） |
 | `references/spec-document-reviewer-prompt.md` | Spec 文档评审提示 |
+| `references/review-readiness-checklist.md` | 研发评审就绪清单：RC-01~52 检查项、级别、验收方式（生成侧与评审侧共用标准） |
+| `references/prd-output-template.md` | 评审就绪 PRD 模板：14 章节、一份文档走评审（对齐公司 PRD 模板；HTML 原型时为首屏） |
+| `scripts/validate-prd.js` | 评审就绪 PRD 完整性验证脚本（RC 规则化，支持 md/html） |
 | `references/handoff-format.md` | 交接包协议（版本绑定、哈希校验） |
 | `references/writing-plans.md` | 实施计划编写规范 |
 | `references/executing-plans.md` | 实施计划执行规范 |

@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.6.0 (2026-08-14)
+
+### Added
+- **评审就绪 PRD 输出能力** — references/prd-output-template.md（14 章节研发交付文档模板，覆盖公司 PRD 模板全章节：文档信息/修订记录/背景竞品收益成本/页面结构/状态流转/业务流程/数据字段/接口/验收/注意事项/埋点报表/上线下线/运营/风险/相关文档）
+- **研发评审就绪清单 RC-01~52** — references/review-readiness-checklist.md（治理/背景价值/功能流程/数据接口/交付验收/运营风险六组，阻断/建议/提示三级），接入 spec-document-reviewer-prompt.md 作为 PRD 完整性检查面
+- **scripts/validate-prd.js** — 评审就绪 PRD 完整性验证脚本（RC 规则化，支持 Markdown/HTML，输出 Ready/Conditional/Not Ready 判定与评级）
+- **HTML 原型首屏规则** — 生成 HTML 原型交付物时，评审就绪 PRD 为第一个视图（首屏）
+- **scripts/test-prd.cjs + tests/prd/** — validate-prd.js 回归测试（完整样本 Ready + 缺陷样本 Not Ready 命中 RC-22/RC-40）
+
+### Changed
+- SKILL.md 版本 3.5.2 → 3.6.0；Step 8F 默认同时生成评审就绪 PRD；输出路径表新增 Full（评审交付）行；文件索引补齐
+- 修复 SKILL.md 版本规范正文（`2.0.0` → `3.6.0`）与 README 版本号（3.5.1 → 3.6.0）的漂移
+
 ## 3.5.2 (2026-08-10)
 
 ### Added

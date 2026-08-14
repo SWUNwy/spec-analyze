@@ -4,7 +4,7 @@
 
 spec-analyze 是一个 AI 代理 skill，引导大语言模型走完结构化分析流水线：多视角提问 → 压力测试 → 方案收敛 → 带注释的文档输出。产出是三份相互关联的文档（proposal、design、tasks），内含**机器可解析的注释**，弥合产品需求与代码实现之间的鸿沟。
 
-当前版本：**v3.5.1**（完整变更见 [CHANGELOG.md](CHANGELOG.md)）。
+当前版本：**v3.6.0**（完整变更见 [CHANGELOG.md](CHANGELOG.md)）。
 
 ---
 
