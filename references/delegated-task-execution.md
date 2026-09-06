@@ -2,7 +2,7 @@
 
 ## 加载时机
 
-在当前会话中执行带独立任务的实施计划时加载。它是 `executing-plans.md` 的替代方案（后者使用独立的并行会话）。
+在当前会话中执行带独立任务的实施计划时加载。它是 `plan-execution.md` 的替代方案（后者使用独立的并行会话）。
 
 ## 核心原则
 
@@ -13,7 +13,7 @@
 | 条件 | 选择 |
 |---|---|
 | 有实施计划 + 任务基本独立 + 留在本会话 | 本方法 |
-| 有计划 + 可接受并行会话 | `executing-plans.md` |
+| 有计划 + 可接受并行会话 | `plan-execution.md` |
 | 无计划或任务紧耦合 | 先做规划，或手工执行 |
 
 ## 执行流程
@@ -29,7 +29,7 @@
         是 → 标记任务完成，追加台账
 全部任务完成后：
     派发最终整分支评审
-    使用 finishing-a-development-branch.md
+    使用 branch-integration.md
 ```
 
 任务之间不停顿检查，连续执行到全部完成。只在以下情况停下：你无法解决的 BLOCKED、阻碍进展的歧义、或所有任务完成。
@@ -133,7 +133,7 @@
 
 ## 相关文档
 
-- `references/executing-plans.md` — 替代方案：并行会话执行
-- `references/requesting-code-review.md` — 最终整分支评审
-- `references/finishing-a-development-branch.md` — 全部任务后的分支收尾
-- `references/test-driven-development.md` — 子代理逐任务遵循 TDD
+- `references/plan-execution.md` — 替代方案：并行会话执行
+- `references/code-review-dispatch.md` — 最终整分支评审
+- `references/branch-integration.md` — 全部任务后的分支收尾
+- `references/test-first-development.md` — 子代理逐任务遵循 TDD

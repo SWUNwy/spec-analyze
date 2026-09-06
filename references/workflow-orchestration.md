@@ -8,10 +8,10 @@
 
 ```text
 verified handoff packet
-  → writing-plans (internal capability)
+  → plan-authoring (internal capability)
   → human execution approval
-  → executing-plans (internal capability)
-  → verification-before-completion (internal capability)
+  → plan-execution (internal capability)
+  → completion-verification (internal capability)
   → completed | blocked | stopped
 ```
 
@@ -119,7 +119,7 @@ node <skill-dir>/scripts/workflow-state.cjs route \
 ### Plan
 
 - 消费已验证包与每个绑定 Spec 工件。
-- 按 `references/writing-plans.md` 写具体实施计划。
+- 按 `references/plan-authoring.md` 写具体实施计划。
 - 保存包含必需 header、全局约束、文件映射、任务、复选框、命令与预期结果的实施计划。
 - 不执行项目改动。
 - 请求批准前用 SHA-256 绑定计划。
@@ -128,14 +128,14 @@ node <skill-dir>/scripts/workflow-state.cjs route \
 
 - 要求由 `approve --stage execute` 记录的显式批准。
 - 启动前重新校验交接包与计划哈希。
-- 按 `references/executing-plans.md` 执行绑定计划。
+- 按 `references/plan-execution.md` 执行绑定计划。
 - 用 `assets/execution-result.template.json` 保存执行结果。
 - 把失效的假设、决策或验收标准追加到包的 feedback JSONL，并停止受影响路径。
 
 ### Verify
 
 - 记录结构有效的执行结果后自动开始。
-- 按 `references/verification-before-completion.md` 运行全新验证。
+- 按 `references/completion-verification.md` 运行全新验证。
 - 运行全新命令并把证据映射到验收标准。
 - 用 `assets/verification-result.template.json` 保存精确命令与退出码。
 - 仅当每项检查与验收项都通过、且全部绑定哈希仍匹配时完成。

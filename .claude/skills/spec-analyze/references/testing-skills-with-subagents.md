@@ -8,7 +8,7 @@
 
 没看过代理在无 skill 时的失败，就不知道 skill 是否防住了它该防的失败。
 
-**前置知识：** `references/test-driven-development.md` 定义基础循环；本文提供 skill 专用测试格式（压力场景、合理化表）。
+**前置知识：** `references/test-first-development.md` 定义基础循环；本文提供 skill 专用测试格式（压力场景、合理化表）。
 
 ## 哪些 skill 需要测试
 
@@ -267,6 +267,6 @@ it crystal clear that Option A was the only acceptable answer?
 
 ## 相关文档
 
-- `references/test-driven-development.md` — RED-GREEN-REFACTOR 基础循环
+- `references/test-first-development.md` — RED-GREEN-REFACTOR 基础循环
 - `references/persuasion-principles.md` — 压力场景为何有效
-- `references/writing-skills.md` — skill 创建的主要参考
+- `references/skill-authoring.md` — skill 创建的主要参考

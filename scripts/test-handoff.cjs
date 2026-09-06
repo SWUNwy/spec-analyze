@@ -64,7 +64,7 @@ function completeSpecify(runId) {
   fs.writeFileSync(path.join(runDir, "result.md"), "# Verified result\n", "utf8");
   const manifest = writeJson(path.join(tempRoot, `${runId}-handoff-input.json`), {
     schema_version: "1.0",
-    target: { stage: "plan", recommended_skill: "writing-plans" },
+    target: { stage: "plan", recommended_skill: "plan-authoring" },
     spec_artifacts: [{ path: `specs/${runId}.md`, role: "primary_spec" }],
     execution_plan: {
       objective: `Implement ${runId}`,
@@ -80,7 +80,7 @@ test("rejects handoff before Specify completion", () => {
   runState(["init", "--root", tempRoot, "--goal", "Incomplete", "--track", "specify", "--run-id", "incomplete"]);
   const input = writeJson(path.join(tempRoot, "incomplete-input.json"), {
     schema_version: "1.0",
-    target: { stage: "plan", recommended_skill: "writing-plans" },
+    target: { stage: "plan", recommended_skill: "plan-authoring" },
     spec_artifacts: [{ path: "missing.md", role: "primary_spec" }],
     execution_plan: { objective: "Implement", steps: [{ id: "S1", action: "Work" }], verification: ["Test"] }
   });

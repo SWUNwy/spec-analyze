@@ -96,5 +96,5 @@ gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies
 
 ## 相关文档
 
-- `references/requesting-code-review.md` — 如何派发评审
+- `references/code-review-dispatch.md` — 如何派发评审
 - `references/gates.md` — G-Architecture 与 G3 覆盖的评审标准

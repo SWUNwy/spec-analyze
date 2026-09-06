@@ -7,7 +7,7 @@
 ````markdown
 Subagent (general-purpose):
   description: "Implement Task N: [task name]"
-  model: [MODEL — REQUIRED: choose per subagent-driven-development.md Model Selection;
+  model: [MODEL — REQUIRED: choose per delegated-task-execution.md Model Selection;
          an omitted model silently inherits the session's most expensive one]
   prompt: |
     你在实施任务 N：[task name]
@@ -128,7 +128,7 @@ Subagent (general-purpose):
 | 占位符 | 内容 |
 |---|---|
 | `[task name]` | 人类可读的任务标题 |
-| `[MODEL]` | REQUIRED — 按 `subagent-driven-development.md` 的模型选择表 |
+| `[MODEL]` | REQUIRED — 按 `delegated-task-execution.md` 的模型选择表 |
 | `[BRIEF_FILE]` | `scripts/task-brief PLAN_FILE N` 返回的路径 |
 | `[REPORT_FILE]` | 实施者写详细报告的文件路径 |
 | `[directory]` | 任务工作目录 |

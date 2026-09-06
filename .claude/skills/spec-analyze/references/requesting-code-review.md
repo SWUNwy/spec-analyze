@@ -11,7 +11,7 @@
 ## 何时请求
 
 **必须：**
-- `subagent-driven-development.md` 的每个任务之后
+- `delegated-task-execution.md` 的每个任务之后
 - 完成较大的功能之后
 - 合并到 main 之前
 
@@ -48,7 +48,7 @@ HEAD_SHA=$(git rev-parse HEAD)
 | Important | 继续之前修复 |
 | Minor | 记录稍后处理，或顺手修复 |
 
-评审者判断错误时，用技术理由顶回（见 `receiving-code-review.md`）。
+评审者判断错误时，用技术理由顶回（见 `review-feedback-intake.md`）。
 
 ## 评审输出格式
 
@@ -68,8 +68,8 @@ HEAD_SHA=$(git rev-parse HEAD)
 
 | 工作流 | 评审时机 |
 |---|---|
-| `subagent-driven-development.md` | 每个任务之后，在问题累积前拦截 |
-| `executing-plans.md` | 每个任务之后或自然检查点 |
+| `delegated-task-execution.md` | 每个任务之后，在问题累积前拦截 |
+| `plan-execution.md` | 每个任务之后或自然检查点 |
 | 临时开发 | 合并之前；卡住时 |
 
 ## 红线
@@ -84,5 +84,5 @@ HEAD_SHA=$(git rev-parse HEAD)
 ## 相关文档
 
 - `references/code-reviewer-template.md` — 完整派发模板
-- `references/receiving-code-review.md` — 反馈返回后的处理方式
-- `references/subagent-driven-development.md` — 逐任务评审与最终评审的编排
+- `references/review-feedback-intake.md` — 反馈返回后的处理方式
+- `references/delegated-task-execution.md` — 逐任务评审与最终评审的编排

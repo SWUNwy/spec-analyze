@@ -11,7 +11,7 @@ excellent_response_snippet: 我先用第一性原理拆一下，辅助看用户�
 risk_level: low
 input_maturity: M1
 expected_depth: Standard
-required_references: references/framework-combinations.md,references/brainstorm-frameworks.md
+required_references: references/framework-combinations.md,references/ideation-frameworks.md
 forbidden_references: none
 hard_fail_checks: none
 

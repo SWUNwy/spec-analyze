@@ -89,11 +89,11 @@ node <skill-dir>/scripts/run-state.cjs init --root . --track specify --goal "<go
 | 标注输出模板（三文档） | `references/annotation-output-templates.md` |
 | Spec 模板 | `references/spec-templates.md`、`references/spec-document-reviewer-prompt.md` |
 | 下游实施交接 | `references/handoff-format.md` |
-| 编写/执行实施计划 | `references/writing-plans.md`、`references/executing-plans.md` |
-| 完成前验证 | `references/verification-before-completion.md` |
-| 系统化调试 | `references/systematic-debugging.md` |
-| 测试驱动开发 | `references/test-driven-development.md` |
-| 代码评审 | `references/requesting-code-review.md`、`references/receiving-code-review.md` |
+| 编写/执行实施计划 | `references/plan-authoring.md`、`references/plan-execution.md` |
+| 完成前验证 | `references/completion-verification.md` |
+| 系统化调试 | `references/debugging-discipline.md` |
+| 测试驱动开发 | `references/test-first-development.md` |
+| 代码评审 | `references/code-review-dispatch.md`、`references/review-feedback-intake.md` |
 | 角色矩阵 | `references/role-matrix.md` |
 | 框架选择 | `references/frameworks-index.md` |
 | 外部事实 | `references/web-research-guide.md` |
@@ -1361,12 +1361,12 @@ spec-analyze 可以在不同项目间复用：
 | `references/spec-templates.md` | Spec 三文档模板（Light/Standard/Verified） |
 | `references/spec-document-reviewer-prompt.md` | Spec 文档评审提示 |
 | `references/handoff-format.md` | 交接包协议（版本绑定、哈希校验） |
-| `references/writing-plans.md` | 实施计划编写规范 |
-| `references/executing-plans.md` | 实施计划执行规范 |
-| `references/verification-before-completion.md` | 完成前验证铁律 |
-| `references/systematic-debugging.md` | 系统化调试四阶段 |
-| `references/test-driven-development.md` | TDD 契约与红绿循环 |
-| `references/requesting-code-review.md` / `references/receiving-code-review.md` | 代码评审派发与接收 |
+| `references/plan-authoring.md` | 实施计划编写规范 |
+| `references/plan-execution.md` | 实施计划执行规范 |
+| `references/completion-verification.md` | 完成前验证铁律 |
+| `references/debugging-discipline.md` | 系统化调试四阶段 |
+| `references/test-first-development.md` | TDD 契约与红绿循环 |
+| `references/code-review-dispatch.md` / `references/review-feedback-intake.md` | 代码评审派发与接收 |
 | `references/role-matrix.md` | 角色/语气/框架选择 |
 | `references/frameworks-index.md` | 分析框架索引 |
 | `references/advanced-capabilities.md` | 高级命令索引与已知缺陷登记 |

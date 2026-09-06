@@ -2,7 +2,7 @@
 
 ## 加载时机
 
-实施完成、测试通过、准备决定如何集成工作时加载。工作区清理与 `using-git-worktrees.md` 配合使用。
+实施完成、测试通过、准备决定如何集成工作时加载。工作区清理与 `git-worktree-isolation.md` 配合使用。
 
 ## 流程
 
@@ -178,6 +178,6 @@ WORKTREE_PATH=$(git rev-parse --show-toplevel)
 
 ## 相关文档
 
-- `references/using-git-worktrees.md` — 工作区创建与镜像清理检测
-- `references/verification-before-completion.md` — 完成前的最终验证
-- `references/executing-plans.md` — 完成流程在 execute 阶段的接入点
+- `references/git-worktree-isolation.md` — 工作区创建与镜像清理检测
+- `references/completion-verification.md` — 完成前的最终验证
+- `references/plan-execution.md` — 完成流程在 execute 阶段的接入点

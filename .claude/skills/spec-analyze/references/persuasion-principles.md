@@ -21,7 +21,7 @@
 - "Senior engineer says skip tests"
 - "The plan explicitly chose this approach"
 
-**skill 编写用法：** 权威语气（"MUST"、"Iron Law"、"STOP"）优于柔和措辞（"should"、"consider"、"try to"）。
+**skill 编写用法：** 权威语气（"MUST"、"NEVER"、"STOP"）优于柔和措辞（"should"、"consider"、"try to"）。
 
 **反制信号：** skill 借助权威时点明来源。"Violating letter is violating spirit" 之所以有效，是因为它调用了规则作者的权威。
 
@@ -117,7 +117,7 @@
 
 | 因素 | 技巧 |
 |---|---|
-| 权威 | 使用 "MUST"、"Iron Law"、"STOP"，并点明规则来源 |
+| 权威 | 使用 "MUST"、"NEVER"、"STOP"，并点明规则来源 |
 | 承诺 | 尽早引出承诺（"If X, then Y"），让违规成为自我矛盾 |
 | 稀缺 | 点名违规成本（"Rework is more expensive than compliance"） |
 | 社会认同 | 声明常见合理化已被考虑并否决 |
@@ -143,5 +143,5 @@
 
 - 影响力研究基础框架（六因素，后续扩展加入身份因素）
 - 2025 年元分析（N≈28,000）——多因素合规乘数（约 33% → 约 72%）
-- `references/testing-skills-with-subagents.md` — 这些因素如何驱动压力场景设计
-- `references/writing-skills.md` — skill 创建的主要参考
+- `references/skill-adversarial-testing.md` — 这些因素如何驱动压力场景设计
+- `references/skill-authoring.md` — skill 创建的主要参考

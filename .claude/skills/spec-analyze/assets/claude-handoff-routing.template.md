@@ -11,10 +11,10 @@ When a verified `handoff-packet.json` exists and the user asks to continue, impl
 
 Stage policy:
 
-- `plan`: automatically invoke the `writing-plans` internal capability (read `references/writing-plans.md`); no project implementation.
+- `plan`: automatically invoke the `plan-authoring` internal capability (read `references/plan-authoring.md`); no project implementation.
 - `approval`: present the bound plan and ask for explicit implementation approval. A prior Spec approval is not execution approval.
-- `execute`: after explicit approval, invoke the `executing-plans` internal capability (read `references/executing-plans.md`); preserve its worktree, review, and stop rules.
-- `verify`: after execution evidence is registered, automatically invoke the `verification-before-completion` internal capability (read `references/verification-before-completion.md`) with fresh commands.
+- `execute`: after explicit approval, invoke the `plan-execution` internal capability (read `references/plan-execution.md`); preserve its worktree, review, and stop rules.
+- `verify`: after execution evidence is registered, automatically invoke the `completion-verification` internal capability (read `references/completion-verification.md`) with fresh commands.
 - `completed`: claim completion only after `workflow-state.cjs validate` returns `ok=true` and status `completed`.
 
 If an execution discovery invalidates an assumption, decision, acceptance criterion, or Spec, append feedback through the controller and return to Analyze Specify/Repair. Never silently alter a bound artifact or continue from a stale packet.

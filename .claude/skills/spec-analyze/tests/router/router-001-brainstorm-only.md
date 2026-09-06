@@ -11,7 +11,7 @@ excellent_response_snippet: 我先把它当作纯 Brainstorming，不进入需�
 risk_level: low
 input_maturity: M1
 expected_depth: Brief
-required_references: references/router-rules.md,references/brainstorm-frameworks.md
+required_references: references/router-rules.md,references/ideation-frameworks.md
 forbidden_references: references/spec-templates.md
 hard_fail_checks: respect_explicit_brainstorming,no_spec_without_freeze,no_auto_execution
 

@@ -256,7 +256,7 @@ NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
 
 ## 相关 analyze 能力
 
-- **verification-before-completion** - 宣称成功前验证修复生效（见 `references/verification-before-completion.md`）
+- **completion-verification** - 宣称成功前验证修复生效（见 `references/completion-verification.md`）
 
 ## 真实世界影响
 

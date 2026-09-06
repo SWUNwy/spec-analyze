@@ -71,7 +71,7 @@
 
 **仅被测试场景或脚本输出间接引用**：`router-rules.md`、`transition-gates.md`、`workflow-map.md`
 
-**修正记录（2026-08-07）**：早前把 `condition-based-waiting.md`、`defense-in-depth.md`、`root-cause-tracing.md`、`spec-frameworks.md` 判为"完全孤立"是链接分析漏判——它们被 `systematic-debugging.md` 与 `frameworks-index.md` 以纯文件名形式引用（无 `references/` 前缀）。现已补译并在引用处统一为 `references/` 前缀链接，全部转为正常引用文档。
+**修正记录（2026-08-07）**：早前把 `condition-based-waiting.md`、`defense-in-depth.md`、`root-cause-tracing.md`、`spec-frameworks.md` 判为"完全孤立"是链接分析漏判——它们被 `debugging-discipline.md` 与 `frameworks-index.md` 以纯文件名形式引用（无 `references/` 前缀）。现已补译并在引用处统一为 `references/` 前缀链接，全部转为正常引用文档。
 
 > 接线状态是变更时点的快照，完整演进记录见 `outputs/analyze-skill-改造记录.md`（备份与追溯）。
 

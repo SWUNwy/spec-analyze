@@ -2,7 +2,7 @@
 
 ## 加载时机
 
-执行需要工作区隔离的实施计划前加载。进入 `execute` 阶段、存在破坏当前分支的风险时必备。清理逻辑与 `finishing-a-development-branch.md` 配合使用。
+执行需要工作区隔离的实施计划前加载。进入 `execute` 阶段、存在破坏当前分支的风险时必备。清理逻辑与 `branch-integration.md` 配合使用。
 
 ## 核心原则
 
@@ -125,6 +125,6 @@ Ready to implement <feature-name>
 
 ## 相关文档
 
-- `references/finishing-a-development-branch.md` — 对应的清理流程
-- `references/executing-plans.md` — worktree 创建在 execute 阶段的接入点
-- `references/verification-before-completion.md` — 完成前最终测试验证
+- `references/branch-integration.md` — 对应的清理流程
+- `references/plan-execution.md` — worktree 创建在 execute 阶段的接入点
+- `references/completion-verification.md` — 完成前最终测试验证

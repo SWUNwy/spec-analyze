@@ -53,7 +53,7 @@ function makeFixture(id) {
     artifacts: [{ ...snap(spec, root), role: "primary_spec" }],
     context: { scope: ["CRM"], non_goals: ["billing"], assumptions: ["RBAC exists"], acceptance_evidence: ["AC-1"], decisions: [{ line: 1, kind: "decision", claim: "Use scoped roles" }] },
     evidence_ledger: { path: path.relative(root, evidence), sha256: shaFile(evidence), event_count: 1, events: [{ line: 1, kind: "decision", claim: "Use scoped roles" }] },
-    execution: { target_stage: "plan", recommended_skill: "writing-plans", objective: `Implement ${id}`, steps: [{ id: "S1", action: "Implement" }], verification: ["Run tests"], constraints: [] },
+    execution: { target_stage: "plan", recommended_skill: "plan-authoring", objective: `Implement ${id}`, steps: [{ id: "S1", action: "Implement" }], verification: ["Run tests"], constraints: [] },
     authority: { source_action_level: "L2", grants_implementation_authority: false, grants_external_action_authority: false, rule: "Host policy applies" },
     feedback: { path: path.relative(root, feedback), format: "jsonl", append_only: true, required_fields: ["timestamp", "kind", "step_id", "claim", "evidence", "impact", "recommended_route"] }
   };
@@ -87,10 +87,10 @@ function executeReadyForVerify(f) {
   return execution;
 }
 
-test("initializes from a verified packet and routes to writing-plans", () => {
+test("initializes from a verified packet and routes to plan-authoring", () => {
   const f = initFixture("route-plan");
   const routed = invoke(["route", "--state", f.state]);
-  if (routed.route.skill !== "writing-plans" || routed.route.stage !== "plan") throw new Error("wrong first route");
+  if (routed.route.skill !== "plan-authoring" || routed.route.stage !== "plan") throw new Error("wrong first route");
   if (!fs.existsSync(routed.route.request)) throw new Error("stage request was not created");
 });
 

@@ -138,7 +138,7 @@
 
 ### Added
 - **闭环引擎（由 analyze 能力迁移）** — `run-state.cjs` 状态机、证据台账（HMAC 签名链 + `--auto-detect` 矛盾检测）、checkpoint 随流转自动同步、G1/G2/G3 闭环门禁、中断恢复协议、实施交接包（handoff-packet + workflow 控制器）
-- **参考文档体系** — 新增 `references/`：router、closed-loop、gates、verification-rubric、failure-handling、output-templates（闭环轨道）、spec-templates、handoff-format、writing-plans、executing-plans、verification-before-completion、systematic-debugging、test-driven-development、requesting/receiving-code-review、role-matrix、frameworks-index、advanced-capabilities、glossary、evaluation-guide 等
+- **参考文档体系** — 新增 `references/`：router、closed-loop、gates、verification-rubric、failure-handling、output-templates（闭环轨道）、spec-templates、handoff-format、plan-authoring、plan-execution、completion-verification、debugging-discipline、test-first-development、requesting/review-feedback-intake、role-matrix、frameworks-index、advanced-capabilities、glossary、evaluation-guide 等
 - **回归测试** — 88 项自动化测试（`test-automated.cjs` / `test-run-state.cjs` / `test-workflow.cjs` / `test-handoff.cjs` / `evaluate-tests.cjs`）
 - **输出语言契约** — 默认中文输出（机器契约保留英文）
 - `references/annotation-output-templates.md` — 原 output-templates.md（标注三文档模板）更名，避免与闭环输出模板混淆

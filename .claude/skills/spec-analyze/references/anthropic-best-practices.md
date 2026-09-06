@@ -406,6 +406,6 @@ reader = PdfReader("file.pdf")
 ## 参考
 
 - Skills overview — https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview
-- `references/writing-skills.md` — skill 创建的方法论
-- `references/testing-skills-with-subagents.md` — 对 skill 做 TDD
+- `references/skill-authoring.md` — skill 创建的方法论
+- `references/skill-adversarial-testing.md` — 对 skill 做 TDD
 - `references/persuasion-principles.md` — 压力场景为何有效

@@ -14,7 +14,7 @@
 
 ### Brainstorming
 
-读 `brainstorm-frameworks.md`。
+读 `ideation-frameworks.md`。
 
 | 意图 | 主框架候选 |
 |---|---|

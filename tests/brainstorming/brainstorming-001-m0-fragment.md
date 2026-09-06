@@ -11,7 +11,7 @@ excellent_response_snippet: 你现在更像是在探索一个模糊的不满点�
 risk_level: low
 input_maturity: M0
 expected_depth: Brief
-required_references: references/brainstorm-frameworks.md
+required_references: references/ideation-frameworks.md
 forbidden_references: references/spec-templates.md
 hard_fail_checks: respect_explicit_brainstorming
 

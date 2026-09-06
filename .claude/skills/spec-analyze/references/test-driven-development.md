@@ -2,7 +2,7 @@
 
 ## 加载时机
 
-进入 `execute` 阶段（见 `executing-plans.md`）并开始写任何生产代码之前，先加载本文件。在 `verify` 阶段或 `systematic-debugging.md` 流程中修复 bug 时同样适用。
+进入 `execute` 阶段（见 `plan-execution.md`）并开始写任何生产代码之前，先加载本文件。在 `verify` 阶段或 `debugging-discipline.md` 流程中修复 bug 时同样适用。
 
 ## 核心契约
 
@@ -106,7 +106,7 @@ NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
 
 ## 相关文档
 
-- `references/executing-plans.md` — TDD 在 execute 阶段的接入点
-- `references/systematic-debugging.md` — 要求回归测试的 bug 修复流程
-- `references/verification-before-completion.md` — 完成前的最终验证门禁
+- `references/plan-execution.md` — TDD 在 execute 阶段的接入点
+- `references/debugging-discipline.md` — 要求回归测试的 bug 修复流程
+- `references/completion-verification.md` — 完成前的最终验证门禁
 - `references/testing-anti-patterns.md` — 五种"通过却未验证任何行为"的测试模式

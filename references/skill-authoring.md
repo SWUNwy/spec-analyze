@@ -115,9 +115,9 @@ description: Use when implementing any feature or bugfix, before writing impleme
 ## 交叉引用
 
 只引用 skill 名，并标明是否必需：
-- ✅ `**REQUIRED SUB-SKILL:** Use references/test-driven-development.md`
-- ❌ `See skills/testing/test-driven-development`（不清楚是否必需）
-- ❌ `@skills/testing/test-driven-development/SKILL.md`（强制加载，浪费上下文）
+- ✅ `**REQUIRED SUB-SKILL:** Use references/test-first-development.md`
+- ❌ `See skills/testing/test-first-development`（不清楚是否必需）
+- ❌ `@skills/testing/test-first-development/SKILL.md`（强制加载，浪费上下文）
 
 ## 流程图使用边界
 
@@ -146,8 +146,8 @@ description: Use when implementing any feature or bugfix, before writing impleme
 
 ## 相关文档
 
-- `references/test-driven-development.md` — RED-GREEN-REFACTOR 基础循环
-- `references/testing-skills-with-subagents.md` — 对 skill 文档做 TDD（压力场景、合理化表、元测试）
+- `references/test-first-development.md` — RED-GREEN-REFACTOR 基础循环
+- `references/skill-adversarial-testing.md` — 对 skill 文档做 TDD（压力场景、合理化表、元测试）
 - `references/persuasion-principles.md` — 压力场景为何有效
 - `references/anthropic-best-practices.md` — skill 编写最佳实践的操作化整理
-- `references/verification-before-completion.md` — 验证纪律
+- `references/completion-verification.md` — 验证纪律

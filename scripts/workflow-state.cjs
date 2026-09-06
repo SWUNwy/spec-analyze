@@ -16,10 +16,10 @@ const VALIDATION_MODES = new Set(["strict", "balanced", "lazy"]);
 // Capability labels are internal names resolved to references/<name>.md by the
 // host agent; they are not standalone skills (2026-08-07 naming fix).
 const ROUTES = {
-  ready_for_plan: { stage: "plan", skill: "writing-plans" },
+  ready_for_plan: { stage: "plan", skill: "plan-authoring" },
   awaiting_execution_approval: { stage: "approval", skill: null },
-  ready_for_execution: { stage: "execute", skill: "executing-plans" },
-  ready_for_verification: { stage: "verify", skill: "verification-before-completion" }
+  ready_for_execution: { stage: "execute", skill: "plan-execution" },
+  ready_for_verification: { stage: "verify", skill: "completion-verification" }
 };
 
 function now() { return new Date().toISOString(); }
@@ -148,7 +148,7 @@ function stageRequest(state, packet, route) {
     "## Contract", "",
     "1. Verify the handoff packet before consuming it.",
     "2. Read every bound Spec artifact, assumption, decision, contradiction, constraint, and acceptance criterion.",
-    "3. Write a complete implementation plan following `references/writing-plans.md`.",
+    "3. Write a complete implementation plan following `references/plan-authoring.md`.",
     "4. Do not modify project implementation in this stage.",
     "5. Register the saved plan with `workflow-state.cjs complete --stage plan --artifact <plan>`.", ""
   );
@@ -160,13 +160,13 @@ function stageRequest(state, packet, route) {
   if (route.stage === "execute") lines.push(
     "## Contract", "",
     `1. Load the bound plan: ${resolveSnapshot(state.artifacts.plan, state.project_root)}.`,
-    "2. Execute the bound plan following `references/executing-plans.md`.",
+    "2. Execute the bound plan following `references/plan-execution.md`.",
     `3. Append invalidating discoveries to: ${state.feedback_file}.`,
     "4. Save an execution result using `assets/execution-result.template.json` and register it with the controller.", ""
   );
   if (route.stage === "verify") lines.push(
     "## Contract", "",
-    "1. Run fresh verification following `references/verification-before-completion.md`.",
+    "1. Run fresh verification following `references/completion-verification.md`.",
     "2. Run fresh, complete commands; do not reuse execution-stage output as fresh verification.",
     "3. Map evidence to every acceptance criterion in the packet.",
     "4. Save `assets/verification-result.template.json` and register it with the controller.", ""

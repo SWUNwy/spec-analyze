@@ -9,7 +9,7 @@
 ````markdown
 Subagent (general-purpose):
   description: "Review Task N (spec + quality)"
-  model: [MODEL — REQUIRED: choose per subagent-driven-development.md Model Selection]
+  model: [MODEL — REQUIRED: choose per delegated-task-execution.md Model Selection]
   prompt: |
     你在评审一个任务的实现：先判断是否匹配需求，再判断实现质量。这是任务级
     门禁，不是合并评审——整分支的宽范围评审在全部任务完成后单独进行。
@@ -136,7 +136,7 @@ Subagent (general-purpose):
 
 | 占位符 | 内容 |
 |---|---|
-| `[MODEL]` | REQUIRED — 按 `subagent-driven-development.md` 的模型选择 |
+| `[MODEL]` | REQUIRED — 按 `delegated-task-execution.md` 的模型选择 |
 | `[BRIEF_FILE]` | REQUIRED — `scripts/task-brief PLAN N` 打印的路径 |
 | `[GLOBAL_CONSTRAINTS]` | 逐字取自计划 Global Constraints 或 spec 的约束性需求 |
 | `[REPORT_FILE]` | REQUIRED — 实施者写详细报告的文件 |

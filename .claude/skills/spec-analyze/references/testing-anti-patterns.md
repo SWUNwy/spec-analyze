@@ -131,5 +131,5 @@ const mockApi = {
 
 ## 相关文档
 
-- `references/test-driven-development.md` — RED-GREEN-REFACTOR 基础循环
-- `references/receiving-code-review.md` — 评审发现引用这些反模式时的处理方式
+- `references/test-first-development.md` — RED-GREEN-REFACTOR 基础循环
+- `references/review-feedback-intake.md` — 评审发现引用这些反模式时的处理方式

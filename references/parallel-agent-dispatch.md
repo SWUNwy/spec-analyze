@@ -118,6 +118,6 @@ Return: Summary of what you found and what you fixed.
 
 ## 相关文档
 
-- `references/subagent-driven-development.md` — 顺序的逐任务派发（不同模式）
-- `references/systematic-debugging.md` — 失败相关时的合并调查
-- `references/requesting-code-review.md` — 单评审者派发
+- `references/delegated-task-execution.md` — 顺序的逐任务派发（不同模式）
+- `references/debugging-discipline.md` — 失败相关时的合并调查
+- `references/code-review-dispatch.md` — 单评审者派发

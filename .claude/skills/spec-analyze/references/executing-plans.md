@@ -25,7 +25,7 @@
 全部任务完成并验证后：
 - 用 workflow 控制器登记执行结果
 - 任何完成声明前运行 `workflow-state.cjs validate --state <workflow-state>`
-- 按 verification-before-completion 协议做全新验证
+- 按 completion-verification 协议做全新验证
 
 ## 何时停止并求助
 

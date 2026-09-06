@@ -24,7 +24,7 @@
   "schema_version": "1.0",
   "target": {
     "stage": "plan",
-    "recommended_skill": "writing-plans"
+    "recommended_skill": "plan-authoring"
   },
   "spec_subtypes": ["form_data_heavy", "product_frontend"],
   "spec_artifacts": [
@@ -124,4 +124,4 @@ node <skill-dir>/scripts/verify-handoff.cjs \
 }
 ```
 
-Claude Code 场景继续读 `workflow-orchestration.md`：它增加共享生命周期状态与宿主驱动的路由（writing-plans → 人工执行门禁 → executing-plans → verification-before-completion）。宿主仍执行 Skill 调用；无人值守执行与多宿主调度仍在本阶段之外。
+Claude Code 场景继续读 `workflow-orchestration.md`：它增加共享生命周期状态与宿主驱动的路由（plan-authoring → 人工执行门禁 → plan-execution → completion-verification）。宿主仍执行 Skill 调用；无人值守执行与多宿主调度仍在本阶段之外。
