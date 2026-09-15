@@ -393,7 +393,7 @@ spec_analyze_state:
 | 5F | 设计呈现 | 入口执行 Layer 1 意图分析 + Layer 2 成熟度评估 → 分节呈现，逐节获取批准 → **批准 → 继续；否决 → 回到 4F** | S3 |
 | 6F | 组件枚举 | 列出页面所有交互组件 → 映射 T1-T11 → 声明嵌套关系 → **标识字段级注释需求（统计字段定义/表格列格式/表单校验）** | S3a |
 | 7F | 类型模板填充 | 按类型模板逐组件填充注释 → **为每个字段补充字段级注释（统计字段: Definition + Permission / 表格列: Format + Source / 表单字段: Validation + Options）** | S3a |
-| 8F | 输出生成 | 入口执行展示模式决策（内联/侧边/双模式）；生成 proposal + design + tasks 三文档（见 `references/annotation-output-templates.md`）；注释默认**评审视图**（中文角色标签，隐藏实施细节，见 `references/annotation-example.md`）；输出必须通过 `references/chinese-writing-style.md` 硬约束与 `scripts/lint-output-text.js` 校验（英文大小写/错词/直角引号/数量逻辑 error 清零），否则修复后重新输出；中文文案遵循 `references/chinese-writing-style.md`（术语一致/API 状态词语义准确/事实保真）；design.md 末尾需包含 Component Manifest（§8）；默认同时生成评审就绪 PRD（见 references/prd-output-template.md，研发评审以该文档为准；生成 HTML 原型时 PRD 为第一个视图/首屏）；组件≥3 时询问是否内建 HTML 注释 | S3b |
+| 8F | 输出生成 | 入口执行呈现模式路由（三分支：inline / 侧栏 / 评审模式）。路由判定：①PM 显式声明呈现模式 → 直接采用，不再追问；②未声明时依据任务上下文推断评审目的，**向用户确认后**选择（不静默选择）；③确认场景=产品方案评审（内审/业务/研发）→ 默认评审模式。评审模式规范与权威 JS 见 `references/html-annotation-system.md §2.8` 与 `references/annotation-output-templates.md §评审模式输出模板`。评审模式数据同源（强制）：先产出结构化注释数据（review-docs JSON），再分别渲染 HTML 右栏与三文档注释，禁止两处独立手写；交互脚本以 annotation-output-templates.md 权威 JS 代码块为唯一实现，生成 HTML 原样嵌入。生成 proposal + design + tasks 三文档（见 `references/annotation-output-templates.md`）；注释默认**评审视图**（中文角色标签，隐藏实施细节，见 `references/annotation-example.md`）；输出必须通过 `references/chinese-writing-style.md` 硬约束与 `scripts/lint-output-text.js` 校验（英文大小写/错词/直角引号/数量逻辑 error 清零），否则修复后重新输出；中文文案遵循 `references/chinese-writing-style.md`（术语一致/API 状态词语义准确/事实保真）；design.md 末尾需包含 Component Manifest（§8）；默认同时生成评审就绪 PRD（见 references/prd-output-template.md，研发评审以该文档为准；生成 HTML 原型时 PRD 为第一个视图/首屏）；组件≥3 时询问是否内建 HTML 注释 | S3b |
 | 9F | HTML 注释验证 | 按 `references/html-annotation-system.md` 验证注释正确内建 + back-propagation（仅当用户同意内建时） | S3c |
 | 9.5F | 交互式注释编辑 | 用户指定组件和字段目标，AI 按模板规则执行编辑 → 跨文档同步 → 输出 diff 摘要。详见下方「Step 9.5F: 交互式注释编辑」章节 | S3d |
 | 10F | 质量自检 | 运行质量自检清单（见 `references/quality-checklists.md`） | S4 |
@@ -405,6 +405,8 @@ spec_analyze_state:
 ## Step 9.5F: 交互式注释编辑
 
 在 Step 9F（HTML 注释验证 + back-propagation）完成后，用户可以对产出文档中的任意组件注释进行定向编辑。也支持作为独立模式调用（用户拿到已产出的文档后要求补充注释）。
+
+**评审模式适配（v3.7）：** 当编辑对象为评审模式 HTML 交付物时，编辑作用于其内嵌的结构化注释数据（review-docs JSON 与三文档注释），编辑完成后 HTML 与三文档**同步重渲染**——先更新结构化数据，再重新生成两侧，不允许单侧更新（S3d 编辑验证扩展到评审模式结构）。
 
 ### 模式入口
 
