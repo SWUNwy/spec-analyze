@@ -420,6 +420,281 @@ i18n         国际化      是否需要翻译
 
 ---
 
+## 评审模式输出模板（v3.7）
+
+> 评审模式是与 inline/侧栏并列的第三种呈现模式（布局契约与绘制算法见 `html-annotation-system.md §2.8`），用于产品方案评审会交付（内审/业务/研发评审），经 Step 8F 模式路由确认后启用。
+
+### 生成说明（数据同源，强制）
+
+1. **先产出结构化注释数据**（review-docs JSON，结构见下）——它是单一数据源。
+2. **再分别渲染**：同一份数据 → HTML 右栏条目 + 三文档（proposal/design/tasks）的注释内容。禁止两处独立手写，避免评审视图与研发文档不一致。
+3. **交互脚本同源**：下方权威 JS 代码块是唯一实现，生成的 HTML **原样嵌入，禁止每次交付重新手写**——数据同源原则同样适用于代码。
+
+### 呈现密度规则（三层注释体系）
+
+- 条目 `text` 默认呈现 **L1**（trigger-behavior-dismiss）。
+- **L2**（placement-style-state-timing）与 **L3**（accessibility-responsive-i18n）以 `<details>` 折叠区挂在条目内，点击展开——评审模式不绕过三层注释体系，只改变呈现密度。
+
+### scope-mark 徽标
+
+| scopeMark | 徽标 | 样式 |
+|---|---|---|
+| existing | 灰色"已有" | `#e7e5e4` 底 / `#57534e` 字 |
+| new | 绿色"新增" | `#dcfce7` 底 / `#15803d` 字 |
+| adjusted | 橙色"调整" | `#ffedd5` 底 / `#c2410c` 字 |
+
+### HTML 骨架（权威）
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{需求名} · 评审注释</title>
+<style>
+/* ===== 评审模式布局（权威，生成时原样嵌入） ===== */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f5f4;color:#1c1917}
+.layout{display:flex;height:100vh;overflow:hidden}
+.product-panel{width:82%;position:relative;overflow:auto}
+#connections{position:absolute;inset:0;pointer-events:none;z-index:20}
+.doc-panel{width:18%;max-width:30%;background:#fffbeb;border-left:2px dashed #f5c451;overflow-y:auto;position:relative;flex-shrink:0}
+.resize-handle{position:absolute;left:-3px;top:0;width:6px;height:100%;cursor:col-resize;z-index:30}
+.resize-handle:hover{background:rgba(245,196,81,.35)}
+.scene-tabs{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid #f5c451;flex-wrap:wrap}
+.scene-tab{padding:4px 10px;border:1px solid #d6d3d1;border-radius:14px;font-size:12px;cursor:pointer;background:#fff}
+.scene-tab.active{background:#f59e0b;color:#fff;border-color:#f59e0b}
+.scene{display:none;padding:12px}
+.scene.active{display:block}
+.scene-heading{font-size:14px;font-weight:700;margin-bottom:2px}
+.crumb{font-size:11px;color:#78716c;margin-bottom:8px}
+.proto-desc{background:#fff;border:1px solid #e7e5e4;border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:12px;line-height:1.6}
+.proto-desc.active-highlight,.proto-element.active-highlight{outline:2px solid #f59e0b;outline-offset:1px}
+.connection-line{fill:none;stroke:#d6d3d1;stroke-width:1.5}
+.connection-line.active{stroke:#f59e0b;stroke-width:2.5}
+.connection-label-bg{fill:#f59e0b}
+.connection-label{fill:#fff;font-size:11px;font-weight:700;text-anchor:middle;dominant-baseline:central}
+.scope-mark{display:inline-block;padding:1px 6px;border-radius:8px;font-size:10px;margin-left:6px;vertical-align:1px;white-space:nowrap}
+.scope-mark.existing{background:#e7e5e4;color:#57534e}
+.scope-mark.new{background:#dcfce7;color:#15803d}
+.scope-mark.adjusted{background:#ffedd5;color:#c2410c}
+.desc-top{display:flex;align-items:baseline;gap:6px}
+.desc-top .desc-title{flex:1}
+.num{flex-shrink:0;min-width:18px;height:18px;border-radius:50%;background:#f59e0b;color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.desc-title{font-weight:600}
+.desc-text{color:#44403c;margin-top:2px}
+.desc-details{margin-top:4px}
+.desc-details summary{font-size:11px;color:#78716c;cursor:pointer}
+.desc-details div{font-size:11px;color:#57534e;padding:2px 0 2px 10px;border-left:2px solid #e7e5e4;margin-top:2px}
+.decision-box{background:#fef3c7;border:1px solid #f5c451;border-radius:6px;padding:8px 10px;font-size:12px;line-height:1.6;margin-top:10px}
+.empty-state{padding:24px 12px;text-align:center;color:#a8a29e;font-size:12px}
+@media (max-width:760px){
+  .layout{flex-direction:column;height:auto;overflow:visible}
+  #connections{display:none}
+  .doc-panel{width:100%!important;max-width:100%;border-left:none;border-top:2px dashed #f5c451}
+  .resize-handle{display:none}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="product-panel" id="canvas">
+    <!-- 被注释组件：每个带 data-proto-id -->
+    <div class="proto-element" data-proto-id="{sceneId}-{n}">…组件…</div>
+    <svg id="connections"></svg><!-- 必须是 product-panel 最后一个子元素（inset:0 覆盖） -->
+  </div>
+  <div class="doc-panel">
+    <div class="resize-handle" id="resizeHandle"></div>
+    <div class="scene-tabs" id="sceneTabs"></div>
+    <div id="docBody"></div>
+  </div>
+</div>
+<script id="review-docs" type="application/json">
+{严格 JSON：结构见下}
+</script>
+<!-- 权威交互脚本：见下节，原样嵌入，禁止手改 -->
+</body>
+</html>
+```
+
+### review-docs JSON 数据结构（严格 JSON，双引号）
+
+以 `<script id="review-docs" type="application/json">` 承载，供校验器提取（`scripts/validate-annotations.js` 对含此 script 的 HTML 自动执行评审模式校验）：
+
+```json
+{
+  "scene1": {
+    "heading": "场景/需求组标题",
+    "crumb": "面包屑（如 营销系统 / 优惠券）",
+    "items": [
+      {
+        "protoId": "scene1-1",
+        "title": "条目标题",
+        "text": "L1 注释正文（trigger-behavior-dismiss）",
+        "scopeMark": "existing",
+        "L2": "可选：placement-style-state-timing（折叠区）",
+        "L3": "可选：accessibility-responsive-i18n（折叠区）"
+      }
+    ],
+    "decision": "可选：口径建议文本；缺省不渲染 decision-box"
+  }
+}
+```
+
+### 权威交互脚本（唯一实现，生成 HTML 原样嵌入）
+
+```html
+<script>
+/* ===== 评审模式权威交互脚本（唯一实现；生成 HTML 原样嵌入，禁止手改） ===== */
+(function(){
+  var docs = JSON.parse(document.getElementById('review-docs').textContent);
+  var svg = document.getElementById('connections');
+  var docPanel = document.querySelector('.doc-panel');
+  var docBody = document.getElementById('docBody');
+  var tabs = document.getElementById('sceneTabs');
+  var W_KEY = 'reviewPanelWidth', MIN_W = 18, MAX_W = 30;
+  var connections = [], currentScene = null;
+
+  var MARK = {existing:'已有', new:'新增', adjusted:'调整'};
+
+  function applyWidth(){
+    if (window.innerWidth <= 760) return;
+    var w = parseFloat(localStorage.getItem(W_KEY));
+    if (isNaN(w)) w = MIN_W;
+    docPanel.style.width = Math.min(MAX_W, Math.max(MIN_W, w)) + '%';
+  }
+
+  function renderDocs(sceneId){
+    currentScene = sceneId;
+    var d = docs[sceneId];
+    var html = '<div class="scene active">'
+      + '<div class="scene-heading">' + d.heading + '</div>'
+      + '<div class="crumb">' + (d.crumb || '') + '</div>';
+    if (!d.items || !d.items.length) {
+      html += '<div class="empty-state">本场景暂无注释条目</div>';
+    } else {
+      d.items.forEach(function(it, i){
+        html += '<div class="proto-desc" data-proto-id="' + it.protoId + '">'
+          + '<div class="desc-top"><span class="num">' + (i + 1) + '</span>'
+          + '<div class="desc-title">' + it.title
+          + '<span class="scope-mark ' + it.scopeMark + '">' + (MARK[it.scopeMark] || '') + '</span></div></div>'
+          + '<div class="desc-text">' + it.text + '</div>';
+        if (it.L2 || it.L3) {
+          html += '<details class="desc-details"><summary>展开 L2/L3 研发注释</summary>';
+          if (it.L2) html += '<div><b>L2</b> ' + it.L2 + '</div>';
+          if (it.L3) html += '<div><b>L3</b> ' + it.L3 + '</div>';
+          html += '</details>';
+        }
+        html += '</div>';
+      });
+      if (d.decision) {
+        html += '<div class="decision-box"><b>口径建议</b><br>' + d.decision + '</div>';
+      }
+    }
+    html += '</div>';
+    docBody.innerHTML = html;
+    bindHover();
+    requestAnimationFrame(drawConnections);
+  }
+
+  function drawConnections(){
+    svg.innerHTML = ''; connections = [];
+    if (window.innerWidth <= 760) return;
+    var sr = svg.getBoundingClientRect();
+    var seen = {};
+    docs[currentScene].items.forEach(function(it, i){
+      var l = document.querySelector('.product-panel .proto-element[data-proto-id="' + it.protoId + '"]');
+      if (!l) { console.warn('item ' + it.protoId + ' 锚定的组件未找到'); return; }
+      if (l.offsetParent === null) return;
+      var k = seen[it.protoId] || 0; seen[it.protoId] = k + 1;
+      var r = document.querySelectorAll('.proto-desc[data-proto-id="' + it.protoId + '"]')[k];
+      if (!r) return;
+      var a = l.getBoundingClientRect(), b = r.getBoundingClientRect();
+      var x1 = a.right - sr.left, y1 = a.top + a.height/2 - sr.top;
+      var x2 = b.left - sr.left,  y2 = b.top + b.height/2 - sr.top;
+      var m = x1 + (x2 - x1) * 0.52;
+      var p = document.createElementNS('http://www.w3.org/2000/svg','path');
+      p.setAttribute('d','M ' + x1 + ' ' + y1 + ' C ' + m + ' ' + y1 + ', ' + m + ' ' + y2 + ', ' + x2 + ' ' + y2);
+      p.setAttribute('class','connection-line');
+      svg.appendChild(p);
+      var mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      var c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',mx); c.setAttribute('cy',my); c.setAttribute('r',10);
+      c.setAttribute('class','connection-label-bg');
+      svg.appendChild(c);
+      var t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x',mx); t.setAttribute('y',my);
+      t.setAttribute('class','connection-label');
+      t.textContent = String(i + 1);
+      svg.appendChild(t);
+      connections.push({id: it.protoId, path: p, left: l, right: r});
+    });
+  }
+
+  function highlight(id, on){
+    connections.forEach(function(c){
+      if (c.id !== id) return;
+      c.path.classList.toggle('active', on);
+      c.left.classList.toggle('active-highlight', on);
+      c.right.classList.toggle('active-highlight', on);
+    });
+  }
+
+  function bindHover(){
+    document.querySelectorAll('.proto-element[data-proto-id], .proto-desc[data-proto-id]').forEach(function(el){
+      el.onmouseenter = function(){ highlight(el.dataset.protoId, true); };
+      el.onmouseleave = function(){ highlight(el.dataset.protoId, false); };
+    });
+  }
+
+  function refreshLines(){ requestAnimationFrame(drawConnections); }
+
+  window.setScene = function(sceneId){
+    tabs.querySelectorAll('.scene-tab').forEach(function(b){
+      b.classList.toggle('active', b.dataset.scene === sceneId);
+    });
+    renderDocs(sceneId);
+  };
+
+  /* 场景标签 */
+  Object.keys(docs).forEach(function(sid){
+    var b = document.createElement('button');
+    b.className = 'scene-tab'; b.dataset.scene = sid;
+    b.textContent = docs[sid].heading;
+    b.onclick = function(){ window.setScene(sid); };
+    tabs.appendChild(b);
+  });
+
+  /* 拖宽：18% → 30%，localStorage 记忆 */
+  var handle = document.getElementById('resizeHandle');
+  handle.addEventListener('pointerdown', function(e){
+    e.preventDefault();
+    function move(ev){
+      var w = Math.min(MAX_W, Math.max(MIN_W, (window.innerWidth - ev.clientX) / window.innerWidth * 100));
+      docPanel.style.width = w + '%';
+    }
+    function up(ev){
+      localStorage.setItem(W_KEY, parseFloat(docPanel.style.width));
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', up);
+      refreshLines();
+    }
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up);
+  });
+
+  window.addEventListener('resize', function(){ applyWidth(); refreshLines(); });
+  document.getElementById('canvas').addEventListener('scroll', refreshLines, { passive: true });
+
+  applyWidth();
+  window.setScene(Object.keys(docs)[0]);
+})();
+</script>
+```
+
+> 连线以**条目**为迭代单位（多锚点：一个组件被多个条目锚定时每个条目各画一条线，徽标=条目场景内序号，与右栏 `.num` 一致）；条目锚定的组件不存在时 `console.warn` 并跳过；隐藏组件（`offsetParent===null`）跳过、重绘恢复。
+
 ## 全链路工作流
 
 ```
@@ -444,7 +719,7 @@ Product requirements (natural language)
    │       └── tasks.md (task steps with annotation references)
    │
    ├── 2b. HTML Annotation Build-in (conditional — user agrees in Step 8F)
-   │       ├── Step 8F: 确认注释展示模式（内联/侧边/双模式）
+   │       ├── Step 8F: 呈现模式路由（三分支：inline / 侧栏 / 评审模式；评审场景默认评审模式，见 §评审模式输出模板）
    │       ├── If yes: generate HTML FROM SCRATCH with annotation system built in (not retrofitted)
    │       ├──   ├── ANNOTATIONS JS data object (含 type 字段) from design.md Annotation Blocks
    │       │   ├── CSS: 内联注释样式 + 侧边面板样式 (.annot-trigger, .annot-inline, .annot-panel, .annot-overlay, .annot-nav, .annot-body)
