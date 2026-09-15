@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>优惠券管理改版 · 评审注释</title>
+<style>
+/* ===== 评审模式布局（权威，生成时原样嵌入） ===== */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f5f4;color:#1c1917}
+.layout{display:flex;height:100vh;overflow:hidden}
+.product-panel{width:82%;position:relative;overflow:auto}
+#connections{position:absolute;inset:0;pointer-events:none;z-index:20}
+.doc-panel{width:18%;max-width:30%;background:#fffbeb;border-left:2px dashed #f5c451;overflow-y:auto;position:relative;flex-shrink:0}
+.resize-handle{position:absolute;left:-3px;top:0;width:6px;height:100%;cursor:col-resize;z-index:30}
+.resize-handle:hover{background:rgba(245,196,81,.35)}
+.scene-tabs{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid #f5c451;flex-wrap:wrap}
+.scene-tab{padding:4px 10px;border:1px solid #d6d3d1;border-radius:14px;font-size:12px;cursor:pointer;background:#fff}
+.scene-tab.active{background:#f59e0b;color:#fff;border-color:#f59e0b}
+.scene{display:none;padding:12px}
+.scene.active{display:block}
+.scene-heading{font-size:14px;font-weight:700;margin-bottom:2px}
+.crumb{font-size:11px;color:#78716c;margin-bottom:8px}
+.proto-desc{background:#fff;border:1px solid #e7e5e4;border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:12px;line-height:1.6}
+.proto-desc.active-highlight,.proto-element.active-highlight{outline:2px solid #f59e0b;outline-offset:1px}
+.connection-line{fill:none;stroke:#d6d3d1;stroke-width:1.5}
+.connection-line.active{stroke:#f59e0b;stroke-width:2.5}
+.connection-label-bg{fill:#f59e0b}
+.connection-label{fill:#fff;font-size:11px;font-weight:700;text-anchor:middle;dominant-baseline:central}
+.scope-mark{display:inline-block;padding:1px 6px;border-radius:8px;font-size:10px;margin-left:6px;vertical-align:1px;white-space:nowrap}
+.scope-mark.existing{background:#e7e5e4;color:#57534e}
+.scope-mark.new{background:#dcfce7;color:#15803d}
+.scope-mark.adjusted{background:#ffedd5;color:#c2410c}
+.desc-top{display:flex;align-items:baseline;gap:6px}
+.desc-top .desc-title{flex:1}
+.num{flex-shrink:0;min-width:18px;height:18px;border-radius:50%;background:#f59e0b;color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.desc-title{font-weight:600}
+.desc-text{color:#44403c;margin-top:2px}
+.desc-details{margin-top:4px}
+.desc-details summary{font-size:11px;color:#78716c;cursor:pointer}
+.desc-details div{font-size:11px;color:#57534e;padding:2px 0 2px 10px;border-left:2px solid #e7e5e4;margin-top:2px}
+.decision-box{background:#fef3c7;border:1px solid #f5c451;border-radius:6px;padding:8px 10px;font-size:12px;line-height:1.6;margin-top:10px}
+.empty-state{padding:24px 12px;text-align:center;color:#a8a29e;font-size:12px}
+@media (max-width:760px){
+  .layout{flex-direction:column;height:auto;overflow:visible}
+  #connections{display:none}
+  .doc-panel{width:100%!important;max-width:100%;border-left:none;border-top:2px dashed #f5c451}
+  .resize-handle{display:none}
+}
+/* ===== 以下为 demo 示意组件样式（非模板部分） ===== */
+.demo-page{padding:24px 32px;max-width:920px}
+.demo-crumb{font-size:12px;color:#78716c;margin-bottom:16px}
+.demo-title{font-size:20px;font-weight:700;margin-bottom:20px}
+.proto-element{background:#fff;border:1px solid #e7e5e4;border-radius:10px;padding:16px 20px;margin-bottom:16px}
+.proto-element h3{font-size:15px;margin-bottom:8px}
+.proto-element p{font-size:13px;color:#57534e;line-height:1.7}
+.demo-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.demo-field{flex:1;min-width:140px;border:1px solid #e7e5e4;border-radius:6px;padding:8px 10px;font-size:12px;color:#78716c}
+.demo-field b{display:block;color:#1c1917;font-size:13px;margin-bottom:2px}
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="product-panel" id="canvas">
+    <div class="demo-page">
+      <div class="demo-crumb">营销系统 / 优惠券</div>
+      <div class="demo-title">优惠券管理改版（评审示意原型）</div>
+
+      <!-- 场景一：优惠券创建 -->
+      <div class="proto-element" data-proto-id="coupon-create-1">
+        <h3>券面信息表单</h3>
+        <div class="demo-row">
+          <div class="demo-field"><b>券名称</b>限 20 字</div>
+          <div class="demo-field"><b>券类型</b>满减 / 折扣</div>
+          <div class="demo-field"><b>适用范围</b>全场 / 指定商品</div>
+        </div>
+      </div>
+      <div class="proto-element" data-proto-id="coupon-create-2">
+        <h3>有效期限选择器</h3>
+        <div class="demo-row">
+          <div class="demo-field"><b>模式</b>固定时间段 / 领取后 N 天</div>
+          <div class="demo-field"><b>起止时间</b>—</div>
+        </div>
+      </div>
+      <div class="proto-element" data-proto-id="coupon-create-3">
+        <h3>库存上限设置</h3>
+        <div class="demo-row">
+          <div class="demo-field"><b>发放总量</b>上限 100,000</div>
+          <div class="demo-field"><b>每人限领</b>默认 1 张</div>
+        </div>
+      </div>
+
+      <!-- 场景二：优惠券核销 -->
+      <div class="proto-element" data-proto-id="coupon-verify-1">
+        <h3>核销二维码扫描</h3>
+        <p>营业端扫码入口：对准顾客券面二维码，自动识别并核销。</p>
+      </div>
+      <div class="proto-element" data-proto-id="coupon-verify-2">
+        <h3>核销结果页</h3>
+        <p>展示核销成功 / 失败结果、券面信息与核销时间。</p>
+      </div>
+      <div class="proto-element" data-proto-id="coupon-verify-3">
+        <h3>异常券处理</h3>
+        <p>过期、冻结等不可用券的统一展示与规则说明入口。</p>
+      </div>
+    </div>
+    <svg id="connections"></svg><!-- 必须是 product-panel 最后一个子元素（inset:0 覆盖） -->
+  </div>
+  <div class="doc-panel">
+    <div class="resize-handle" id="resizeHandle"></div>
+    <div class="scene-tabs" id="sceneTabs"></div>
+    <div id="docBody"></div>
+  </div>
+</div>
+<script id="review-docs" type="application/json">
+{
+  "coupon-create": {
+    "heading": "优惠券创建",
+    "crumb": "营销系统 / 优惠券",
+    "items": [
+      {
+        "protoId": "coupon-create-1",
+        "title": "券面信息表单",
+        "text": "点击「创建优惠券」进入表单页；必填字段校验失败时行内提示；点击「取消」返回列表且不保存草稿。",
+        "scopeMark": "existing",
+        "L2": "表单两栏布局，错误提示出现在字段下方 4px；提交按钮 loading 态 800ms 内防重复点击。",
+        "L3": "错误提示同时读屏播报（aria-live=polite）；窄屏下单栏堆叠。"
+      },
+      {
+        "protoId": "coupon-create-2",
+        "title": "有效期限选择器",
+        "text": "支持固定时间段与领取后 N 天两种模式；切换模式时清空另一种的已填值；关闭弹层保留已选模式。",
+        "scopeMark": "new"
+      },
+      {
+        "protoId": "coupon-create-3",
+        "title": "库存上限设置",
+        "text": "输入库存数量超出系统上限 10 万时截断并提示；清空输入视为不限量；失焦后格式化千分位。",
+        "scopeMark": "adjusted"
+      }
+    ],
+    "decision": "同一批次创建多张券时，库存按批次总量计算而非单券累加——待业务确认口径后落文档。"
+  },
+  "coupon-verify": {
+    "heading": "优惠券核销",
+    "crumb": "营销系统 / 优惠券",
+    "items": [
+      {
+        "protoId": "coupon-verify-1",
+        "title": "核销二维码扫描",
+        "text": "扫码成功后 1.5s 内展示核销结果；扫码失败连续 3 次后建议手动输入券码；点击「重试」重新拉起相机。",
+        "scopeMark": "existing"
+      },
+      {
+        "protoId": "coupon-verify-2",
+        "title": "核销结果页",
+        "text": "核销成功展示券面与核销时间；失败展示原因码与客服入口；页面停留 10s 后自动返回扫码页。",
+        "scopeMark": "new",
+        "L3": "结果文案支持中英文切换；色弱模式下成功态改用图标+文字双通道。"
+      },
+      {
+        "protoId": "coupon-verify-3",
+        "title": "异常券处理",
+        "text": "过期、冻结等不可用券统一走不可用态展示；点击「查看规则」弹层展示不可用原因；弹层右上角关闭。",
+        "scopeMark": "adjusted"
+      }
+    ]
+  }
+}
+</script>
+<script>
+/* ===== 评审模式权威交互脚本（唯一实现；生成 HTML 原样嵌入，禁止手改） ===== */
+(function(){
+  var docs = JSON.parse(document.getElementById('review-docs').textContent);
+  var svg = document.getElementById('connections');
+  var docPanel = document.querySelector('.doc-panel');
+  var docBody = document.getElementById('docBody');
+  var tabs = document.getElementById('sceneTabs');
+  var W_KEY = 'reviewPanelWidth', MIN_W = 18, MAX_W = 30;
+  var connections = [], currentScene = null;
+
+  var MARK = {existing:'已有', new:'新增', adjusted:'调整'};
+
+  function applyWidth(){
+    if (window.innerWidth <= 760) return;
+    var w = parseFloat(localStorage.getItem(W_KEY));
+    if (isNaN(w)) w = MIN_W;
+    docPanel.style.width = Math.min(MAX_W, Math.max(MIN_W, w)) + '%';
+  }
+
+  function renderDocs(sceneId){
+    currentScene = sceneId;
+    var d = docs[sceneId];
+    var html = '<div class="scene active">'
+      + '<div class="scene-heading">' + d.heading + '</div>'
+      + '<div class="crumb">' + (d.crumb || '') + '</div>';
+    if (!d.items || !d.items.length) {
+      html += '<div class="empty-state">本场景暂无注释条目</div>';
+    } else {
+      d.items.forEach(function(it, i){
+        html += '<div class="proto-desc" data-proto-id="' + it.protoId + '">'
+          + '<div class="desc-top"><span class="num">' + (i + 1) + '</span>'
+          + '<div class="desc-title">' + it.title
+          + '<span class="scope-mark ' + it.scopeMark + '">' + (MARK[it.scopeMark] || '') + '</span></div></div>'
+          + '<div class="desc-text">' + it.text + '</div>';
+        if (it.L2 || it.L3) {
+          html += '<details class="desc-details"><summary>展开 L2/L3 研发注释</summary>';
+          if (it.L2) html += '<div><b>L2</b> ' + it.L2 + '</div>';
+          if (it.L3) html += '<div><b>L3</b> ' + it.L3 + '</div>';
+          html += '</details>';
+        }
+        html += '</div>';
+      });
+      if (d.decision) {
+        html += '<div class="decision-box"><b>口径建议</b><br>' + d.decision + '</div>';
+      }
+    }
+    html += '</div>';
+    docBody.innerHTML = html;
+    bindHover();
+    requestAnimationFrame(drawConnections);
+  }
+
+  function drawConnections(){
+    svg.innerHTML = ''; connections = [];
+    if (window.innerWidth <= 760) return;
+    var sr = svg.getBoundingClientRect();
+    var seen = {};
+    docs[currentScene].items.forEach(function(it, i){
+      var l = document.querySelector('.product-panel .proto-element[data-proto-id="' + it.protoId + '"]');
+      if (!l) { console.warn('item ' + it.protoId + ' 锚定的组件未找到'); return; }
+      if (l.offsetParent === null) return;
+      var k = seen[it.protoId] || 0; seen[it.protoId] = k + 1;
+      var r = document.querySelectorAll('.proto-desc[data-proto-id="' + it.protoId + '"]')[k];
+      if (!r) return;
+      var a = l.getBoundingClientRect(), b = r.getBoundingClientRect();
+      var x1 = a.right - sr.left, y1 = a.top + a.height/2 - sr.top;
+      var x2 = b.left - sr.left,  y2 = b.top + b.height/2 - sr.top;
+      var m = x1 + (x2 - x1) * 0.52;
+      var p = document.createElementNS('http://www.w3.org/2000/svg','path');
+      p.setAttribute('d','M ' + x1 + ' ' + y1 + ' C ' + m + ' ' + y1 + ', ' + m + ' ' + y2 + ', ' + x2 + ' ' + y2);
+      p.setAttribute('class','connection-line');
+      svg.appendChild(p);
+      var mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      var c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',mx); c.setAttribute('cy',my); c.setAttribute('r',10);
+      c.setAttribute('class','connection-label-bg');
+      svg.appendChild(c);
+      var t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x',mx); t.setAttribute('y',my);
+      t.setAttribute('class','connection-label');
+      t.textContent = String(i + 1);
+      svg.appendChild(t);
+      connections.push({id: it.protoId, path: p, left: l, right: r});
+    });
+  }
+
+  function highlight(id, on){
+    connections.forEach(function(c){
+      if (c.id !== id) return;
+      c.path.classList.toggle('active', on);
+      c.left.classList.toggle('active-highlight', on);
+      c.right.classList.toggle('active-highlight', on);
+    });
+  }
+
+  function bindHover(){
+    document.querySelectorAll('.proto-element[data-proto-id], .proto-desc[data-proto-id]').forEach(function(el){
+      el.onmouseenter = function(){ highlight(el.dataset.protoId, true); };
+      el.onmouseleave = function(){ highlight(el.dataset.protoId, false); };
+    });
+  }
+
+  function refreshLines(){ requestAnimationFrame(drawConnections); }
+
+  window.setScene = function(sceneId){
+    tabs.querySelectorAll('.scene-tab').forEach(function(b){
+      b.classList.toggle('active', b.dataset.scene === sceneId);
+    });
+    renderDocs(sceneId);
+  };
+
+  /* 场景标签 */
+  Object.keys(docs).forEach(function(sid){
+    var b = document.createElement('button');
+    b.className = 'scene-tab'; b.dataset.scene = sid;
+    b.textContent = docs[sid].heading;
+    b.onclick = function(){ window.setScene(sid); };
+    tabs.appendChild(b);
+  });
+
+  /* 拖宽：18% → 30%，localStorage 记忆 */
+  var handle = document.getElementById('resizeHandle');
+  handle.addEventListener('pointerdown', function(e){
+    e.preventDefault();
+    function move(ev){
+      var w = Math.min(MAX_W, Math.max(MIN_W, (window.innerWidth - ev.clientX) / window.innerWidth * 100));
+      docPanel.style.width = w + '%';
+    }
+    function up(ev){
+      localStorage.setItem(W_KEY, parseFloat(docPanel.style.width));
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', up);
+      refreshLines();
+    }
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up);
+  });
+
+  window.addEventListener('resize', function(){ applyWidth(); refreshLines(); });
+  document.getElementById('canvas').addEventListener('scroll', refreshLines, { passive: true });
+
+  applyWidth();
+  window.setScene(Object.keys(docs)[0]);
+})();
+</script>
+</body>
+</html>
