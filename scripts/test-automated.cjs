@@ -2672,6 +2672,38 @@ register("phase9-006-template-sync", {
   }
 });
 
+register("phase9-007-pmframe-clean", {
+  group: "phase9",
+  description: "pmframe 单文件结构守护：100 模型仅存 SKILL.md（无 README.md）、frontmatter 完整、全库零网站残留",
+  run: () => {
+    const root = path.join(SKILL_DIR, "references", "pmframe");
+    function walk(dir) {
+      const out = [];
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const p = path.join(dir, e.name);
+        if (e.isDirectory()) out.push(...walk(p));
+        else out.push(p);
+      }
+      return out;
+    }
+    const files = walk(root);
+    const readmes = files.filter(f => path.basename(f) === "README.md");
+    assert(readmes.length === 0, `pmframe 不应存在 README.md（v3.7.4 已单文件化），发现 ${readmes.length} 个: ${readmes.slice(0, 3).join(", ")}`);
+    const skills = files.filter(f => path.basename(f) === "SKILL.md");
+    assert(skills.length === 100, `pmframe 应有 100 个 SKILL.md，实际 ${skills.length}`);
+    // 网站残留模式（入库时 100/100 README 全部污染，清洗后必须恒为 0）
+    const JUNK = ["下载 Skill", "与这些工具搭配", "继续阅读下一个", "pmframe.works", "nav-fav-btn", "hero-svg", "返回框架列表", "Framework Deep Dive", "(function(){ var slug"];
+    const junkHits = [];
+    for (const f of skills) {
+      const c = fs.readFileSync(f, "utf8");
+      if (!c.startsWith("---\n")) junkHits.push(`frontmatter 缺失: ${f}`);
+      for (const p of JUNK) if (c.includes(p)) junkHits.push(`${p} => ${f}`);
+    }
+    assert(junkHits.length === 0, `pmframe 存在网站残留:\n${junkHits.slice(0, 10).join("\n")}`);
+    return { passed: true };
+  }
+});
+
 function parseArgs(argv) {
   const out = { _: [] };
   for (let i = 0; i < argv.length; i++) {

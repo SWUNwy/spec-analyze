@@ -12,7 +12,7 @@
 | 排除项 | `pmframe-mcp-server/`、`docs/`、`scripts/`、`PM-Agent-可行性分析.md`（MCP 集成已否决） |
 | 头部规范化 | 每个模型 SKILL.md 统一 frontmatter：name / description / source / imported |
 
-每个模型含 `SKILL.md`（方法步骤，快速路由入口）与 `README.md`（深度参考：详细步骤、示例与适用边界）。读取顺序：先 SKILL.md 获取方法概要，需要落地执行或边界判断时再读同目录 README.md；每个 SKILL.md 末尾均附深度展开指向行。
+每个模型为单文件 `SKILL.md`：frontmatter（name/description/source/imported）+ 方法步骤（Steps/Output Format）+ 深度参考（它解决什么问题/框架结构/适用场景/真实案例/来源与历史等章节）。一次读取即获全量内容，无需二次跳转；v3.7.4 起原 README.md 深度内容已清洗合并入 SKILL.md（剥离网站残留），README.md 不复存在。
 
 ## 领域全量映射（10 领域 × 100 模型）
 
@@ -188,5 +188,5 @@
 ## 警告区
 
 - **-dup 冲突**：无（入库时 100 个模型目录名全局唯一）。
-- **MCP 剥离记录**：无需剥离——入库扫描确认 100 个模型 SKILL.md/README.md 均不含 MCP 相关内容；`pmframe-mcp-server/` 目录已按约定排除，未入库。
+- **MCP 剥离记录**：无需剥离——入库扫描确认 100 个模型均不含 MCP 相关内容；`pmframe-mcp-server/` 目录已按约定排除，未入库。
 - **更新约定**：PMFrame 源库更新后需重新入库并更新本索引的入库日期与映射（模型内容以 `imported` 日期为准，不做单向同步）。
