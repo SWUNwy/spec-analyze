@@ -10,7 +10,7 @@
 body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f5f4;color:#1c1917}
 .layout{display:flex;height:100vh;overflow:hidden}
 .product-panel{width:82%;position:relative;overflow:auto}
-#connections{position:absolute;inset:0;pointer-events:none;z-index:20}
+#connections{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:20}
 .doc-panel{width:18%;max-width:30%;background:#fffbeb;border-left:2px dashed #f5c451;overflow-y:auto;position:relative;flex-shrink:0}
 .resize-handle{position:absolute;left:-3px;top:0;width:6px;height:100%;cursor:col-resize;z-index:30}
 .resize-handle:hover{background:rgba(245,196,81,.35)}
@@ -23,8 +23,8 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
 .crumb{font-size:11px;color:#78716c;margin-bottom:8px}
 .proto-desc{background:#fff;border:1px solid #e7e5e4;border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:12px;line-height:1.6}
 .proto-desc.active-highlight,.proto-element.active-highlight{outline:2px solid #f59e0b;outline-offset:1px}
-.connection-line{fill:none;stroke:#d6d3d1;stroke-width:1.5}
-.connection-line.active{stroke:#f59e0b;stroke-width:2.5}
+.connection-line{fill:none;stroke:#d97706;stroke-width:2;opacity:.55;transition:opacity .18s,stroke-width .18s}
+.connection-line.active{stroke:#f59e0b;stroke-width:3;opacity:1}
 .connection-label-bg{fill:#f59e0b}
 .connection-label{fill:#fff;font-size:11px;font-weight:700;text-anchor:middle;dominant-baseline:central}
 .scope-mark{display:inline-block;padding:1px 6px;border-radius:8px;font-size:10px;margin-left:6px;vertical-align:1px;white-space:nowrap}

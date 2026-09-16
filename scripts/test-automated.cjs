@@ -2629,6 +2629,20 @@ register("phase9-004-decision-optional", {
   }
 });
 
+register("phase9-005-connections-svg-sizing", {
+  group: "phase9",
+  description: "#connections SVG must declare width:100%/height:100% (replaced element falls back to 300x150 and clips all lines)",
+  run: () => {
+    const j = runReviewValidate(REVIEW_DEMO);
+    assert(j.reviewDocs && j.reviewDocs.valid === true, "demo must pass #connections sizing contract");
+    const html = fs.readFileSync(REVIEW_DEMO, "utf8")
+      .replace("#connections{position:absolute;inset:0;width:100%;height:100%;", "#connections{position:absolute;inset:0;");
+    const j2 = runReviewValidate(writeReviewTmp(html));
+    assert(j2.reviewDocs && j2.reviewDocs.errors.length > 0, "missing #connections width/height must error");
+    return { passed: true };
+  }
+});
+
 function parseArgs(argv) {
   const out = { _: [] };
   for (let i = 0; i < argv.length; i++) {
