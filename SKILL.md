@@ -833,6 +833,10 @@ Step 3L → 统一评估：任一标记触发 → 提议升级
 
 > 建议：S1–S4 的通过/跳过情况可在闭环 run 中用 `evidence --kind validation` 或 `check` 记录（见「闭环协议」）。
 
+### S-AR 对抗性审查（v3.7，S3 通过后、8F 之前）
+
+分析综合完成后、方案输出前，Risk Challenger 主导多角色对抗审查（完整性/边界/背景），发现分 blocking/advisory 两级；存在未解决且未豁免的 blocking 发现时不得进入产出步骤（run 转 awaiting_user）。审查完成后落盘 review-log.md（与三文档同目录）。手册见 `references/adversarial-review.md`。
+
 ### S1: 上下文完备
 
 - [ ] 上下文边界清晰：scope 内/外已明确
