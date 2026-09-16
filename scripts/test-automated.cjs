@@ -2558,6 +2558,77 @@ register("phase8-094-output-lint-rednote-brand", {
   }
 });
 
+// ─── Phase 9: 评审模式 review-docs 校验（v3.7） ──────────────────────────
+
+const REVIEW_DEMO = path.join(SKILL_DIR, "demo", "review-mode.html");
+
+function writeReviewTmp(html) {
+  const runId = `test-rmdocs-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+  const dir = path.join(TMP_ROOT, runId);
+  fs.mkdirSync(dir, { recursive: true });
+  const file = path.join(dir, "review.html");
+  fs.writeFileSync(file, html, "utf8");
+  return file;
+}
+
+function runReviewValidate(file) {
+  const result = spawnSync(process.execPath, [path.join(SKILL_DIR, "scripts", "validate-annotations.js"), file, "--json"], {
+    encoding: "utf8",
+    cwd: SKILL_DIR,
+    timeout: 15000
+  });
+  const trimmed = String(result.stdout).trim();
+  return JSON.parse(trimmed);
+}
+
+register("phase9-001-review-docs-parse", {
+  group: "phase9",
+  description: "validate-annotations.js parses review-docs JSON from demo",
+  run: () => {
+    const j = runReviewValidate(REVIEW_DEMO);
+    assert(j.reviewDocs && j.reviewDocs.present === true, "reviewDocs field present");
+    assertEq(j.reviewDocs.valid, true, "review-docs should parse and validate");
+    return { passed: true };
+  }
+});
+
+register("phase9-002-scope-mark-enum", {
+  group: "phase9",
+  description: "scopeMark must be existing/new/adjusted",
+  run: () => {
+    const html = fs.readFileSync(REVIEW_DEMO, "utf8")
+      .replace('"scopeMark": "existing"', '"scopeMark": "modified"');
+    const j = runReviewValidate(writeReviewTmp(html));
+    assert(j.valid === false || (j.reviewDocs && j.reviewDocs.errors.length > 0), "invalid scopeMark must fail");
+    return { passed: true };
+  }
+});
+
+register("phase9-003-proto-id-pairing", {
+  group: "phase9",
+  description: "item protoId must match a data-proto-id component",
+  run: () => {
+    const html = fs.readFileSync(REVIEW_DEMO, "utf8")
+      .replace('data-proto-id="coupon-create-1"', 'data-proto-id="coupon-create-x"');
+    const j = runReviewValidate(writeReviewTmp(html));
+    assert(j.reviewDocs && j.reviewDocs.errors.length > 0, "orphan protoId must error");
+    return { passed: true };
+  }
+});
+
+register("phase9-004-decision-optional", {
+  group: "phase9",
+  description: "missing decision must NOT error",
+  run: () => {
+    // 正则同时吞掉前导逗号：decision 是场景级可选属性，删除后 JSON 必须保持合法
+    const html = fs.readFileSync(REVIEW_DEMO, "utf8")
+      .replace(/,\n\s*"decision":[^\n]+/, "");
+    const j = runReviewValidate(writeReviewTmp(html));
+    assert(j.reviewDocs && j.reviewDocs.valid === true, "decision is optional");
+    return { passed: true };
+  }
+});
+
 function parseArgs(argv) {
   const out = { _: [] };
   for (let i = 0; i < argv.length; i++) {

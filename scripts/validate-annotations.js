@@ -649,6 +649,62 @@ function generateReport(results, levelLabels) {
 }
 
 // ============================================================
+// 评审模式 review-docs 校验（v3.7）
+// ============================================================
+
+function validateReviewDocs(content) {
+  const errors = [];
+  const warnings = [];
+  const m = content.match(/<script id="review-docs" type="application\/json">([\s\S]*?)<\/script>/);
+  if (!m) return { present: false, valid: true, errors, warnings };
+  let docs;
+  try { docs = JSON.parse(m[1]); }
+  catch (e) { return { present: true, valid: false, errors: ['review-docs JSON 解析失败: ' + e.message], warnings }; }
+  const SCOPES = ['existing', 'new', 'adjusted'];
+  const compIds = new Set(
+    [...content.matchAll(/data-proto-id="([^"]+)"/g)].map(x => x[1])
+  );
+  Object.keys(docs).forEach(sid => {
+    const scene = docs[sid];
+    if (!scene.heading) errors.push(`场景 ${sid} 缺少 heading`);
+    if (!Array.isArray(scene.items)) { errors.push(`场景 ${sid} 缺少 items 数组`); return; }
+    scene.items.forEach((it, i) => {
+      const ref = `${sid}#${i + 1}`;
+      if (!it.protoId) errors.push(`条目 ${ref} 缺少 protoId`);
+      else if (!compIds.has(it.protoId)) errors.push(`条目 ${ref} 的 protoId "${it.protoId}" 无对应 data-proto-id 组件`);
+      if (!it.title) errors.push(`条目 ${ref} 缺少 title`);
+      if (!it.text) errors.push(`条目 ${ref} 缺少 text（L1）`);
+      if (!SCOPES.includes(it.scopeMark)) errors.push(`条目 ${ref} scopeMark 非法: ${it.scopeMark}（允许 existing/new/adjusted）`);
+      if (it.decision !== undefined) warnings.push(`条目 ${ref} 不应携带 decision（decision 属于场景级）`);
+    });
+    if (scene.decision !== undefined && typeof scene.decision !== 'string') errors.push(`场景 ${sid} decision 必须为字符串`);
+  });
+  return { present: true, valid: errors.length === 0, errors, warnings };
+}
+
+function generateReviewDocsReport(reviewDocs) {
+  let output = '\n';
+  output += 'spec-analyze 评审模式注释校验 v3.7（review-docs）\n';
+  output += '================================================\n\n';
+  if (reviewDocs.errors.length === 0) {
+    output += '✓ review-docs 结构合法（场景/条目/protoId 配对/scopeMark 枚举全部通过）\n';
+  } else {
+    for (const e of reviewDocs.errors) output += `✗ ${e}\n`;
+  }
+  for (const w of reviewDocs.warnings) output += `⚠ ${w}\n`;
+  output += '\n---\n';
+  output += `错误: ${reviewDocs.errors.length}  警告: ${reviewDocs.warnings.length}\n`;
+  const json = {
+    mode: 'review-docs',
+    valid: reviewDocs.valid,
+    errors: reviewDocs.errors.length,
+    warnings: reviewDocs.warnings.length,
+    reviewDocs
+  };
+  return { text: output, json };
+}
+
+// ============================================================
 // 迁移模式
 // ============================================================
 
@@ -847,6 +903,10 @@ function main() {
     migrateAnnotations(targetPath);
   }
 
+  // 评审模式（v3.7）：检测内嵌 review-docs JSON，与 ANNOTATIONS/VIEW_DESCS 并列的第三种数据格式
+  const htmlContent = fs.readFileSync(targetPath, 'utf-8');
+  const reviewDocs = validateReviewDocs(htmlContent);
+
   let annotations = parseHTMLAnnotations(targetPath);
   if (!annotations) {
     const cards = parseViewDescs(targetPath);
@@ -861,8 +921,18 @@ function main() {
       if (report.json.failed > 0) process.exit(1);
       return;
     }
-    console.error('无法解析 ANNOTATIONS 或 VIEW_DESCS 数据');
-    console.error('确保 HTML 文件包含 window.ANNOTATIONS = {...} 或 const VIEW_DESCS = {...}');
+    if (reviewDocs.present) {
+      const report = generateReviewDocsReport(reviewDocs);
+      if (isJson) {
+        console.log(JSON.stringify(report.json, null, 2));
+      } else {
+        console.log(report.text);
+      }
+      if (!reviewDocs.valid) process.exit(1);
+      return;
+    }
+    console.error('无法解析 ANNOTATIONS、VIEW_DESCS 或 review-docs 数据');
+    console.error('确保 HTML 文件包含 window.ANNOTATIONS = {...}、const VIEW_DESCS = {...} 或 <script id="review-docs" type="application/json">');
     process.exit(1);
   }
 
@@ -879,13 +949,22 @@ function main() {
 
   const report = generateReport(results, levelLabels);
 
+  // S3c 挂接点：同文件内嵌 review-docs 时，校验结果并入总错误（影响退出码与 --json 输出）
+  if (reviewDocs.present) {
+    report.json.reviewDocs = reviewDocs;
+    if (!reviewDocs.valid) {
+      report.text += '\n评审模式 review-docs 校验失败:\n';
+      report.text += reviewDocs.errors.map(e => '  ✗ ' + e).join('\n') + '\n';
+    }
+  }
+
   if (isJson) {
     console.log(JSON.stringify(report.json, null, 2));
   } else {
     console.log(report.text);
   }
 
-  if (report.json.failed > 0) {
+  if (report.json.failed > 0 || (reviewDocs.present && !reviewDocs.valid)) {
     process.exit(1);
   }
 }
