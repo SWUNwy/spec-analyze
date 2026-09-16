@@ -75,6 +75,8 @@
 
 > 接线状态是变更时点的快照，完整演进记录见 `outputs/analyze-skill-改造记录.md`（备份与追溯）。
 
+**去重审计（2026-09-15，v3.7）**：对四组名称相近的 references 做重叠评估（阈值 70%），结论全部保留——`annotation-templates.md`（类型化模板系统）/`annotation-output-templates.md`（三路由输出格式）/`annotation-example.md`（标准形态示例与约束）职责正交；`root-cause-framework.md`（diagnose）/`root-cause-tracing.md`（调用栈追踪）/`causal-analysis.md`（causal 命令）服务三个不同消费者；`spec-frameworks.md`（思维框架）与`spec-templates.md`（文档模板）是框架与模板之分；`router-rules.md` 是被测试夹具引用的兼容垫片，指向 `router.md`。
+
 ## 已知缺陷修复记录（2026-08-07）
 
 | ID | 缺陷 | 状态 |
