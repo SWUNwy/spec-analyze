@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.7.1 (2026-09-16)
+
+### Fixed
+- **评审模式连线不可见（P0）** — `#connections` SVG 缺显式 `width:100%/height:100%`：SVG 是替换元素，`inset:0` 不会拉伸，回退内在尺寸 300×150 导致全部贝塞尔连线被裁剪（对照用户参考原型确认）。同源修复 demo / annotation-output-templates.md 权威模板 / html-annotation-system.md 布局契约
+- **连线常态不可辨识** — stroke `#d6d3d1`（浅灰）在 `#f5f5f4` 背景上近不可见，改为琥珀色低透明度常态（`#d97706`/2px/55%），高亮态全显（`#f59e0b`/3px/100%），透明度过渡 0.18s
+- `scripts/validate-annotations.js` 新增 #connections 尺寸契约校验（缺 width/height 或缺整个规则即 error，含根因说明）；`scripts/test-automated.cjs` 新增 phase9-005 回归测试（红→绿）
+
+### Removed
+- 删除 `.claude/skills/spec-analyze/` 过期整库副本（v3.5.0 重命名前意外提交，149 文件，干扰 skill 解析）
+
 ## 3.7.0 (2026-09-15)
 
 ### Added
