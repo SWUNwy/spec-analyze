@@ -2636,9 +2636,38 @@ register("phase9-005-connections-svg-sizing", {
     const j = runReviewValidate(REVIEW_DEMO);
     assert(j.reviewDocs && j.reviewDocs.valid === true, "demo must pass #connections sizing contract");
     const html = fs.readFileSync(REVIEW_DEMO, "utf8")
-      .replace("#connections{position:absolute;inset:0;width:100%;height:100%;", "#connections{position:absolute;inset:0;");
+      .replace(/(#connections\{[^}]*?)width:100%;height:100%;/, "$1");
     const j2 = runReviewValidate(writeReviewTmp(html));
     assert(j2.reviewDocs && j2.reviewDocs.errors.length > 0, "missing #connections width/height must error");
+    // 反例：min-width/min-height 子串不得满足契约（子串匹配会把 min-width:100% 误判为 width:100%）
+    const html3 = fs.readFileSync(REVIEW_DEMO, "utf8")
+      .replace(/(#connections\{[^}]*?)width:100%;height:100%;/, "$1min-width:100%;min-height:100%;");
+    const j3 = runReviewValidate(writeReviewTmp(html3));
+    assert(j3.reviewDocs && j3.reviewDocs.errors.length > 0, "min-width/min-height must NOT satisfy the width/height contract");
+    return { passed: true };
+  }
+});
+
+register("phase9-006-template-sync", {
+  group: "phase9",
+  description: "demo review-mode CSS/JS authoritative blocks must be byte-identical to the template (single-source rule is machine-enforced, not manual discipline)",
+  run: () => {
+    const tpl = fs.readFileSync(path.join(SKILL_DIR, "references", "annotation-output-templates.md"), "utf8");
+    const demo = fs.readFileSync(REVIEW_DEMO, "utf8");
+    // 权威块 = 从分节注释起，到下一个 /* ===== 分节注释 / </style> / })(); 为止（demo 的示意样式以分节注释隔开，不计入）
+    const CSS_MARK = "/* ===== 评审模式布局（权威，生成时原样嵌入） ===== */";
+    const JS_MARK = "/* ===== 评审模式权威交互脚本（唯一实现；生成 HTML 原样嵌入，禁止手改） ===== */";
+    function authBlock(src, mark, label) {
+      const i = src.indexOf(mark);
+      assert(i !== -1, `${label} start marker not found`);
+      const ends = ["/* =====", "</style>", "})();"]
+        .map(e => src.indexOf(e, i + mark.length))
+        .filter(x => x !== -1);
+      assert(ends.length > 0, `${label} block end not found`);
+      return src.slice(i, Math.min(...ends));
+    }
+    assertEq(authBlock(demo, CSS_MARK, "demo CSS"), authBlock(tpl, CSS_MARK, "template CSS"), "CSS block must be byte-identical between demo and authoritative template");
+    assertEq(authBlock(demo, JS_MARK, "demo JS"), authBlock(tpl, JS_MARK, "template JS"), "JS block must be byte-identical between demo and authoritative template");
     return { passed: true };
   }
 });

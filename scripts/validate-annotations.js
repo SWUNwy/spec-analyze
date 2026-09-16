@@ -669,7 +669,7 @@ function validateReviewDocs(content) {
   const connRule = connRules.find(r => r.includes('position:absolute') || r.includes('position: absolute'));
   if (!connRule) {
     errors.push('缺少 #connections 连线层 CSS 规则（评审模式连线依赖该 SVG 层）');
-  } else if (!/width:\s*100%/.test(connRule) || !/height:\s*100%/.test(connRule)) {
+  } else if (!/(?:^|;)\s*width:\s*100%/.test(connRule) || !/(?:^|;)\s*height:\s*100%/.test(connRule)) {
     errors.push('#connections 规则缺少 width:100%/height:100%（SVG 为替换元素，inset:0 不会拉伸，将回退 300×150 内在尺寸导致连线被裁剪不可见）');
   }
   Object.keys(docs).forEach(sid => {
