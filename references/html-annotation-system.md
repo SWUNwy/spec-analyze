@@ -187,7 +187,7 @@ HTML 注释面板适用于以下场景：
     .product-panel { width:82%; position:relative }   ← 右栏拖宽时此侧自适应收缩
       #connections (svg, position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:20)
       .proto-element[data-proto-id] ...（被注释组件）
-    .doc-panel { width:18%; max-width:30%; background:#fffbeb; border-left:2px dashed #f5c451 }
+    .doc-panel { width:18%; max-width:30%; background:#eff6ff; border-left:2px dashed #93c5fd }
       .resize-handle (左缘 6px 拖拽手柄; 拖宽范围 18%→30%; localStorage 记忆)
       .scene-tabs (多场景交付时的场景切换标签行; 切换后仅保留当前 .scene.active)
       .scene > .scene-heading + .proto-desc[data-proto-id] + .decision-box
