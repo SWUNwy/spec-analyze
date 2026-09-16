@@ -221,3 +221,8 @@ pending → in-review → changes-requested → in-review → approved → locke
   └── 直接修改 ───────────┘                  │
                                               └── 变更申请 → in-review
 ```
+
+## 双门禁通过条件（v3.7）
+
+- Intake Audit：六维度全部 Ok 或 Waived（见 references/intake-audit.md）
+- S-AR：无 Open 状态的 blocking 级发现（见 references/adversarial-review.md）
