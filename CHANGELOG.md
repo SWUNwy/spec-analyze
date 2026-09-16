@@ -1,5 +1,20 @@
 # Changelog
 
+## 3.7.0 (2026-09-15)
+
+### Added
+- **评审模式 HTML 原型（B1-B10）** — `demo/review-mode.html`：右侧注释面板与原型区以带编号连线关联（SVG overlay，滚动/缩放重绘，悬停双向高亮）；面板可拖宽（18%–30%，localStorage 记忆）；场景切换、空态、L2/L3 折叠、≤760px 移动端降级；`scripts/validate-annotations.js` 新增 review-docs 结构校验（场景/条目/protoId 配对/scopeMark 枚举）
+- **Intake Audit 需求摄入审计门禁（A1/A2/A5）** — `references/intake-audit.md`：六维度计分卡（背景与问题/目标与价值/用户与场景/功能边界/成功指标/约束与依赖），任一缺失分步追问（每轮一个），全维度 Ok/Waived 才进入分析；Lightweight 降级为单条提示；吸收 M0-M3 内容清点（标签仅用于路径选择）
+- **S-AR 对抗性审查门禁（A3/A4）** — `references/adversarial-review.md`：S3 通过后、8F 之前触发；Risk Challenger 主导（`references/personas.md` 新增 S-AR 主导职责）+ 按分析类型选 1-2 个辅助角色；发现分 blocking/advisory 两级，未解决的 blocking 阻断产出（run 转 awaiting_user）；审查结果落盘 `review-log.md` 独立工件；`references/quality-checklists.md` 新增双门禁通过条件
+- **PMFrame 思维模型库（C1/C2）** — `references/pmframe/`：100 个思维模型按 10 领域入库（战略与市场/商业模式/增长与指标/用户研究/需求与优先级/创意与发散/决策与评估/流程与交付/系统与问题思维/验证与叙事），frontmatter 规范化（name/description/source/imported）；`references/pmframe-index.md` 全量映射 + 12 场景路由表；SKILL.md 参考地图新增入口行
+
+### Changed
+- SKILL.md 版本 3.6.2 → 3.7.0；Step 0 新增 Intake Audit 触发段；门禁区新增 S-AR 触发段；CI/CD 集成章节下沉至 `references/cicd-integration.md`（-44 行）
+- 参考**去重审计**：四组名称相近文件（annotation 三件套 / root-cause 三件套 / spec-frameworks vs spec-templates / router vs router-rules）评估后全部保留，理由记录于 `references/advanced-capabilities.md`
+
+### 验收对照
+18 条验收标准（B1-B10 / A1-A5 / C1-C2 / D1-D2）全部通过：测试 97 passed, 0 failed；review-mode 结构校验 0 错 0 警；PRD 夹具 exit 0/1 符合预期；SKILL.md 1364 行 ≤ 1398 预算。
+
 ## 3.6.2 (2026-08-14)
 
 ### Changed
