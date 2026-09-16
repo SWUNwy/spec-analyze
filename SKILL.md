@@ -1264,52 +1264,7 @@ digraph spec_analyze_flow {
 
 ## CI/CD 集成
 
-spec-analyze 的输出文档可以作为 CI 管道的质量门禁：
-
-### 注释质量检查（GitHub Actions 示例）
-
-```yaml
-# .github/workflows/annotations-check.yml
-name: Check Annotations
-on:
-  pull_request:
-    paths: ['docs/specs/*.md']
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: 运行注释质量检查
-        run: |
-          chmod +x scripts/check-annotations.sh
-          ./scripts/check-annotations.sh docs/specs/
-```
-
-### 检查门禁规则
-
-| 门禁 | 通过条件 | CI 阻断级别 |
-|------|---------|------------|
-| HTML 注释格式 | 0 未闭合注释 | error（阻断合并） |
-| L1 注释覆盖率 | 100% 组件 | warning |
-| 组件类型标注 | 100% 组件 | warning |
-| 文档完整性 | 路径指定文档齐全 | error（阻断合并） |
-
-### 预提交钩子
-
-```bash
-# .git/hooks/pre-commit
-#!/bin/bash
-# 在提交前检查注释格式
-FILES=$(git diff --cached --name-only --diff-filter=AM | grep '\.md$')
-for f in $FILES; do
-  UNCLOSED=$(grep -c '<!--' "$f")
-  CLOSED=$(grep -c '-->' "$f")
-  if [ "$UNCLOSED" -ne "$CLOSED" ]; then
-    echo "错误: $f 中存在未闭合的 HTML 注释"
-    exit 1
-  fi
-done
-```
+注释质量检查的 GitHub Actions 集成、检查门禁规则与预提交钩子配置见 `references/cicd-integration.md`。
 
 ---
 
@@ -1382,6 +1337,7 @@ spec-analyze 可以在不同项目间复用：
 | `references/chinese-writing-style.md` | 中文技术写作规范（语义/术语/标点/状态词/界面文案/数字逻辑） |
 | `references/controlled-operations-writing.md` | 操作文档与故障排查的受控写作 |
 | `references/annotation-example.md` | 注释约束示例（评审视图默认 / 实施视图展开） |
+| `references/cicd-integration.md` | CI/CD 集成：GitHub Actions 示例、检查门禁规则、预提交钩子（v3.7 下沉） |
 | `scripts/lint-output-text.js` | 输出文档规范校验（大小写/错词/引号/数量逻辑，error 清零） |
 | `SKILL.md §Step 9.5F` | 交互式注释编辑模式完整定义（P1-P4 + Add 子流程 + Standard 适配 + Component Manifest） |
 
