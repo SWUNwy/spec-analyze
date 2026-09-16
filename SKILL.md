@@ -96,6 +96,7 @@ node <skill-dir>/scripts/run-state.cjs init --root . --track specify --goal "<go
 | 代码评审 | `references/code-review-dispatch.md`、`references/review-feedback-intake.md` |
 | 角色矩阵 | `references/role-matrix.md` |
 | 框架选择 | `references/frameworks-index.md` |
+| 思维模型库路由（需求分析/方案设计/评审/优先级场景查推荐框架） | `references/pmframe-index.md` |
 | 外部事实 | `references/web-research-guide.md` |
 | 中文技术写作规范（术语/排版/状态词/界面文案） | `references/chinese-writing-style.md` |
 | 操作文档与故障排查受控写作 | `references/controlled-operations-writing.md` |
