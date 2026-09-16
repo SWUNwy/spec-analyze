@@ -20,3 +20,5 @@ Plot initiatives on a simple 2x2 grid to visualize trade-offs and identify quick
 ## Output Format
 
 A labeled 2x2 matrix with each initiative placed in its quadrant, plus an ordered action list starting with Quick Wins.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

@@ -20,3 +20,5 @@ Plot user pains on a 2x2 grid of pain intensity vs. how well existing solutions 
 ## Output Format
 
 A 2x2 matrix with labeled quadrants, each pain plotted as a data point, and a summary table of golden opportunities with your proposed differentiation.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

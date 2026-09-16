@@ -20,3 +20,5 @@ Arrange user stories along a horizontal activity backbone and slice vertically i
 ## Output Format
 
 A two-dimensional map: horizontal axis = activities and tasks (the backbone), vertical axis = stories ordered by priority, with horizontal lines marking release boundaries. Include a summary of what each release delivers.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

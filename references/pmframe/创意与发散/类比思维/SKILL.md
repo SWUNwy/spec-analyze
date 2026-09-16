@@ -21,3 +21,5 @@ Transfer proven solutions from one domain to solve problems in another. Use when
 ## Output Format
 
 A structured brief containing: the abstracted problem statement, a table of analogous domains with their solutions and extracted principles, the recommended adapted solution, and a rationale for why the analogy holds.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

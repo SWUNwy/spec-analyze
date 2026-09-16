@@ -20,3 +20,5 @@ Compress months of work into five days: understand the problem, sketch solutions
 ## Output Format
 
 A sprint summary with: the sprint goal, the winning solution storyboard, the prototype link, user test findings organized by pattern, and a clear go/pivot/kill recommendation.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

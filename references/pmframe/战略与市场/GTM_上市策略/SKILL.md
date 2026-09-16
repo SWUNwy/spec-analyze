@@ -25,3 +25,5 @@ Plan how to bring a product to market by defining who to sell to, how to positio
 - **Pricing:** [Model + price point]
 - **Launch milestones:** [Week-by-week plan]
 - **Success metrics:** [KPIs for first 90 days]
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

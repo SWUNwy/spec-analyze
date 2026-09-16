@@ -20,3 +20,5 @@ A design process framework with four phases — Discover, Define, Develop, Deliv
 ## Output Format
 
 A phase-by-phase summary showing: key activities performed, artifacts produced, decisions made at each convergence point, and the rationale for narrowing.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

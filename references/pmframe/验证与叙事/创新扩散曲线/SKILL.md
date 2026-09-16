@@ -20,3 +20,5 @@ Design segment-specific strategies to move adoption through Innovators, Early Ad
 ## Output Format
 
 Current segment diagnosis, chasm risk assessment, segment-specific messaging and channel plan, and milestone triggers for each transition.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

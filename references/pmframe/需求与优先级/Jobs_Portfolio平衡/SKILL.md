@@ -20,3 +20,5 @@ Map Core, Related, and Emotional jobs by current satisfaction level to reveal un
 ## Output Format
 
 Jobs portfolio matrix, gap analysis highlighting underserved clusters, and a ranked list of growth opportunities with strategic fit rationale.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

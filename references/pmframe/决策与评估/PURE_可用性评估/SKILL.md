@@ -20,3 +20,5 @@ Assess a product's user experience through four complementary heuristic lenses.
 ## Output Format
 
 PURE scorecard rating each dimension (1-5) with specific findings, evidence, and a prioritized improvement backlog.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

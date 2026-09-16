@@ -20,3 +20,5 @@ Classify product features into categories based on how their presence or absence
 ## Output Format
 
 A table with columns: Feature, Category (Must-be / Performance / Delighter / Indifferent / Reverse), Evidence, and Priority recommendation.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

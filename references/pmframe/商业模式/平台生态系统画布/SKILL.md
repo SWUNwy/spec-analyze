@@ -27,3 +27,5 @@ Design and analyze platform businesses by mapping the core interaction and the e
 - **Filters:** [Matching/curation mechanism]
 - **Governance:** [Quality and trust rules]
 - **Cold start strategy:** [How to solve chicken-and-egg]
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

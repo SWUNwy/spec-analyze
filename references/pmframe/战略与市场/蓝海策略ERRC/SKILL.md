@@ -26,3 +26,5 @@ Break free from competitive benchmarking by systematically rethinking which fact
 | [Factor] | [Factor] | [Factor] | [Factor] |
 
 **New value proposition:** [One-sentence summary of differentiated offering]
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

@@ -20,3 +20,5 @@ A field research method where you observe and interview users in their natural w
 ## Output Format
 
 A field report per session containing: participant context, annotated task flow, key observations with photos/sketches, direct quotes, and a list of design implications.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

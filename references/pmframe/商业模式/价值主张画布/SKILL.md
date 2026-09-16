@@ -21,3 +21,5 @@ Map the fit between what your product offers (Value Map) and what your customer 
 ## Output Format
 
 Two side-by-side sections: Customer Profile (Jobs, Pains, Gains) and Value Map (Products/Services, Pain Relievers, Gain Creators). Draw explicit lines showing which offerings address which customer needs. Highlight strong fits and gaps.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

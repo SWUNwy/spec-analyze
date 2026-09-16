@@ -27,3 +27,5 @@ Ensure every roadmap item traces back to a real user problem with supporting evi
 **Theme 1:** [Group of related items]
 **Theme 2:** [Group of related items]
 **Confidence level:** [High / Medium / Low] per item
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

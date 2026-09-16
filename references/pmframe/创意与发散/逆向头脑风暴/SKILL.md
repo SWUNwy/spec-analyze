@@ -20,3 +20,5 @@ Instead of solving the problem directly, ask "How could we make this problem wor
 ## Output Format
 
 A three-column table: Reverse Idea (how to make it worse), Inverted Solution (the opposite), and Feasibility/Impact assessment. End with a prioritized shortlist of top solutions.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

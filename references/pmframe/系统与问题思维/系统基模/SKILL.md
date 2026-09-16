@@ -20,3 +20,5 @@ Identify common structural patterns in complex systems to anticipate unintended 
 ## Output Format
 
 Causal loop diagram description, identified archetype with pattern match rationale, leverage point analysis, and recommended structural intervention.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

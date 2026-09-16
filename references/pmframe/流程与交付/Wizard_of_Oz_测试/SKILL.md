@@ -20,3 +20,5 @@ Test whether users want a product by having humans secretly perform the work tha
 ## Output Format
 
 A test plan describing the facade design, backstage operations playbook, success metrics with targets, test results summary, and a go/no-go recommendation with supporting data.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

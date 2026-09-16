@@ -20,3 +20,5 @@ Move from problem space to validated learning through a structured canvas linkin
 ## Output Format
 
 Completed Lean UX Canvas with filled sections for Problem, Assumptions (ranked), Hypotheses, MVP description, success criteria, and decision rules for next steps.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

@@ -20,3 +20,5 @@ Analyze the structural forces that shape competition and profitability in an ind
 ## Output Format
 
 Five-forces summary table rating each force (High/Medium/Low) with supporting evidence, overall industry attractiveness assessment, and strategic implications.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

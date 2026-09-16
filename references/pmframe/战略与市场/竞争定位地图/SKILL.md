@@ -29,3 +29,5 @@ Plot your product and competitors on a 2x2 grid using the two dimensions that ma
 **White space:** [Underserved quadrant + opportunity]
 **Our position:** [Current] -> **Target:** [Desired]
 **Strategic moves:** [Actions to shift position]
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

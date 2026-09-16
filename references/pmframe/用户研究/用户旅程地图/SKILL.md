@@ -20,3 +20,5 @@ Visualize every touchpoint, action, emotion, and pain point a user encounters ac
 ## Output Format
 
 A horizontal timeline table with rows for: Phase, User Actions, Touchpoints/Channels, Emotions (high/low curve), Pain Points, and Opportunities.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

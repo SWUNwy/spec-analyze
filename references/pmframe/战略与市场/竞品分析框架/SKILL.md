@@ -20,3 +20,5 @@ Conduct a structured evaluation of competitors to identify market gaps and infor
 ## Output Format
 
 Competitor comparison matrix, feature parity heatmap, positioning map (2-axis plot), gap analysis, and strategic recommendations.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

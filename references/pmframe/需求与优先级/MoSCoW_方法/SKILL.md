@@ -21,3 +21,5 @@ Classify requirements into four priority buckets to reach consensus on scope. Us
 ## Output Format
 
 A four-column table (Must / Should / Could / Won't) listing each requirement, with a summary showing the percentage of effort allocated to each category.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

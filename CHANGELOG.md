@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.7.2 (2026-09-16)
+
+### Added
+- **PMFrame README 激活（方案①）** — 100 个 `references/pmframe/*/*/SKILL.md` 末尾统一追加深度展开指向行（SKILL.md 为快速路由入口，README.md 为完整参考：详细步骤、示例与适用边界），消除 README 内容不可达的 P1 断层；`references/pmframe-index.md` 说明行同步更新读取顺序约定
+
+### Changed
+- **评审模式主色调琥珀 → 淡蓝** — demo/review-mode.html、annotation-output-templates.md 权威模板、html-annotation-system.md 布局契约同步：连线常态 `#3b82f6`/2px/55%，高亮态 `#2563eb`/3px/100%，右栏 `#eff6ff` + `#93c5fd` 虚线边，徽标/标签/口径建议盒全套蓝色系，中性色 stone → slate；scopeMark 语义色保留（新增=绿、调整=橙）
+
+### Removed
+- 删除 `references/parallel-agent-dispatch.md`（全仓 0 引用的真孤儿文件）
+
+### 说明
+- 孤儿文件审计修正：初判 6 个候选孤儿中，5 个（constitution / framework-combinations / stage-contracts / visual-companion / visualization）为承重文件——被 `run-state.cjs` 阶段契约绑定与测试夹具 `required_references` 存在性校验（`evaluate-tests.cjs:68`）依赖，予以保留，仅删除 1 个真孤儿
+
 ## 3.7.1 (2026-09-16)
 
 ### Fixed

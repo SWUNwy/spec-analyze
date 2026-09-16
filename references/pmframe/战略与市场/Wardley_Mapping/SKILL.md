@@ -31,3 +31,5 @@ Visualize your value chain by plotting components from user need to underlying i
 2. [Component] -- [Action and rationale]
 
 **Watch list:** [Components about to shift stage]
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

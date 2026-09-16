@@ -20,3 +20,5 @@ Identify the functional, emotional, and social "job" a user hires a product to a
 ## Output Format
 
 A job statement in the standard format, a step-by-step job map, a list of competing solutions with their shortcomings, and prioritized underserved needs.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

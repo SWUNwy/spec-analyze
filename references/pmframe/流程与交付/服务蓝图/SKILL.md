@@ -20,3 +20,5 @@ Map the complete service delivery system by connecting customer actions to front
 ## Output Format
 
 A layered diagram with horizontal swim lanes: Physical Evidence, Customer Actions, Frontstage (line of interaction), Backstage (line of visibility), and Support Processes (line of internal interaction). Mark fail points and wait points.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

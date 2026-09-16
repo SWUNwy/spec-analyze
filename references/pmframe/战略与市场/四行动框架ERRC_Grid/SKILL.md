@@ -20,3 +20,5 @@ Challenge industry assumptions by deciding which factors to Eliminate, Reduce, R
 ## Output Format
 
 Completed ERRC grid with specific factors in each quadrant, plus a strategy canvas comparing your new value curve against the industry standard.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

@@ -20,3 +20,5 @@ Define work at the right level of abstraction, bet on shaped pitches, and give t
 ## Output Format
 
 A shaped pitch document containing: problem statement, appetite (time budget), solution sketch with fat-marker wireframes, rabbit holes and no-go boundaries, and a go/no-go betting decision.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

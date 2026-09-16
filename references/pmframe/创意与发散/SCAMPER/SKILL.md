@@ -22,3 +22,5 @@ A structured brainstorming technique that applies seven transformation lenses to
 ## Output Format
 
 A table with one row per SCAMPER letter. Columns: Lens, Prompt Question, Generated Ideas (2-3 per lens), and a final shortlist of the most promising ideas with rationale.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

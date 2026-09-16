@@ -20,3 +20,5 @@ Choose among four growth strategies based on whether you target existing or new 
 ## Output Format
 
 2x2 Ansoff matrix with specific initiatives per quadrant, risk assessment, capability gap analysis, and recommended growth strategy with rationale.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

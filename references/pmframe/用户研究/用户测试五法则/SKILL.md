@@ -21,3 +21,5 @@ Uncover approximately 85% of usability issues by testing with just 5 representat
 ## Output Format
 
 A usability report with: task completion rates, a severity-ranked issue list with screenshots, observed user quotes, and a prioritized list of recommended fixes.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

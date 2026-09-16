@@ -12,7 +12,7 @@
 | 排除项 | `pmframe-mcp-server/`、`docs/`、`scripts/`、`PM-Agent-可行性分析.md`（MCP 集成已否决） |
 | 头部规范化 | 每个模型 SKILL.md 统一 frontmatter：name / description / source / imported |
 
-每个模型含 `SKILL.md`（方法步骤，权威）与 `README.md`（如源目录有则一并复制）。
+每个模型含 `SKILL.md`（方法步骤，快速路由入口）与 `README.md`（深度参考：详细步骤、示例与适用边界）。读取顺序：先 SKILL.md 获取方法概要，需要落地执行或边界判断时再读同目录 README.md；每个 SKILL.md 末尾均附深度展开指向行。
 
 ## 领域全量映射（10 领域 × 100 模型）
 

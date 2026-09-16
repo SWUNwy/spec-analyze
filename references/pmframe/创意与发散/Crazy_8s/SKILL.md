@@ -20,3 +20,5 @@ A rapid ideation exercise where participants sketch 8 distinct ideas in 8 minute
 ## Output Format
 
 8 quick concept sketches (visual or described in bullet points), each with a short title. Followed by vote tallies and a refined description of the top-voted concept(s).
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

@@ -20,3 +20,5 @@ A human-centered innovation framework that cycles through empathy, problem defin
 ## Output Format
 
 A structured report containing: user insights summary, problem statement, top 3-5 solution concepts with sketches or descriptions, prototype plan, and test findings with next-iteration recommendations.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

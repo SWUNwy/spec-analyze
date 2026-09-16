@@ -20,3 +20,5 @@ Confirm that the problem is real, that users care about it, and that your soluti
 ## Output Format
 
 A fit report with: problem evidence (user quotes, frequency data), current alternatives analysis, solution feedback summary, a fit score (strong/weak/no fit), and recommended next steps.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

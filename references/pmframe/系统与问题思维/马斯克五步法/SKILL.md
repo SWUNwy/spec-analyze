@@ -20,3 +20,5 @@ A first-principles engineering framework for radical simplification: question ev
 ## Output Format
 
 A before/after comparison table showing: each component or step, whether it was questioned/deleted/simplified/accelerated/automated, the rationale, and the resulting improvement.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

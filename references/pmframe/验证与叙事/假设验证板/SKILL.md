@@ -20,3 +20,5 @@ Surface hidden assumptions, rank them by risk, and design cheap experiments to v
 ## Output Format
 
 A board (table or kanban) with columns: Assumption, Category, Risk Score, Experiment, Status (untested/validated/invalidated), and Evidence summary.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

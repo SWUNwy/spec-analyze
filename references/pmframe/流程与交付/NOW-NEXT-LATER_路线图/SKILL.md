@@ -20,3 +20,5 @@ Organize product plans into three time horizons to communicate strategy without 
 ## Output Format
 
 A three-column board (Now / Next / Later) with each item showing: title, one-line problem statement, and target outcome. Include a last-updated date and review cadence.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

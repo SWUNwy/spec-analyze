@@ -20,3 +20,5 @@ A simple root-cause analysis technique that asks "why" iteratively (typically fi
 ## Output Format
 
 A numbered chain: Problem statement, followed by Why 1 through Why 5 (each with answer), the identified root cause, and a proposed countermeasure or action item.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

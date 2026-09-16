@@ -26,3 +26,5 @@ Prioritize experiments by scoring each on three dimensions (1-10) and multiplyin
 | [Idea 2] | [1-10] | [1-10] | [1-10] | [Score] |
 
 **Selected for next sprint:** [Top N experiments]
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

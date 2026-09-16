@@ -28,3 +28,5 @@ Build habitual engagement through a four-phase loop: Trigger, Action, Variable R
 | Investment | [What user stores/creates] |
 
 **Loop reinforcement:** [How investment loads next trigger]
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

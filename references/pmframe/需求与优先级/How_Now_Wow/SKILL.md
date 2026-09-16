@@ -20,3 +20,5 @@ Categorize ideas into three buckets based on novelty and feasibility. Use when y
 ## Output Format
 
 A 2x2 matrix visual with each idea placed in its category, plus a prioritized action list with owners and timelines for the top Wow and Now ideas.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

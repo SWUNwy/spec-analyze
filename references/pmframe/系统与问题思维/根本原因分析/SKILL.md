@@ -20,3 +20,5 @@ Use a fishbone diagram to systematically explore all potential causes of a probl
 ## Output Format
 
 A fishbone diagram with the problem at the head, 4-6 category branches with causes and sub-causes, highlighted root causes, and an action plan table with columns: Root Cause, Corrective Action, Owner, Timeline.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

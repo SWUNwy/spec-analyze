@@ -20,3 +20,5 @@ Decompose the organization into strategically relevant activities to find where 
 ## Output Format
 
 Value chain diagram with all activities labeled, cost and value assessment per activity, linkage analysis, and strategic recommendations for strengthening competitive advantage.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

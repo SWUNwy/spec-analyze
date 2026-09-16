@@ -20,3 +20,5 @@ Reframe problem statements into open-ended "How Might We...?" questions that are
 ## Output Format
 
 A list of 3-5 HMW questions per insight, with the selected question(s) highlighted and a brief rationale for why they best frame the opportunity.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

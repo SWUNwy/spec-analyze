@@ -20,3 +20,5 @@ Measure user experience across five dimensions with Goals, Signals, and Metrics 
 ## Output Format
 
 HEART table with one row per dimension, columns for Goal, Signal, and Metric, plus recommended measurement cadence and tooling.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

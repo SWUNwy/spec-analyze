@@ -21,3 +21,5 @@ A four-quadrant tool that captures what a user Says, Thinks, Does, and Feels to 
 ## Output Format
 
 A 2x2 grid with quadrants labeled Says, Thinks, Does, Feels, each populated with bullet points. Below the grid, a summary of key user needs and insights discovered.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

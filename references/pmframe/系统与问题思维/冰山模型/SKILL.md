@@ -20,3 +20,5 @@ Analyze problems at four levels of depth — Events, Patterns, Structures, and M
 ## Output Format
 
 A four-layer diagram or table with rows for Events, Patterns, Structures, and Mental Models. Each row contains findings and evidence. Include a recommended intervention level with rationale.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

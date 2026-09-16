@@ -20,3 +20,5 @@ Evaluate internal capabilities and external conditions to inform strategic decis
 ## Output Format
 
 2x2 SWOT matrix with bullet points per quadrant, plus a TOWS strategy table with specific actions for each SO/WO/ST/WT combination.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

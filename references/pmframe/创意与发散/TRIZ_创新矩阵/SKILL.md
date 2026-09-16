@@ -21,3 +21,5 @@ Resolve design contradictions using a structured innovation methodology. Use whe
 ## Output Format
 
 A contradiction statement, the mapped TRIZ parameters, the suggested inventive principles with brief descriptions, and 2-3 concrete solution concepts with feasibility notes.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

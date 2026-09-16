@@ -20,3 +20,5 @@ Build systems that benefit from shocks rather than merely surviving them, using 
 ## Output Format
 
 Fragility audit table, list of removals (via negativa), barbell allocation plan, and a set of concrete options with asymmetric payoff profiles.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

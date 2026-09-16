@@ -20,3 +20,5 @@ A structured interview technique from Google Ventures that uses five progressive
 ## Output Format
 
 A numbered list of five tailored questions with follow-up prompts, plus a post-interview summary template capturing key quotes, themes, and surprises.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

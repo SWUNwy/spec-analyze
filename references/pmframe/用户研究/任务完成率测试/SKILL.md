@@ -21,3 +21,5 @@ Quantify product usability by measuring what percentage of users can complete cr
 ## Output Format
 
 A results table with columns: Task, Completion Rate (%), Average Time, Failure Points, and Recommended Fix. Include before/after comparison if retesting.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

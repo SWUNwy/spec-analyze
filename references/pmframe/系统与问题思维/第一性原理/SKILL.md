@@ -30,3 +30,5 @@ Strip away assumptions and conventions to reason from foundational truths, then 
 
 **First-principles solution:** [New approach built from fundamentals]
 **Advantage over convention:** [Why this is better]
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

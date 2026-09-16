@@ -21,3 +21,5 @@ Evaluate a topic by systematically switching between six distinct thinking modes
 ## Output Format
 
 A six-section analysis, one per hat color, with key points listed under each. Conclude with a Blue Hat summary that synthesizes all perspectives and recommends a decision or next action.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

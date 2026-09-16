@@ -25,3 +25,5 @@ Translate vision into execution through four cascading layers: Objectives, Goals
 | [Quantitative target 1] | [Approach to achieve it] | [KPIs / milestones] |
 | [Quantitative target 2] | [Approach to achieve it] | [KPIs / milestones] |
 | [Quantitative target 3] | [Approach to achieve it] | [KPIs / milestones] |
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

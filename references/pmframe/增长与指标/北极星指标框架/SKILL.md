@@ -20,3 +20,5 @@ Define the one metric that reflects the core value your product delivers to cust
 ## Output Format
 
 A one-page brief with: the North Star metric name and precise definition, why it was chosen, its relationship to revenue, and a metric tree showing input metrics with current baselines and targets.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

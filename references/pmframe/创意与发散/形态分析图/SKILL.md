@@ -20,3 +20,5 @@ Decompose a problem into independent dimensions, enumerate possible values for e
 ## Output Format
 
 Morphological matrix table, list of generated combinations (highlighting non-obvious ones), and evaluation of top 3-5 candidates with selection rationale.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。

@@ -20,3 +20,5 @@ Structure a compelling one-paragraph pitch that communicates value clearly and m
 ## Output Format
 
 A single pitch paragraph following the template: "For [target], who [need], [product] is a [category] that [benefit]. Unlike [competitor], we [differentiator]." Plus brief notes on supporting proof points.
+
+> 深度展开：本模型的详细步骤、示例与适用边界见同目录 `README.md`（SKILL.md 为快速路由入口，README 为完整参考）。
