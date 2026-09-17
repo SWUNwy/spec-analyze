@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.7.5 (2026-09-16)
+
+### Fixed
+- **开源隐私清洗** — 移除全部本地用户路径（`/home/user/...`）：`references/pmframe-index.md` 来源行改为「PMFrame 本地思维模型库（私有源，未随本仓库分发）」；100 个 pmframe SKILL.md frontmatter `source` 字段从绝对本地路径改为 `PMFrame/<模型名>` 相对标识。清洗前全库 101 处泄漏，清洗后 0
+
+### Added
+- phase9-008-privacy-scrub 回归测试：全库跟踪文件扫描（跳过 .gitignore 同款目录，>250 文件覆盖度断言），`/home/user/` 与 `/home/user/downloads/` 模式恒为 0；突变验证（注入即捕获）通过。测试套件 100 → 101 项
+
+### Changed
+- SKILL.md 版本 3.7.4 → 3.7.5
+
 ## 3.7.4 (2026-09-16)
 
 ### Changed

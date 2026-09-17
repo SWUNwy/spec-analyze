@@ -2704,6 +2704,35 @@ register("phase9-007-pmframe-clean", {
   }
 });
 
+register("phase9-008-privacy-scrub", {
+  group: "phase9",
+  description: "开源隐私守护：全库跟踪文件零本地用户路径（家目录、下载目录），防个人信息随仓库分发",
+  run: () => {
+    // 与 .gitignore 保持一致：跳过本地运行产物，只检查会被提交的内容
+    const SKIP_DIRS = new Set([".git", ".test-tmp", ".analyze", ".claude", "knowledge", "node_modules"]);
+    function walk(dir) {
+      const out = [];
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const p = path.join(dir, e.name);
+        if (e.isDirectory()) { if (!SKIP_DIRS.has(e.name)) out.push(...walk(p)); }
+        else out.push(p);
+      }
+      return out;
+    }
+    const files = walk(SKILL_DIR);
+    assert(files.length > 250, `隐私扫描应覆盖全库（>250 文件），实际仅 ${files.length}，扫描可能失效`);
+    const leaks = [];
+    // 拼接构造，避免测试文件自身包含字面量路径被扫描误报
+    const PATTERNS = ["/Use" + "rs/", "/Down" + "loads/"];
+    for (const f of files) {
+      const c = fs.readFileSync(f, "utf8");
+      for (const pat of PATTERNS) if (c.includes(pat)) leaks.push(`${pat} => ${f}`);
+    }
+    assert(leaks.length === 0, `检测到本地路径泄漏（开源前必须清除）:\n${leaks.slice(0, 10).join("\n")}`);
+    return { passed: true };
+  }
+});
+
 function parseArgs(argv) {
   const out = { _: [] };
   for (let i = 0; i < argv.length; i++) {
