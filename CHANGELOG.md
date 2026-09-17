@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.7.7 (2026-09-17)
+
+### Removed
+- **demo 收敛为 review-mode 唯一演示** — 删除 `demo/index.html`（v3.2 评审/实施双视图演示页，1033 行）；`demo/review-mode.html`（v3.7 评审模式连线演示）成为唯一演示页
+
+### Changed
+- README 快速开始与演示说明改指向 `demo/review-mode.html`，两张截图由「评审视图/实施视图」重标注为「优惠券创建/优惠券核销场景」；架构树 demo 注释同步
+- `demo/README.md` 整体重写为 review-mode 单页说明（功能表 / 文件表 / 数据与脚本 / 人工验证清单）
+- SKILL.md 变更摘要示例（`📄 HTML index.html`）与「规范更新流程」第 4 步的 demo 引用同步改为 review-mode.html
+- SKILL.md 版本 3.7.6 → 3.7.7
+
+### 说明
+- 「评审视图 / 实施视图」双显示模型仍为核心能力（定义于 `references/annotation-output-templates.md` 等文件与 `annotation_view` 状态字段），本次仅移除其演示页，能力本身未删
+
 ## 3.7.6 (2026-09-17)
 
 ### Changed
