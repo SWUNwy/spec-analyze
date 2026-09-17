@@ -17,25 +17,17 @@ spec-analyze 是一个 AI 代理 skill，引导大语言模型走完结构化分
 git clone https://github.com/SWUNwy/spec-analyze.git
 cd spec-analyze
 
-# 2. 打开演示页（默认评审视图，中文注释）
-open demo/index.html
-```
-
-演示页展示一个用户管理界面，含 3 个带注释的组件——统计卡片、数据表格与创建用户表单。点击任意 **📋** 按钮打开注释面板：
-
-![spec-analyze demo — 评审视图](demo/screenshot-1.png)
-
-评审视图按**中文角色标签**输出触发、行为、视觉要点与用户可见状态，并以**字段摘要表**整表扫读字段契约；点按面板头部可切换**实施视图**，展开 state 全分支、API、Permission、timing、accessibility 等完整细节：
-
-![spec-analyze demo — 实施视图](demo/screenshot-2.png)
-
-每个注释块与 spec-analyze 为真实项目生成的格式一致，研发（或 AI 编码代理）可以直接照着实施。
-
-另有**评审模式示例页**（v3.7）：右侧常驻注释面板，以带编号的 SVG 连线把注释条目与左侧原型组件一一关联（悬停双向高亮），贴近方案评审会的标注形态：
-
-```bash
+# 2. 打开演示页（评审模式：连线注释）
 open demo/review-mode.html
 ```
+
+演示页展示一个优惠券管理改版评审原型：左侧是组件原型，右侧是常驻注释面板，以带编号的 SVG 连线把注释条目与左侧组件一一关联（悬停双向高亮，贴近方案评审会的标注形态）。顶部场景标签在「优惠券创建 / 优惠券核销」两个场景间切换：
+
+![spec-analyze demo — 优惠券创建场景](demo/screenshot-1.png)
+
+![spec-analyze demo — 优惠券核销场景](demo/screenshot-2.png)
+
+每个注释条目与 spec-analyze 为真实项目生成的结构化注释一致（触发/行为/视觉要点/状态，L2/L3 研发注释可折叠展开），研发（或 AI 编码代理）可以直接照着实施。
 
 ---
 
@@ -159,7 +151,7 @@ spec-analyze/
 │   ├── handoff-format.md             # 版本绑定交接包协议
 │   ├── glossary.md                   # 术语对照表
 │   └── …（其余参考文档，见 SKILL.md 文件索引）
-├── demo/                    # 交互演示页（注释面板 + 评审模式连线示例）+ 截图
+├── demo/                    # 交互演示页（评审模式连线示例）+ 截图
 └── .github/workflows/       # CI：测试套件 + lint 自测 + evaluate
 ```
 

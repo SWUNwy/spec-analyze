@@ -567,7 +567,7 @@ spec_analyze_state:
   [Interaction Annotation] 追加:
     + L2: 确认后 10s 内可撤回
 
-📄 HTML index.html
+📄 HTML review-mode.html
 
   [ANNOTATIONS.batch.blocks] behavior 追加 1 行
 
@@ -1011,7 +1011,7 @@ Step 3L → 统一评估：任一标记触发 → 提议升级
 1. 在 SKILL.md 的版本号前段递增（patch 或 minor）
 2. 更新 CHANGELOG.md 记录变更
 3. 同步更新受影响的参考文件（`references/` 目录）
-4. 如果变更影响 demo 交互，同步更新 `demo/index.html`
+4. 如果变更影响 demo 交互，同步更新 `demo/review-mode.html`
 5. 运行 `scripts/check-annotations.sh` 验证注释格式兼容性
 
 ### 指标基线
