@@ -4,7 +4,7 @@
 
 spec-analyze 是一个 AI 代理 skill，引导大语言模型走完结构化分析流水线：多视角提问 → 压力测试 → 方案收敛 → 带注释的文档输出。产出是三份相互关联的文档（proposal、design、tasks），内含**机器可解析的注释**，弥合产品需求与代码实现之间的鸿沟。
 
-当前版本：**v3.6.2**（完整变更见 [CHANGELOG.md](CHANGELOG.md)）。
+当前版本：**v3.7.6**（完整变更见 [CHANGELOG.md](CHANGELOG.md)）。
 
 ---
 
@@ -30,6 +30,12 @@ open demo/index.html
 ![spec-analyze demo — 实施视图](demo/screenshot-implementation.png)
 
 每个注释块与 spec-analyze 为真实项目生成的格式一致，研发（或 AI 编码代理）可以直接照着实施。
+
+另有**评审模式示例页**（v3.7）：右侧常驻注释面板，以带编号的 SVG 连线把注释条目与左侧原型组件一一关联（悬停双向高亮），贴近方案评审会的标注形态：
+
+```bash
+open demo/review-mode.html
+```
 
 ---
 
@@ -94,18 +100,31 @@ After (annotated spec):  @登录表单（T6 表单填写，L2）
 - **检查点与恢复** — 中断后从最近已验证检查点恢复，不重复初始化。
 - **实施交接** — 版本绑定交接包（哈希校验）+ 下游 Plan → Execute → Verify 工作流控制器。
 
-### 3. 输出硬约束（v3.3）
+### 3. 需求质量双门禁（v3.7）
+
+- **Intake Audit 需求摄入审计** — 六维度计分卡（背景与问题 / 目标与价值 / 用户与场景 / 功能边界 / 成功指标 / 约束与依赖），任一缺失分步追问（每轮一个），全维度通过才进入分析；Lightweight 路径降级为单条提示。
+- **S-AR 对抗性审查** — 方案通过结构化综合后、输出前触发：Risk Challenger 主导 + 按分析类型选辅助角色，对完整性、边界、假设做批判性挑战；发现分 blocking / advisory 两级，未解决的 blocking 阻断产出；审查结果落盘 `review-log.md`。
+
+### 4. 评审就绪 PRD 输出（v3.6）
+
+Full 路径默认同时产出**评审就绪 PRD**：14 章节研发交付文档模板（背景竞品 / 页面结构 / 状态流转 / 业务流程 / 数据字段 / 接口 / 验收 / 埋点 / 风险等）+ 研发评审就绪清单 RC-01~52（三级分级）+ `scripts/validate-prd.js` 完整性验证（Ready / Conditional / Not Ready 判定）。
+
+### 5. PMFrame 思维模型库（v3.7）
+
+100 个产品思维模型按 10 领域入库（战略与市场 / 商业模式 / 增长与指标 / 用户研究 / 需求与优先级 / 创意与发散 / 决策与评估 / 流程与交付 / 系统与问题思维 / 验证与叙事），每个模型单文件全量（方法步骤 + 深度参考），`references/pmframe-index.md` 提供全量映射与 12 场景路由表——分析中按场景选框架（需求拆解用问题树、优先级用 RICE/Kano、对抗审查辅助用五次为什么等）。
+
+### 6. 输出硬约束（v3.3）
 
 输出文档默认中文，并接受**自动校验**：`references/chinese-writing-style.md` 定义「必须遵守」规则（英文大小写、确定错词、直角引号、数量逻辑、术语一致、机器内容保护），零依赖脚本 `scripts/lint-output-text.js` 三级校验（error / warning / style），**error 清零**才通过 S4 门禁；PR/push 由 CI（`.github/workflows/spec-lint.yml`）强制。
 
-### 4. 术语覆盖（v3.4 / v3.5）
+### 7. 术语覆盖（v3.4 / v3.5）
 
 - **通用技术术语** — ID/API/JSON/URL/AI/LLM/RAG、GitHub/JavaScript/TypeScript/gRPC 等大小写硬约束。
 - **营销与增长领域** — Affiliate / Social / Influencer Marketing 常用品牌（TikTok、Google Ads、AppsFlyer、SKAdNetwork、小红书官方英文名 rednote 等）、缩写（CPA/CPM/CTR/ROAS/LTV/KOL/MCN/eCPM 等）、常见错词（affliate→affiliate、influenzer→influencer 等）。
 
-### 5. 回归测试
+### 8. 回归测试
 
-93 项自动化测试（状态机 / 门禁 / 交接 / 工作流 / 混沌 / 输出 lint），`node scripts/test-automated.cjs`。
+101 项自动化测试（状态机 / 门禁 / 交接 / 工作流 / 混沌 / 输出 lint / 隐私守护），`node scripts/test-automated.cjs`。
 
 ---
 
@@ -116,7 +135,7 @@ spec-analyze/
 ├── SKILL.md                 # 主 skill 定义 — 路由、工作流、门禁、版本
 ├── scripts/                 # 闭环引擎（run-state/workflow-state/handoff）+ lint-output-text.js 输出校验器
 ├── assets/                  # 交接 / 结果 / companion 模板
-├── tests/                   # 93 项回归测试 + 场景用例
+├── tests/                   # 101 项回归测试 + 场景用例
 ├── agents/                  # OpenAI Codex 接口
 ├── references/
 │   ├── personas.md                   # 5 个专家分析角色
@@ -128,13 +147,19 @@ spec-analyze/
 │   ├── html-annotation-system.md     # HTML 注释内嵌系统
 │   ├── chinese-writing-style.md      # 中文技术写作规范（硬约束 + 术语表）
 │   ├── controlled-operations-writing.md # 操作文档与故障排查受控写作
+│   ├── intake-audit.md               # 需求摄入审计（六维度计分卡）
+│   ├── adversarial-review.md         # S-AR 对抗性审查门禁
+│   ├── prd-output-template.md        # 评审就绪 PRD 14 章节模板
+│   ├── review-readiness-checklist.md # 研发评审就绪清单 RC-01~52
+│   ├── pmframe-index.md              # PMFrame 思维模型路由索引
+│   ├── pmframe/                      # 100 个思维模型（10 领域，单文件）
 │   ├── test-cases.md                 # 从 ANNOTATIONS 状态生成测试用例
 │   ├── closed-loop.md                # 状态机 / 证据 / 检查点协议
 │   ├── gates.md                      # G1/G2/G3 + 条件门禁标准
 │   ├── handoff-format.md             # 版本绑定交接包协议
 │   ├── glossary.md                   # 术语对照表
 │   └── …（其余参考文档，见 SKILL.md 文件索引）
-├── demo/                    # 交互演示页 + 截图（评审 / 实施视图）
+├── demo/                    # 交互演示页（注释面板 + 评审模式连线示例）+ 截图
 └── .github/workflows/       # CI：测试套件 + lint 自测 + evaluate
 ```
 
@@ -178,9 +203,9 @@ spec-analyze 使用两个互补的标注层：
 
 | 版本 | 要点 |
 |------|------|
-| **v3.5.1** | `xiaohongshu`（拼音）→ `rednote`（小红书海外官方英文名，全小写） |
-| **v3.5.0** | 营销术语覆盖第二轮扩充（社交 / 联盟 / 达人 / 程序化 / 合规） |
-| **v3.4.0** | 营销/增长领域术语覆盖 + 大小写误报修复 |
+| **v3.7.0** | 需求质量双门禁（Intake Audit / S-AR 对抗性审查）+ PMFrame 100 思维模型库 + 评审模式 HTML 原型（连线关联注释） |
+| **v3.6.0** | 评审就绪 PRD 输出（14 章节模板 + RC-01~52 清单 + validate-prd.js） |
+| **v3.5.x** | 营销/增长术语覆盖（TikTok / rednote 等品牌、CPA/ROAS 等缩写、错词表） |
 | **v3.3.0** | 输出硬约束 + 零依赖 lint 校验器 + CI 强制 |
 | **v3.2.0** | 注释评审视图 / 实施视图双显示模型 + 字段级双形态 |
 | **v3.1.0** | 中文技术写作规范 + 全仓库零第三方痕迹原创重写 |

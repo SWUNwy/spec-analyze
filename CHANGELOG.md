@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.7.6 (2026-09-17)
+
+### Changed
+- **README 刷新至 v3.7 全貌** — 版本号 v3.6.2 → v3.7.5 起的滞后全部补齐：核心能力新增需求质量双门禁（Intake Audit / S-AR）、评审就绪 PRD 输出、PMFrame 思维模型库三节；回归测试计数 93 → 101；架构树补入 intake-audit / adversarial-review / prd-output-template / review-readiness-checklist / pmframe 等新文件；快速开始新增评审模式示例页入口；版本历史表压缩补齐 v3.6 / v3.7 行
+- `demo/README.md` 评审模式验证清单修正：连线高亮描述从琥珀色更新为 v3.7.2 后的蓝色系（常态淡蓝 55% 透明度 → 高亮全显）
+
+### 说明
+- 本版本为纯文档同步，无代码变更；此前 v3.6.0–v3.7.5 迭代期间 README 未随版本刷新，开源仓库推送后暴露滞后
+
 ## 3.7.5 (2026-09-16)
 
 ### Fixed
