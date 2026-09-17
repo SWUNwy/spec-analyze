@@ -30,9 +30,8 @@ open "demo/index.html?panel=stats&view=implementation"  # 统计卡片 · 实施
 | 文件 | 说明 |
 |------|------|
 | `index.html` | 单页应用，所有 CSS/JS/HTML 内联（含 ANNOTATIONS 数据） |
-| `screenshot-full.png` | 完整页面截图（默认态） |
-| `screenshot-review.png` | 评审视图打开状态截图（`?panel=stats&view=review`） |
-| `screenshot-implementation.png` | 实施视图打开状态截图（`?panel=stats&view=implementation`） |
+| `screenshot-1.png` | 评审视图打开状态截图（`?panel=stats&view=review`） |
+| `screenshot-2.png` | 实施视图打开状态截图（`?panel=stats&view=implementation`） |
 
 ## 核心技术
 

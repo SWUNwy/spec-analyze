@@ -23,11 +23,11 @@ open demo/index.html
 
 演示页展示一个用户管理界面，含 3 个带注释的组件——统计卡片、数据表格与创建用户表单。点击任意 **📋** 按钮打开注释面板：
 
-![spec-analyze demo — 评审视图](demo/screenshot-review.png)
+![spec-analyze demo — 评审视图](demo/screenshot-1.png)
 
 评审视图按**中文角色标签**输出触发、行为、视觉要点与用户可见状态，并以**字段摘要表**整表扫读字段契约；点按面板头部可切换**实施视图**，展开 state 全分支、API、Permission、timing、accessibility 等完整细节：
 
-![spec-analyze demo — 实施视图](demo/screenshot-implementation.png)
+![spec-analyze demo — 实施视图](demo/screenshot-2.png)
 
 每个注释块与 spec-analyze 为真实项目生成的格式一致，研发（或 AI 编码代理）可以直接照着实施。
 
