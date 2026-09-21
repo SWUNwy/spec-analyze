@@ -33,7 +33,7 @@ spec-analyze 产出的 proposal / design / tasks 等文档，**默认**必须通
 ### 自动校验
 
 ```bash
-node scripts/lint-output-text.js docs/spec-analyze/specs
+node scripts/lint-output-text.js docs/requirements/specs/active
 ```
 
 结果三级：`error`（默认失败）、`warning`（人工确认，`--strict` 时失败）、`style`（仅提示）。校验器自动跳过代码块、行内代码、URL、链接目标与 API 路径。

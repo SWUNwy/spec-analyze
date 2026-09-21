@@ -158,7 +158,7 @@ spec_analyze_state:
 
 **状态持久化（默认 conversation-based）：**
 - 同 session 内直接使用 conversation state 恢复
-- 用户要求"下次继续"时 → 保存到 `docs/spec-analyze/.session-state.json`（ask before write）
+- 用户要求"下次继续"时 → 保存到 `docs/requirements/.session-state.json`（ask before write）
 - 新 session + 有持久化文件 → 询问是否恢复
 - 新 session + 无持久化文件 → 正常开始
 
@@ -403,7 +403,7 @@ spec_analyze_state:
 | 3S | 多框架发散 | 按意图选择发散框架，做多维度 what-if 探测（见 `references/divergence-frameworks.md`） | — |
 | 4S | 方案收敛 | 2-3 方案对比 + 决策记录（见 `references/decision-log-format.md`）+ 范围锁定 | S2 |
 | 5S | 设计呈现 | 分节呈现，逐节获取批准 → **批准 → 继续；否决 → 回到 4S** | S3 |
-| 6S | 输出 Analysis Report | 输出 Analysis Report + proposal.md 到 `docs/spec-analyze/reports/` | S4 |
+| 6S | 输出 Analysis Report | 输出 Analysis Report + proposal.md 到 `docs/requirements/reports/` | S4 |
 | — | 用户审阅 | 用户确认 → 结束；用户否决 → 回到 5S | — |
 
 ### Full 路径
@@ -446,7 +446,7 @@ spec_analyze_state:
 用户发起独立调用
   │
   ├─ ① 当前项目扫描 ──────────────────
-  │   扫描 docs/spec-analyze/specs/ 下所有 R0XX-* 目录
+  │   扫描 docs/requirements/specs/active/ 下所有 R0XX-* 目录
   │   读取每个 design.md 头部信息（标题、日期）
   │   → 找到 0 个 → 提示用户提供路径
   │   → 找到 1 个 → 自动选中
@@ -601,7 +601,7 @@ spec_analyze_state:
 | 修改内容 | `- ` + `+ ` |
 | 新增组件 | `+ ` 全文 |
 
-用户要求保存变更记录时 → 输出到 `docs/spec-analyze/specs/R0XX-<topic>/changelog.md`。
+用户要求保存变更记录时 → 输出到 `docs/requirements/specs/active/R0XX-<topic>/changelog.md`。
 
 ### Standard 路径适配
 
@@ -1200,9 +1200,9 @@ digraph spec_analyze_flow {
 | 路径 | 产出物 | 默认输出位置 |
 |------|--------|-------------|
 | Lightweight | Insight Brief | Conversation only（不写文件） |
-| Standard | Analysis Report + proposal.md | `docs/spec-analyze/reports/YYYY-MM-DD-<topic>-report.md` |
-| Full | proposal.md + design.md + tasks.md (+ HTML 原型) | `docs/spec-analyze/specs/R0XX-<topic>/` | 
-| Full（评审交付） | 评审就绪 PRD（评审主产物，可选生成；HTML 原型时为首屏） | `docs/spec-analyze/specs/R0XX-<topic>/prd-review.md` |
+| Standard | Analysis Report + proposal.md | `docs/requirements/reports/YYYY-MM-DD-<topic>-report.md` |
+| Full | proposal.md + design.md + tasks.md (+ HTML 原型) | `docs/requirements/specs/active/R0XX-<topic>/` |
+| Full（评审交付） | 评审就绪 PRD（评审主产物，可选生成；HTML 原型时为首屏） | `docs/requirements/specs/active/R0XX-<topic>/prd-review.md` |
 
 用户偏好覆盖默认路径。生成前展示路径并确认。生成时自动创建目标目录。
 

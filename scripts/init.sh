@@ -10,9 +10,12 @@ PROJECT_DIR="${1:-.}"
 echo "==> 初始化 spec-analyze 到: $PROJECT_DIR"
 
 # 1. 创建目录结构
-mkdir -p "$PROJECT_DIR/docs/"{specs,analysis,research}
+mkdir -p "$PROJECT_DIR/docs/requirements/specs/active"
+mkdir -p "$PROJECT_DIR/docs/requirements/reports"
+mkdir -p "$PROJECT_DIR/docs/analysis"
+mkdir -p "$PROJECT_DIR/docs/research"
 
-echo "==> 创建: docs/{specs,analysis,research}"
+echo "==> 创建: docs/requirements/specs/active, docs/requirements/reports, docs/analysis, docs/research"
 
 # 2. 创建 .gitignore
 if [ ! -f "$PROJECT_DIR/.gitignore" ]; then
@@ -28,5 +31,5 @@ echo "==> 完成！"
 echo ""
 echo "下一步："
 echo "  1. 将 spec-analyze SKILL.md 加载到 CLAUDE.md"
-echo "  2. 在 docs/specs/ 中创建方案文档"
+echo "  2. 在 docs/requirements/specs/active/ 中创建方案文档"
 echo "  3. 使用交互式分析流程推进"

@@ -11,7 +11,7 @@ spec-analyze 的输出文档可以作为 CI 管道的质量门禁：
 name: Check Annotations
 on:
   pull_request:
-    paths: ['docs/specs/*.md']
+    paths: ['docs/requirements/specs/active/**/*.md']
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -20,7 +20,7 @@ jobs:
       - name: 运行注释质量检查
         run: |
           chmod +x scripts/check-annotations.sh
-          ./scripts/check-annotations.sh docs/specs/
+          ./scripts/check-annotations.sh docs/requirements/specs/active/
 ```
 
 ## 检查门禁规则

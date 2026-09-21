@@ -7,8 +7,8 @@
 | 路径 | 输出 | 默认位置 |
 |---|---|---|
 | Lightweight | Insight Brief | 仅对话（不写文件） |
-| Standard | Analysis Report + proposal.md | `docs/spec-analyze/reports/YYYY-MM-DD-<topic>-report.md` |
-| Full | proposal.md + design.md + tasks.md（+ HTML 原型） | `docs/spec-analyze/specs/R0XX-<topic>/` |
+| Standard | Analysis Report + proposal.md | `docs/requirements/reports/YYYY-MM-DD-<topic>-report.md` |
+| Full | proposal.md + design.md + tasks.md（+ HTML 原型） | `docs/requirements/specs/active/R0XX-<topic>/` |
 | 已有方案注释 | 补充注释的 design.md / HTML 注释面板 | 输入文件同目录（追加注释，不创建新文件） |
 
 用户偏好覆盖默认值。生成前展示路径。自动创建目标目录。

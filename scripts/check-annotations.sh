@@ -1,7 +1,7 @@
 #!/bin/bash
 # 注释质量检查脚本
 # 验证 proposal/design/tasks 文档中的注释完整性
-# 用法: ./scripts/check-annotations.sh docs/specs/proposal.md
+# 用法: ./scripts/check-annotations.sh docs/requirements/specs/active/R0XX-<topic>/design.md
 
 set -e
 

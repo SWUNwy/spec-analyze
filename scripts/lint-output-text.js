@@ -13,7 +13,7 @@
  * 自动跳过：代码块、行内代码、URL、Markdown 链接目标、API 路径。
  * 用法：
  *   node scripts/lint-output-text.js <文件或目录...>
- *   node scripts/lint-output-text.js --strict docs/spec-analyze/specs
+ *   node scripts/lint-output-text.js --strict docs/requirements/specs/active
  *   node scripts/lint-output-text.js --self-test
  */
 
@@ -322,7 +322,7 @@ function main() {
   const targets = args.filter((a) => !a.startsWith("--"));
   const finalTargets = targets.length > 0
     ? targets
-    : (fs.existsSync("docs/spec-analyze") ? ["docs/spec-analyze"] : []);
+    : (fs.existsSync("docs/requirements") ? ["docs/requirements"] : []);
   if (finalTargets.length === 0) {
     console.error("用法：node scripts/lint-output-text.js <文件或目录...> [--strict] [--self-test]");
     process.exit(2);
