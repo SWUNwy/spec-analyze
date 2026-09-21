@@ -6,7 +6,7 @@
 
 ```bash
 # 直接用浏览器打开
-open demo/review-mode.html
+open demo/demo.html
 ```
 
 ## 功能
@@ -26,7 +26,7 @@ open demo/review-mode.html
 
 | 文件 | 说明 |
 |------|------|
-| `review-mode.html` | 单页示例，含 2 个场景（优惠券创建/核销）× 3 条注释，覆盖全部三种 scope-mark |
+| `demo.html` | 单页示例，含 2 个场景（优惠券创建/核销）× 3 条注释，覆盖全部三种 scope-mark |
 | `screenshot-1.png` | 优惠券创建场景截图 |
 | `screenshot-2.png` | 优惠券核销场景截图 |
 
@@ -34,7 +34,7 @@ open demo/review-mode.html
 
 - 数据同源：`<script id="review-docs">` 中的结构化 JSON 是唯一数据源，右栏面板由它渲染
 - 权威脚本：交互 JS 与 `references/annotation-output-templates.md` 的权威代码块逐字一致，生成交付物时原样嵌入、禁止手改
-- 验证工具：`node scripts/validate-annotations.js demo/review-mode.html` 可校验 review-docs 结构（protoId 配对、scopeMark 枚举等）
+- 验证工具：`node scripts/validate-annotations.js demo/demo.html` 可校验 review-docs 结构（protoId 配对、scopeMark 枚举等）
 
 ## 人工验证清单
 

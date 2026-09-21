@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.8.1 (2026-09-21)
+
+### Changed
+- **`demo/review-mode.html` 重命名为 `demo/demo.html`** — 文件用途更自描述，AI 引用更精准，prompt 书写更省力；全库引用同步（SKILL.md × 9 处、demo/README.md × 3 处、README.md × 1 处）
+- SKILL.md 版本 3.8.0 → 3.8.1；README.md 版本号同步
+
 ## 3.8.0 (2026-09-21)
 
 ### Added

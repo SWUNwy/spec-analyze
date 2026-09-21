@@ -4,7 +4,7 @@
 
 spec-analyze 是一个 AI 代理 skill，引导大语言模型走完结构化分析流水线：多视角提问 → 压力测试 → 方案收敛 → 带注释的文档输出。产出是三份相互关联的文档（proposal、design、tasks），内含**机器可解析的注释**，弥合产品需求与代码实现之间的鸿沟。
 
-当前版本：**v3.7.7**（完整变更见 [CHANGELOG.md](CHANGELOG.md)）。
+当前版本：**v3.8.1**（完整变更见 [CHANGELOG.md](CHANGELOG.md)）。
 
 ---
 
@@ -18,7 +18,7 @@ git clone https://github.com/SWUNwy/spec-analyze.git
 cd spec-analyze
 
 # 2. 打开演示页（评审模式：连线注释）
-open demo/review-mode.html
+open demo/demo.html
 ```
 
 演示页展示一个优惠券管理改版评审原型：左侧是组件原型，右侧是常驻注释面板，以带编号的 SVG 连线把注释条目与左侧组件一一关联（悬停双向高亮，贴近方案评审会的标注形态）。顶部场景标签在「优惠券创建 / 优惠券核销」两个场景间切换：
